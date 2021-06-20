@@ -11,11 +11,7 @@
 #
 
 
-from BGPtopology import BGPtopology
-from Rgraph import *
-from create_Rgraph_from_Topo import *
-import time
-import json
+from code.core.create_Rgraph_from_Topo import *
 import random
 #from bgp_simulator_anycast_coloring import *
 import copy

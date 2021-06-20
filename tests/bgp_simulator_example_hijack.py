@@ -9,11 +9,12 @@
 #
 
 
-from BGPtopology import BGPtopology
 #import time
 import random
 import sys
 import csv
+sys.path.insert(0, '/home/george/UOC-CSD/MASTER/master_thesis/BGP-Simulator/')
+from code.core.BGPtopology import BGPtopology
 
 
 
@@ -37,12 +38,12 @@ The csv is formatted as follows:
 
 '''
 read the input arguments; if incorrect arguments, exit
-'''  
+'''
 if len(sys.argv) is 5:
 	nb_of_sims = int(sys.argv[1]) #1000
 	hijack_type = int(sys.argv[2]) # 0 or 1 or 2 or ...
 	dataset = sys.argv[3] # 20160901
-	max_nb_anycast_ASes = int(sys.argv[4]) #20	
+	max_nb_anycast_ASes = int(sys.argv[4]) #20
 else:
 	sys.exit("Incorrent arguments. Arguments should be {nb_of_sims, hijack_type, dataset_id, max_nb_anycast_ASes}")
 
@@ -53,7 +54,7 @@ load and create topology
 '''
 print('Loading topology...')
 Topo = BGPtopology()
-Topo.load_topology_from_csv('./CAIDA AS-graph/serial-2/'+dataset+'.as-rel2.txt')
+Topo.load_topology_from_csv('../datasets/CAIDA AS-graph/serial-2/'+dataset+'.as-rel2.txt')
 
 
 '''
@@ -111,7 +112,7 @@ for i in range(nb_of_sims):
 Write the results to a csv file
 '''
 print('Writing statistics to csv...')
-csvfilename = './statistics__CAIDA'+dataset+'_sims'+str(nb_of_sims)+'_hijackType'+str(hijack_type)+'_test_hijacker'+'_.csv'
+csvfilename = './results/statistics__CAIDA'+dataset+'_sims'+str(nb_of_sims)+'_hijackType'+str(hijack_type)+'_test_hijacker'+'_.csv'
 with open(csvfilename, 'w') as csvfile:
 	writer = csv.writer(csvfile, delimiter=',')
 	writer.writerows(DATA)

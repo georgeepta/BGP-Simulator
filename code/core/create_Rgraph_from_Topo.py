@@ -11,7 +11,6 @@
 #
 
 
-from BGPtopology import BGPtopology
 from Rgraph import *
 
 

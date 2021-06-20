@@ -12,8 +12,8 @@
 
 import csv
 import json
-from BGPnode import BGPnode
-from IXPNode import IXPNode
+from code.core.BGPnode import BGPnode
+from code.core.IXPNode import IXPNode
 
 class BGPtopology:
 	''' 
