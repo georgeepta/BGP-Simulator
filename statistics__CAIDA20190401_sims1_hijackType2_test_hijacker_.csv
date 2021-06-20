@@ -1,0 +1,2 @@
+64045,0,29153,1315,53026,13762
+how many Ases have an valid path to the prefix before hijacking,how many Ases have a hijacked path to the prefix before hijacking,how many Ases have a hijacked path to the prefix after hijacking,how many Ases have a hijacked path to the prefix after mitigation by the helper Ases,Hijacker AS,Legitimate_AS
