@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 #
 #
-# Author: Pavlos Sermpezis
-# Institute of Computer Science, Foundation for Research and Technology - Hellas (FORTH), Greece
+# Author: Georgios Eptaminitakis
+# University of Crete, Greece
 #
-# E-mail: sermpezis@ics.forth.gr
+# E-mail: gepta@csd.uoc.gr
 #
 #
 
@@ -55,7 +55,8 @@ load and create topology
 print('Loading topology...')
 Topo = BGPtopology()
 Topo.load_topology_from_csv('../datasets/CAIDA AS-graph/serial-2/'+dataset+'.as-rel2.txt')
-
+Topo.load_ixps_from_json('../datasets/CAIDA IXPS/'+"ixs_202104.jsonl", '../datasets/CAIDA IXPS/'+"ix-asns_202104.jsonl")
+Topo.add_extra_p2p_custom_links()
 
 '''
 add to the topology the list of RIPE monitors (i.e., ASNs of the members of the RIPE RIS route collectors)

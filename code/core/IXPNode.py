@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 #
 #
-# Author: Vasileios Kotronis
-# Institute of Computer Science, Foundation for Research and Technology - Hellas (FORTH), Greece
+# Author: Georgios Eptaminitakis
+# University of Crete
 #
-# E-mail: vkotronis@ics.forth.gr
+# E-mail: gepta@csd.uoc.gr
 #
 #
 # This file is part of the BGPsimulator
@@ -17,30 +17,25 @@ class IXPNode:
     Class for IXP nodes
 
     Class variables:
-        (a) id                  : integer,example : 986,
+        (a) ix_id               : integer,example : 986,
         (b) name                : string, example : 'MidWest-IX',
-        (c) name_long           : string, example : 'Midwest Internet Exchange Indy',
+        (c) members             : list of ASNs that are members with this IXP (under open policy)
+        (d) country             : string, example : 'US',
+        (e) region              : string, example : 'North America',
         (d) city                : string, example : 'Indianapolis, Indiana',
-        (e) country             : string, example : 'US',
-        (f) region_continent    : string, example : 'North America',
-        (g) status              : string, example : 'ok',
-        (h) website             : string, example: 'http://www.midwest-ix.com'
-        (i) members             : list of ASNs that are members with this IXP (under open policy)
+
 
     Input arguments:
 		raw_dict: dictionary with all the ixp related data from peeringdb
     '''
 
-    def __init__(self, raw_dict):
-        self.id                 = int(raw_dict['id'])
-        self.name               = raw_dict['name']
-        self.name_long          = raw_dict['name_long']
-        self.city               = raw_dict['city']
-        self.country            = raw_dict['country']
-        self.region_continent   = raw_dict['region_continent']
-        self.status             = raw_dict['status']
-        self.website            = raw_dict['website']
-        self.members            = set([])
+    def __init__(self, ixp_info):
+        self.ix_id = int(ixp_info['ix_id'])
+        self.name = ixp_info['name']
+        self.members = set()
+        if 'country' in ixp_info: self.country = ixp_info['country']
+        if 'region' in ixp_info: self.region = ixp_info['region']
+        if 'city' in ixp_info: self.city = ixp_info['city']
 
     def add_ASN_member(self, ASN):
         self.members.add(ASN)
@@ -48,17 +43,16 @@ class IXPNode:
     def remove_ASN_member(self, ASN):
         self.members.remove(ASN)
 
+    def ASN_members(self):
+        return self.members
+
     ### methods for	printing information ###
     def print_info(self):
-        print('***IXP***: '     +str(self.id))
-        print('ID = '           + str(self.id))
+        print('***IXP***: '     +str(self.ix_id))
+        print('ID = '           + str(self.ix_id))
         print('Name = '         + str(self.name))
-        print('Long Name = '    + str(self.name_long))
         print('City = '         + str(self.city))
         print('Country = '      + str(self.country))
-        print('Reg / cont. = '  + str(self.region_continent))
-        print('Status = '       + str(self.status))
-        print('Website = '      + str(self.website))
         print('Members = ')
         pp(self.members)
         print(' ')

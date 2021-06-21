@@ -566,34 +566,66 @@ class BGPtopology:
 				spamwriter.writerow(DATA)
 
 	'''
-	Adds the IXP nodes as a list to the topology class
+		Loads IXP nodes from Caida's dataset. Each IXP node contains the following information:
+			a) IXP_id
+			b) IXP_name
+			c) IXP_country
+			d) IXP_city
+			e) IXP_region
+			f) IXP_connected_members
 	'''
-	def load_ixps_from_json(self, json_filename):
+	def load_ixps_from_json(self, ixp_file, ix_as_file):
+
+		from ujson import loads
 		self.list_of_all_IXP_nodes = {}
 
-		with open(json_filename, 'r') as jsonfile:
-			raw_ixp_dict = json.load(jsonfile)
+		## First, Load info that identifies each IXP (& Verify that there are no duplicates)
+		with open(ixp_file, 'r') as fp:
+			for line in fp:
+				if line.split()[0] == "#": continue
+				ixp_info = loads(line)
+				ixp_id   = int(ixp_info['ix_id'])
+				assert(ixp_id not in self.list_of_all_IXP_nodes)
+				self.list_of_all_IXP_nodes[ixp_id] = IXPNode(ixp_info)
 
-			for ixp_id, ixp_info in raw_ixp_dict.items():
-				self.list_of_all_IXP_nodes[int(ixp_id)] = IXPNode(ixp_info)
+		print("Topo: Loaded %s IXP networks" %len(self.list_of_all_IXP_nodes))
 
-		#print('%i new IXPs added in total' % (len(self.list_of_all_IXP_nodes)))
+		## Second, Load member info about the ASes connected each IXP.
+		self.load_ixp_members_from_json(ix_as_file)
 
-	'''
-	Populates the IXP node membership info
-	'''
-
-	def load_ixp_members_from_json(self, json_filename):
-
-		with open(json_filename, 'r') as jsonfile:
-			all_asn_asn_ixp_tuples = json.load(jsonfile)
-
-			for t in all_asn_asn_ixp_tuples:
-				self.list_of_all_IXP_nodes[int(t[2])].add_ASN_member(int(t[0]))
-				self.list_of_all_IXP_nodes[int(t[2])].add_ASN_member(int(t[1]))
 
 	'''
-	Add the extra IXP-based p2p links
+	Populates the IXP node membership info.
+	For consistency reasons, ASes missing from the original topology will be ignored.
+	'''
+
+	def load_ixp_members_from_json(self, ix_as_file):
+
+		from ujson import loads
+		ignored_members = set()
+		count_members = 0
+
+		with open(ix_as_file, 'r') as fp:
+			for ASline in fp:
+				if ASline.split()[0] == "#": continue
+				ASline = loads(ASline)
+				ix_id = int(ASline["ix_id"])
+				asn = int(ASline["asn"])
+
+				assert (ix_id in self.list_of_all_IXP_nodes)
+				assert (asn not in self.list_of_all_IXP_nodes[ix_id].ASN_members())
+
+				if asn in self.list_of_all_BGP_nodes:
+					self.list_of_all_IXP_nodes[ix_id].add_ASN_member(asn)
+					count_members += 1
+				else:
+					ignored_members.add(asn)
+
+		print("Topo: Added    %s ASes to IXPs" % count_members)
+		print("Topo: Ignored  %s IXP ASes missing from original topo" % len(ignored_members))
+
+	'''
+	Add the extra IXP-based p2p links. Requires a file with this knowledge. If the file is missing refer to "add_extra_p2p_custom_links"
 	'''
 	def add_extra_p2p_links_from_json(self, json_filename):
 		with open(json_filename, 'r') as jsonfile:
@@ -609,8 +641,50 @@ class BGPtopology:
 				self.add_link(t[0], t[1], 0)
 				i_link += 1
 
-		#print ("%i new p2p links added in total" % (i_link))
-		#print ("%i new ASNs added in total because of the extra p2p links" % (i_asn))
+		print ("%i new p2p links added in total" % (i_link))
+		print ("%i new ASNs added in total because of the extra p2p links" % (i_asn))
+
+	'''
+	In lack of IXP p2p information, assign every member of the same IXP in a p2p relation.
+	IF a relation between the two connected members already exists in the topology: 
+		Then instead keep the existing relation intact.
+	'''
+
+	def add_extra_p2p_custom_links(self):
+		exist_already_links = set()
+		established_links = set()
+		for ixp_id in self.list_of_all_IXP_nodes:
+			ixp_members = list(self.list_of_all_IXP_nodes[ixp_id].ASN_members())
+
+			for index, ixp_member in enumerate(ixp_members):
+				rest_members = ixp_members[index + 1:]
+				for other_member in rest_members:
+					assert (ixp_member != other_member)
+					str_link = "%s_%s" % (ixp_member, other_member) if ixp_member > other_member else "%s_%s" % (
+					other_member, ixp_member)
+					if self.has_link(ixp_member, other_member):  ## Fixes both directions
+						"""
+                        Add the code below instead to replace instead existing policies to p2p.
+                        if self.get_link_type(ixp_member, other_member) == 0: continue
+                        else: self.remove_link(ixp_member, other_member)
+                        self.add_link(ixp_member, other_member, 0)
+                        """
+						if str_link not in established_links: exist_already_links.add(str_link)
+					else:
+						self.add_link(ixp_member, other_member, 0)
+						established_links.add(str_link)
+
+		## Debug: verify that everyone is connected to everyone
+		for ixp_id in self.list_of_all_IXP_nodes:
+			ixp_members = self.list_of_all_IXP_nodes[ixp_id].ASN_members()
+			for ixp_member in ixp_members:
+				rest_members = set(ixp_members)
+				rest_members.remove(ixp_member)
+				for other_member in rest_members:
+					assert (self.has_link(ixp_member, other_member))
+
+		print("Topo: Established  %d new connections via IXPs" % len(established_links))
+		print("Topo: Not altering %d old connections that exist in the topology" % len(exist_already_links))
 
 	'''
 	Implement remote peering with a certain IXP
