@@ -638,7 +638,7 @@ class BGPnode:
 				if hijack_type == 0: 	# origin-AS
 					path_to_announce = [self.ASN]
 				else:					# 1st, 2nd, 3rd, etc. hop hijack, where hijack_type = 1,2,3,etc.
-					path_to_announce = self.get_path_poisoning_hijack(IPprefix, hijack_type)
+					path_to_announce = self.get_path_poisoning_hijack(IPprefix, hijack_type, CUSTOM_MODE=False)
 			else:
 				path_to_announce = path
 
