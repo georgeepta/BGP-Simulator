@@ -2,7 +2,7 @@
 #
 #
 # Author: Georgios Eptaminitakis
-# University of Crete
+# University of Crete, Greece
 #
 # E-mail: gepta@csd.uoc.gr
 #

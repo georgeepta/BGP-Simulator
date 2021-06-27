@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 #
 #
-# Author: Pavlos Sermpezis
-# Institute of Computer Science, Foundation for Research and Technology - Hellas (FORTH), Greece
+# Author: Georgios Eptaminitakis
+# University of Crete, Greece
 #
-# E-mail: sermpezis@ics.forth.gr
+# E-mail: gepta@csd.uoc.gr
 #
 #
 # This file is part of the BGPsimulator
