@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 #
 #
-# Author: Pavlos Sermpezis
-# Institute of Computer Science, Foundation for Research and Technology - Hellas (FORTH), Greece
+# Author: Georgios Eptaminitakis
+# University of Crete, Greece
 #
-# E-mail: sermpezis@ics.forth.gr
+# E-mail: gepta@csd.uoc.gr
 #
 #
 # This file is part of the BGPsimulator
@@ -27,10 +27,11 @@ class BGPnode:
 		(c) IPprefix: 			set (initially empty) - set of prefixes owned by the BGPnode
 		(d) hijacked_IPprefix: 	dictionary (initially empty) - dictionary with (i) keys the hijacked IP prefixes and (ii) values the hijack_type as int (0==origin_AS hijack, 1== 1st hop hijack, etc. )
 		(e) ASneighbors: 		dictionary (initially empty) - dictionary with (i) keys the ASNs of neighbors and (ii) values {1,0,-1} if the neighbor is {provider,peer,customer} respectively
-		(f) ASneighbors_preference: 	dictionary (initially empty) - dictionary with (i) keys the ASNs of neighbors and (ii) values the preferences of the neighbors for selection of BGP paths / tie breaker - values are float in [0,1]
-		(g) paths:				dictionary (initially empty) corresponding to the best paths per prefix - dictionary with (i) keys the IP prefixes and (ii) values the corresponding AS path given as a list (e.g., [ASNx, ASNy, ASNz, origin_ASN])
-		(h) all_paths:			dictionary of dictionaries (initially empty) representing the local FIB of BGP - dictionary with (i) keys the IP prefixes, (ii) keys (for each prefix) the ASN of the neighbor that sent the path, and (iii) values the corresponding AS path given as a list (e.g., [ASNx, ASNy, ASNz, origin_ASN])
-		(i) filters:			dictionary (initially empty) - dictionary with (i) keys the IPprefixes, and (ii) values sets of ASNs; if an ASN exists in the set, then the every path for the prefix that contains this ASN need to be filtered/discarded
+		(f) ASneighbors_byType:	list (initially empty) - list with indexes {1,0,-1} where each index points to appropriate divided-by-type neighbor ASes. Essentially, the reverse of the ASneighbors container.
+		(g) ASneighbors_preference: 	dictionary (initially empty) - dictionary with (i) keys the ASNs of neighbors and (ii) values the preferences of the neighbors for selection of BGP paths / tie breaker - values are float in [0,1]
+		(h) paths:				dictionary (initially empty) corresponding to the best paths per prefix - dictionary with (i) keys the IP prefixes and (ii) values the corresponding AS path given as a list (e.g., [ASNx, ASNy, ASNz, origin_ASN])
+		(i) all_paths:			dictionary of dictionaries (initially empty) representing the local FIB of BGP - dictionary with (i) keys the IP prefixes, (ii) keys (for each prefix) the ASN of the neighbor that sent the path, and (iii) values the corresponding AS path given as a list (e.g., [ASNx, ASNy, ASNz, origin_ASN])
+		(j) filters:			dictionary (initially empty) - dictionary with (i) keys the IPprefixes, and (ii) values sets of ASNs; if an ASN exists in the set, then the every path for the prefix that contains this ASN need to be filtered/discarded
 	'''
 
 	'''
@@ -46,6 +47,7 @@ class BGPnode:
 		self.IPprefix = set()	
 		self.hijacked_IPprefix = {}
 		self.ASneighbors = {}
+		self.ASneighbors_byType = [[], [], []]
 		self.ASneighbors_preference = {}
 		self.paths = {} 
 		self.all_paths = defaultdict(dict)
@@ -66,15 +68,21 @@ class BGPnode:
 	Input argument:
 		(a) IPprefix: the (owned) prefix to be added
 	'''
-	def add_prefix(self,IPprefix,forbidden_neighbors=None):
+	def add_prefix(self, IPprefix, forbidden_neighbors=None, neighbors_to_announce=None):
 		if not self.has_prefix(IPprefix):
 			self.IPprefix.add(IPprefix)
 			self.paths[IPprefix] = []
-			if forbidden_neighbors is not None:
-				neighb_to_announce = set(self.ASneighbors.keys()).difference(set(forbidden_neighbors))
-				self.announce_path(IPprefix,list(neighb_to_announce))
+
+			if neighbors_to_announce is not None:
+				neighb_to_announce = set(neighbors_to_announce)
 			else:
-				self.announce_path(IPprefix,list(self.ASneighbors.keys()))
+				neighb_to_announce = set(self.ASneighbors.keys())
+
+			if forbidden_neighbors is not None:
+				neighb_to_announce = neighb_to_announce.difference(set(forbidden_neighbors))
+				self.announce_path(IPprefix, neighb_to_announce)
+			else:
+				self.announce_path(IPprefix, neighb_to_announce)
 	'''
 	Re-announces the given prefix, if it is an owned or hijacked prefix.
 	
@@ -185,12 +193,18 @@ class BGPnode:
 			elif relation == 'provider':
 				self.ASneighbors[ASN] = 1
 			else:
-				print('ERROR: Not valid peering relation')
+				assert(False), 'ERROR: Not valid peering relation'
+
+			ASType = self.ASneighbors[ASN]
+			self.ASneighbors_byType[ASType].append(ASN)
 			self.ASneighbors_preference[ASN] = random.random()	# add a random preference to neighbor
 	
 
 	def remove_ASneighbor(self,ASN):
-		if self.has_ASneighbor(ASN): 
+		if self.has_ASneighbor(ASN):
+			ASType = self.ASneighbors[ASN]
+
+			self.ASneighbors_byType[ASType].remove(ASN)
 			del self.ASneighbors[ASN]
 			del self.ASneighbors_preference[ASN]
 			# for prefix in self.all_paths.keys():
@@ -203,10 +217,28 @@ class BGPnode:
 		TRUE if it exists, FALSE otherwise
 	'''
 	def has_ASneighbor(self,ASN):
-		if ASN in self.ASneighbors.keys():
+		if ASN in self.ASneighbors:
 			return True
 		else:
 			return False
+
+	'''
+		Custom function: Compares and returns the nbor with the highest tie-breaking preference. 
+		This tie-breaking prefence is the last step of the BGP best selection process.
+		Returns:
+			The nbor with the highest preference among the provided nbors
+		'''
+
+	def get_highest_tie_prefererence(self, *nbors):
+		return max(nbors, key= self.get_nbor_tie_preference)
+
+	def get_nbor_tie_preference(self, nborASN):
+		return self.ASneighbors_preference[nborASN]
+
+	''' Returns True if nbor1 has highest tie-preference than nbor2 '''
+
+	def has_highest_tie_prefererence(self, nbor1, nbor2):
+		return self.ASneighbors_preference[nbor1] > self.ASneighbors_preference[nbor2]
 
 	'''
 	Returns the number of neighbors, grouped by type.
@@ -219,7 +251,7 @@ class BGPnode:
 	def get_nb_of_neighbors(self):
 		neighbor_type_dict = defaultdict(list)
 		for ASN, type in self.ASneighbors.items():
-		    neighbor_type_dict[type].append(ASN)
+			neighbor_type_dict[type].append(ASN)
 		return list([len(neighbor_type_dict[1]), len(neighbor_type_dict[0]), len(neighbor_type_dict[-1])])
 
 	'''
@@ -232,12 +264,25 @@ class BGPnode:
 		A dictionary {'providers' : list_of_providers, 'peers' : list_of_peers, 'customers' : list_of_customers}
 	'''
 	def get_neighbors(self):
-		neighbor_type_dict = defaultdict(list)
-		for ASN, type in self.ASneighbors.items():
-		    neighbor_type_dict[type].append(ASN)
-		return {'providers': neighbor_type_dict[1],
-				'peers': neighbor_type_dict[0],
-				'customers': neighbor_type_dict[-1]}
+		return {'providers': self.ASneighbors_byType[1],
+				'peers': self.ASneighbors_byType[0],
+				'customers': self.ASneighbors_byType[-1]}
+
+		#neighbor_type_dict = defaultdict(list)
+		#for ASN, type in self.ASneighbors.items():
+		#	neighbor_type_dict[type].append(ASN)
+		#return {'providers': neighbor_type_dict[1],
+		#		'peers': neighbor_type_dict[0],
+		#		'customers': neighbor_type_dict[-1]}
+
+	""" 
+	Returns the relationship for the specified neighbor.
+	Relationship types: -1: customer, 0: peer, 1: provider
+	"""
+
+	def get_neighbor_relation(self, nborAS):
+		if nborAS in self.ASneighbors:
+			return self.ASneighbors[nborAS]
 
 	'''
 	Returns the best path (i.e. value in the "paths" dictionary) for the given prefix
@@ -293,7 +338,7 @@ class BGPnode:
 		TRUE if the path for the prefix should be considered for further actions, FALSE otherwise (i.e. discard it)
 	''' 
 	def conditions_to_add_received_path(self,IPprefix,new_path):
-		if (not self.has_prefix(IPprefix)) and (not self.has_hijacked_prefix(IPprefix)):	# if it's (a) not my prefix, AND (b) not a prefix I have hijacked, ADN (c) the new path does not contain my ASN (i.e., for loop avoidance) 
+		if (not self.has_prefix(IPprefix)) and (not self.has_hijacked_prefix(IPprefix)) and (self.ASN not in new_path):	# if it's (a) not my prefix, AND (b) not a prefix I have hijacked, AND (c) the new path does not contain my ASN (i.e., for loop avoidance)
 			return True
 		return False
 
@@ -573,18 +618,44 @@ class BGPnode:
 	Input arguments:
 		(a) IPprefix:		the prefix to be hijacked
 		(b) hijack_type: 	the type of the hijack attack; the default value is 0, which corresponds to an origin-AS hijack
+		(c) path (optional):      the path which will be used for the hijack (instead of the one from get_path_poisoning_hijack)
+		(d) neighbors (optional): the neighbors to which the hijack will be announced
+	returns
+		(a) The hijacker's announced path
 	'''
-	def do_hijack(self, IPprefix, hijack_type=0):
-		if (not self.has_prefix(IPprefix)) and (not self.has_hijacked_prefix(IPprefix)):
+	def do_hijack(self, IPprefix, hijack_type=0, path=None, neighbors_to_announce=None):
+		if (not self.has_prefix(IPprefix)):
+		#if (not self.has_prefix(IPprefix)) and (not self.has_hijacked_prefix(IPprefix)):
 			self.add_hijacked_prefix(IPprefix,hijack_type)
-			neighbors_to_announce = set(self.ASneighbors.keys())	# announce the hijack to all neighbors
-			if hijack_type == 0: 	# origin-AS
-				path_to_announce = [self.ASN]					
-			else:					# 1st, 2nd, 3rd, etc. hop hijack, where hijack_type = 1,2,3,etc.
-				path_to_announce = self.get_path_poisoning_hijack(IPprefix, hijack_type)
+
+			if neighbors_to_announce is None:
+				neighbors_to_announce = set(self.ASneighbors.keys())	# announce the hijack to all neighbors
+			else:
+				assert (len(neighbors_to_announce) == 1), "halted: code is buggy for multiple neighbors_to_announce"
+				neighbors_to_announce = set(neighbors_to_announce)  # announce the hijack to the provided neighbors
+
+			if path is None:
+				if hijack_type == 0: 	# origin-AS
+					path_to_announce = [self.ASN]
+				else:					# 1st, 2nd, 3rd, etc. hop hijack, where hijack_type = 1,2,3,etc.
+					path_to_announce = self.get_path_poisoning_hijack(IPprefix, hijack_type)
+			else:
+				path_to_announce = path
+
 			self.paths[IPprefix] = path_to_announce[1:]
-			if len(path_to_announce):	# check for the case that the "self.get_path_poisoning_hijack(...)"" function returns an empty list
+
+			if path_to_announce:	# check for the case that the "self.get_path_poisoning_hijack(...)"" function returns an empty list
+				assert (path_to_announce[0] == self.ASN), "BGP Announcer and last AS in the path do not match"
 				self.announce_path(IPprefix, neighbors_to_announce, path_to_announce)
+			else:
+				## To create a seemingly valid path the hijacker should have a valid path to the victim prefix.
+				## Else: This path has to be created in a custom way.
+				print("Warning: Hijacker has no path to node")
+				assert (False), "Hijacker no path to the victim?"
+
+		else:
+			assert(False)
+		return path_to_announce
 
 
 
@@ -605,19 +676,50 @@ class BGPnode:
 	Returns:
 		An AS-path, i.e., a list of ASNs (integers)
 	'''
-	def get_path_poisoning_hijack(self, IPprefix, hijack_type):
-		if self.paths.get(IPprefix):
-			original_path = list(self.paths.get(IPprefix))
-			if  hijack_type <= len(original_path):
-				path_to_announce = [self.ASN] + original_path[-hijack_type:]
-			else:
-				path_to_announce = [self.ASN] + [original_path[-1]]*hijack_type
-		else:
-			# TODO: create a hijack-path for the given prefix when there is no stored legitimate-path
-			path_to_announce = []
-		return path_to_announce
-		
+	def get_path_poisoning_hijack(self, IPprefix, hijack_type, CUSTOM_MODE = True):
 
+		if not CUSTOM_MODE:
+			if self.paths.get(IPprefix):
+				original_path = list(self.paths.get(IPprefix))
+				if  hijack_type <= len(original_path):
+					path_to_announce = [self.ASN] + original_path[-hijack_type:]
+				else:
+					path_to_announce = [self.ASN] + [original_path[-1]]*hijack_type
+			else:
+				# TODO: create a hijack-path for the given prefix when there is no stored legitimate-path
+				path_to_announce = []
+		else:
+			## no matter what, announce a path [hijacker_AS, origin, origin ...]
+			if self.paths.get(IPprefix):
+				original_path = list(self.paths.get(IPprefix))
+				path_to_announce = [self.ASN] + [original_path[-1]] * hijack_type
+			else:
+				path_to_announce = []
+
+		return path_to_announce
+
+
+	"""
+	* Custom Function *
+	For a given AS node returns all of its neighbors that offer a path to the specified prefix. 
+
+	Returns: 
+		A dictionary with keys: the neighbors and values: list of paths towards the IPprefix
+	"""
+
+	def get_neighbors_with_path_to_prefix(self, IPprefix):
+		neighbors_with_path = defaultdict(list)
+		all_neighbors = set()
+		nbor_by_type = self.get_neighbors()
+
+		for nbor_type in nbor_by_type: all_neighbors.update(nbor_by_type[nbor_type])
+		## for all the paths of the prefix in the routing table
+		for path in self.all_paths[IPprefix].values():
+			assert (len(neighbors_with_path[path[0]]) == 0)
+			neighbors_with_path[path[0]] = path
+		for nbor in neighbors_with_path: assert (nbor in all_neighbors)
+
+		return neighbors_with_path
 
 
 	### methods for	printing information ###
