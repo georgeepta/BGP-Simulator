@@ -14,11 +14,15 @@ import csv
 import json
 from code.core.BGPnode import BGPnode
 from code.core.IXPNode import IXPNode
+from collections import defaultdict
+from collections import Iterable
 
 class BGPtopology:
 	''' 
 	Class for network topology, where ASes are represented as single nodes (BGPnodes). 
-	A BGPtopology contais a list of the member nodes (objects of type BGPnode).
+	A BGPtopology contais
+	        1. a list of the member nodes (objects of type BGPnode οr IXPNode).
+	        2. (optionally) A list of the peer monitors (objects of type BGPnode).
 	In this class, there exist methods related to (a) adding member nodes and links, (b) adding and hijacking IPprefixes, (c) obtaining various information from the member nodes of the topology.
 
 	class variables: 
@@ -30,8 +34,8 @@ class BGPtopology:
 	Contructor for object of the class BGPtopology. Creates the class variable "list_of_all_BGP_nodes" as an empty dictionary.
 	'''
 	def __init__(self):
-		self.list_of_all_BGP_nodes = {}
-
+		self.list_of_all_BGP_nodes = dict()
+		self.list_of_all_monitors = set()
 	
 	'''
 	Adds a node to the topology, i.e., to the dictionary "list_of_all_BGP_nodes".
@@ -72,8 +76,9 @@ class BGPtopology:
 		A BGPnode object corresponding to the given ASN
 	'''
 	def get_node(self,ASN):
-		if self.has_node(ASN):
-			return self.list_of_all_BGP_nodes[ASN]
+		return self.list_of_all_BGP_nodes[ASN]
+		#if self.has_node(ASN):
+		#	return self.list_of_all_BGP_nodes[ASN]
 
 	
 	'''
@@ -86,7 +91,7 @@ class BGPtopology:
 		TRUE if it exists, FALSE otherwise
 	'''
 	def has_node(self,ASN):
-		if ASN in self.list_of_all_BGP_nodes.keys():
+		if ASN in self.list_of_all_BGP_nodes:
 			return True
 		else:
 			return False
@@ -151,6 +156,18 @@ class BGPtopology:
 				return True
 		return False
 
+	"""
+	Returns the relation type of ASN1 to ASN2.
+	Possible values: -1: customer, 0: peer, 1: provider or None if no such relation exists
+	"""
+
+	def get_link_type(self, ASN1, ASN2):
+		if self.has_link(ASN1, ASN2):
+			rel = self.get_node(ASN1).get_neighbor_relation(ASN2)
+			if not (rel == 0 or rel == 1 or rel == -1): assert (False)
+			return rel
+		else:
+			assert (False)
 
 	'''
 	Adds the given prefix to the given node.
@@ -162,9 +179,9 @@ class BGPtopology:
 		(a) ASN: the AS number of the node
 		(b) IPprefix: the (owned) prefix to be added
 	'''
-	def add_prefix(self,ASN,IPprefix,forbidden_neighbors=None):
+	def add_prefix(self, ASN, IPprefix, forbidden_neighbors=None, neighbors_to_announce=None):
 		if self.has_node(ASN):
-			self.get_node(ASN).add_prefix(IPprefix,forbidden_neighbors=forbidden_neighbors)
+			self.get_node(ASN).add_prefix(IPprefix,forbidden_neighbors=forbidden_neighbors, neighbors_to_announce = neighbors_to_announce)
 
 
 	'''
@@ -177,10 +194,15 @@ class BGPtopology:
 		(a) ASN: the AS number of the node
 		(b) IPprefix: the (owned) prefix to be added
 		(c) hijack_type: the type of the hijack attack
+		(d) path (optional): Hijack using the given path
+	Returns:
+		The hijacker's announced path 
 	'''
-	def do_hijack(self,ASN,IPprefix,hijack_type):
+	def do_hijack(self, ASN, IPprefix, hijack_type = 0, path = None, neighbors_to_announce = None):
+		assert (hijack_type or path), "Either provide a path to announce or specify the hijack type to craft the attack"
+
 		if self.has_node(ASN):
-			self.get_node(ASN).do_hijack(IPprefix,hijack_type)
+			return self.get_node(ASN).do_hijack(IPprefix, hijack_type, path, neighbors_to_announce)
 
 
 
@@ -200,14 +222,19 @@ class BGPtopology:
 			if type == 'CAIDA':
 				with open(file, 'r') as csvfile:
 					csvreader = csv.reader(csvfile,delimiter='|')
+					counter = 0
 					for row in csvreader:
 						if row[0][0] is not '#':	# ignore lines starting with "#"
+							counter += 1
 							if asn_as_str:
 								self.add_link(row[0],row[1],int(row[2]))
 							else:
 								self.add_link(int(row[0]),int(row[1]),int(row[2]))
 		except IOError:
 			print('ERROR: file not found')
+
+		print("Topo: Loaded %s networks" % self.get_nb_nodes())
+		print("Topo: Loaded %s node links" % counter)
 
 
 
@@ -233,6 +260,15 @@ class BGPtopology:
 		return len(self.list_of_all_BGP_nodes)
 
 	'''
+	Returns the number of neighbors for each node of the topology in the form of a Dict AS: [nb_of_providers, nb_of_peers, nb_of_customers]
+	'''
+	def get_nb_neighbors(self):
+		ASNneighbors = dict()
+		for key, node in self.list_of_all_BGP_nodes.items():
+			ASNneighbors[key] = node.get_nb_of_neighbors()
+		return ASNneighbors
+
+	'''
 	Returns a list containing the ASNs (integers) of the nodes in the topology
 	'''
 	def get_all_nodes_ASNs(self):
@@ -254,10 +290,10 @@ class BGPtopology:
 	Returns a list containing the hijacked IP prefixes of all the nodes in the topology
 	'''
 	def get_list_of_hijacked_prefixes(self):
-		list_of_hijacked_prefixes = {}
+		list_of_hijacked_prefixes = []
 		for key,node in self.list_of_all_BGP_nodes.items():
 			if node.get_hijacked_prefixes():
-				list_of_hijacked_prefixes[key] = list(node.get_hijacked_prefixes().keys())
+				list_of_hijacked_prefixes.extend(node.get_hijacked_prefixes().keys())
 		return list_of_hijacked_prefixes
 
 	
@@ -272,7 +308,11 @@ class BGPtopology:
 					hijacked_prefixes_and_hijackers[prefix] = node.ASN
 		return hijacked_prefixes_and_hijackers
 
-
+	'''
+	Returns True if the node is hijacking the given prefix.
+	'''
+	def has_hijacked_prefix(self, node, prefix):
+		return self.list_of_all_BGP_nodes[node].has_hijacked_prefix(prefix)
 
 	'''
 	Returns the number of the (given) nodes that have a path to the given prefix (and, if any ASN is given, consider only paths originated by the given ASN)
@@ -403,7 +443,7 @@ class BGPtopology:
 
 
 
-		'''
+	'''
 	Returns the set of the (given) nodes that have a path to the given prefix (and, if any ASN is given, consider only paths originated by the given ASN)
 
 	IF a list_of_nodes is given:
@@ -468,6 +508,7 @@ class BGPtopology:
 	'''
 	def get_set_of_nodes_with_hijacked_path_to_prefix(self,IPprefix,hijacker_ASN, list_of_nodes=None):
 		set_of_nodes_with_path_to_prefix = set()
+		assert (hijacker_ASN in self.list_of_all_BGP_nodes)
 
 		if list_of_nodes:
 			list_of_nodes_to_search = {}
@@ -477,13 +518,50 @@ class BGPtopology:
 		else:
 			list_of_nodes_to_search = self.list_of_all_BGP_nodes
 
-		for key,node in list_of_nodes_to_search.items():
-			if node.paths.get(IPprefix):
-				if hijacker_ASN in node.paths.get(IPprefix):
-					set_of_nodes_with_path_to_prefix.add(node.ASN)
+		## added assert because this looks like a weird case
+		assert (len(list_of_nodes_to_search) > 0)
 
-		return set_of_nodes_with_path_to_prefix
+		## Multiline code with unnecessary calls to get and add (far from optimal)
+		#for key,node in list_of_nodes_to_search.items():
+		#	if node.paths.get(IPprefix):
+		#		if hijacker_ASN in node.paths.get(IPprefix):
+		#			set_of_nodes_with_path_to_prefix.add(node.ASN)
+		#return set_of_nodes_with_path_to_prefix
 
+		## Replaced with optimized one line code (functionality same as above)
+		return {node.ASN for node in list_of_nodes_to_search.values() if hijacker_ASN in node.paths.get(IPprefix, [])}
+
+
+	''' *Custom function*
+		Similar to the one above. Instead, It returns the set of the (given) nodes affected only by origin hijacking (type-0).
+		Note: As a twist only the nodes poisoned by the hijacker are returned.
+		Description: 
+			see above
+	'''
+
+	def get_set_of_nodes_with_origin_hijacked_path_to_prefix(self, IPprefix, hijacker_ASN, list_of_nodes=None):
+		set_of_nodes_with_path_to_prefix = set()
+		assert (hijacker_ASN in self.list_of_all_BGP_nodes)
+
+		if list_of_nodes:
+			list_of_nodes_to_search = {}
+			for key in list_of_nodes:
+				if key in self.list_of_all_BGP_nodes:
+					list_of_nodes_to_search[key] = self.list_of_all_BGP_nodes[key]
+		else:
+			list_of_nodes_to_search = self.list_of_all_BGP_nodes
+
+		## Multiline code with unnecessary calls to get and add (far from optimal)
+		# for key,node in list_of_nodes_to_search.items():
+		#	if node.paths.get(IPprefix):
+		#		if hijacker_ASN == node.paths.get(IPprefix)[-1]:
+		#			#print(node.paths.get(IPprefix))
+		#			set_of_nodes_with_path_to_prefix.add(node.ASN)
+		# return set_of_nodes_with_path_to_prefix
+
+		## Replaced with optimized one line code (functionality same as above)
+
+		return {node.ASN for node in list_of_nodes_to_search.values() if (node.paths.get(IPprefix) and hijacker_ASN == node.paths[IPprefix][-1])}
 
 
 	'''
@@ -533,11 +611,307 @@ class BGPtopology:
 		return set_of_nodes_with_path_to_prefix
 
 
+	""" Custom Function
+		Same as above but this time returns the set of nodes with a specific (sub)path to the prefix.
+		The subpath has to appear in the same order as in the path variable (direction matters).
+	"""
+
+	def get_set_of_nodes_with_specific_path_to_prefix(self, IPprefix, subpath, list_of_nodes=None):
+		set_of_nodes_with_path_to_prefix = set()
+		subpathlen = len(subpath)
+
+		if list_of_nodes:
+			list_of_nodes_to_search = {}
+			for key in list_of_nodes:
+				if key in self.list_of_all_BGP_nodes:
+					list_of_nodes_to_search[key] = self.list_of_all_BGP_nodes[key]
+		else:
+			list_of_nodes_to_search = self.list_of_all_BGP_nodes
+
+		## quickly check if a node's best path includes the subpath
+		## First, find the indexes of all ASes that are equal with the first AS in the subpath
+		## Then, quickly compare if the path that starts from those indexes is equal to subpath
+		for node in list_of_nodes_to_search.values():
+			node_path = node.paths.get(IPprefix)
+			if node_path:
+				indices = [index for index, ASN in enumerate(node_path) if ASN == subpath[0]]
+				has_subpath = [i for i in indices if node_path[i:i + subpathlen] == subpath]
+				if has_subpath: set_of_nodes_with_path_to_prefix.add(node.ASN)
+
+		return set_of_nodes_with_path_to_prefix
+
+
 	def get_nb_of_nodes_with_specific_edge_to_prefix(self,IPprefix,edge,list_of_nodes=None, directed=False):
-		return len(self.get_set_of_nodes_with_specific_edge_to_prefix(IPprefix,edge,list_of_nodes,directed))
+			return len(self.get_set_of_nodes_with_specific_edge_to_prefix(IPprefix,edge,list_of_nodes,directed))
 
 
+	""" Custom Function
+		Operates like the similar function above. 
+		Instead of returning the nodes having the specific edge to the prefix it returns the best paths of those nodes 
+		that include the edge. Thus, this list_of_nodes to check is now required.
 
+		Input arguments:
+			(a) IPprefix: 		the prefix for which paths to be considered
+			(b) edge: 			a list with two elements: the ASes between which the edge exists
+			(c) list_of_nodes: 	the list of nodes, which will be considered. 
+		Returns:
+			A list of paths one for each node in the list_of_nodes. 
+			If a node didnt have an edge the the corresponding path will be empty
+	"""
+
+	def get_paths_of_nodes_with_specific_edge_to_prefix(self, IPprefix, edge, list_of_nodes=[], directed=False):
+		list_of_paths_with_edge_to_prefix = dict()
+
+		assert (list_of_nodes), "no nodes provided"
+
+		if list_of_nodes:
+			list_of_nodes_to_search = {}
+			for key in list_of_nodes:
+				if key in self.list_of_all_BGP_nodes.keys():
+					list_of_nodes_to_search[key] = self.list_of_all_BGP_nodes[key]
+		else:
+			list_of_nodes_to_search = self.list_of_all_BGP_nodes
+
+		for key, node in list_of_nodes_to_search.items():
+			if node.paths.get(IPprefix):
+				ASN1 = edge[0]
+				ASN2 = edge[1]
+				path = node.paths.get(IPprefix)
+				if (ASN1 in path) and (ASN2 in path):  # if both ASNs exists in the path ...
+					if directed:
+						if (path.index(ASN1) - path.index(ASN2)) == 1:  # ... and in sequence (i.e., form an edge from ASN1 to ASN2)
+							list_of_paths_with_edge_to_prefix[key] = path
+							continue
+					else:
+						if abs(path.index(ASN1) - path.index(ASN2)) == 1:  # ... and in sequence (i.e., form an edge)
+							list_of_paths_with_edge_to_prefix[key] = path
+							continue
+
+			list_of_paths_with_edge_to_prefix[key] = []
+
+		return list_of_paths_with_edge_to_prefix
+
+
+	""" Custom Function
+		Returns the best paths of all nodes to the specified prefix.
+		Note: For hijacked prefixes, the fake path may be returned (depends on whether the node is poisoned or not)
+		Inputs
+			a) An already announced prefix. 
+			b) The list of nodes to consider. IF None consider all nodes.
+		outputs
+			a) dictionary of nodes and paths to the specified prefix. For nodes with no path to the prefix the correspondind entry is None
+	"""
+
+	def Get_path_to_prefix(self, IPprefix, nodes_to_consider=None):
+		if nodes_to_consider is None: nodes_to_consider = self.list_of_all_BGP_nodes
+
+		path_to_prefix = dict()
+		for node in nodes_to_consider:
+			path_to_prefix[node] = self.list_of_all_BGP_nodes[node].get_path(IPprefix)
+			## added the below line to return shallow copies of the paths
+			if isinstance(path_to_prefix[node], list): path_to_prefix[node] = list(path_to_prefix[node])
+
+		return path_to_prefix
+
+
+	""" Custom Function
+		For a non-hijacked prefix:
+			For a given AS and one of its prefixes returns the best paths as observed by the monitors for that prefix.
+			To do this, the edge of the given AS with its neighbors is used.
+		For a hijacked prefix the result depends on the poisoning done by the hijacker
+			IF the hijacker is not poisoning using the edge <ASN, ASN_nbor>  Then returns the best valid paths
+			IF the hijacker is poisoning using the edge <ASN, ASN_nbor>  Then poisoned paths may also be returned
+		Inputs:
+			(a) The ASN whose paths will be returned
+			(b) The prefix of that ASN
+			(c) (optional) The neighbors (providers) to be considered. Only best paths from those neighbors (providers) will be considered.
+			               Default value: consider all neighbors
+			Note that if the same prefix has been announced to two providers then only one (per monitor) will have a best path.
+
+		Returns
+			(a) a dictionary of the best paths per monitor
+				Format: paths[monitor_AS] = paths
+			    OR if nbors_to_consider is provided, a dictionary of the best paths per monitor as seen by each neighbor. 
+			    Format paths[nbor_AS][monitor_AS] = paths
+			    Note monitor paths can be empty. Especially if a monitor is not accessible from a neighbor
+	"""
+
+	def get_node_best_paths_seen_by_monitors(self, ASN, prefix, nbors_to_consider=[]):
+
+		if ASN not in self.list_of_all_BGP_nodes:              assert (False), "BGP node not found"
+		if prefix not in self.list_of_all_BGP_nodes[ASN].paths: assert (False), "ASN does not have such prefix"
+
+		care_for_neighbors = False
+		if not nbors_to_consider:
+			nbors_to_consider = self.get_node_neighbors(ASN)
+		else:
+			care_for_neighbors = True
+
+		paths_seen_by_monitors = dict()
+		monitors_to_consider = list(self.list_of_all_monitors)
+		for nbor in nbors_to_consider:
+			edge_to_consider = [ASN, nbor]
+			paths = self.get_paths_of_nodes_with_specific_edge_to_prefix(prefix, edge_to_consider, monitors_to_consider, directed=True)
+
+			if care_for_neighbors:
+				paths_seen_by_monitors[nbor] = paths
+			else:
+				## It is not possible for an AS (either monitor or not) to have two best paths at the same time.
+				# paths_seen_by_monitors.update(paths)
+				for mon_as in paths:
+					# assert(mon_as not in paths_seen_by_monitors), "mon_as %s \n paths_seen_by_monitors %s " %(mon_as, paths_seen_by_monitors)
+					if mon_as not in paths_seen_by_monitors or len(paths[mon_as]) != 0:
+						assert (mon_as not in paths_seen_by_monitors or len(paths_seen_by_monitors[mon_as]) == 0), "mon_as %s\n paths_seen_by_monitors %s \n %s ok" % (mon_as, paths_seen_by_monitors[mon_as], paths[mon_as])
+						paths_seen_by_monitors[mon_as] = paths[mon_as]
+
+			for monitor, mon_path in paths.items():
+				## Sanity checks
+				if len(mon_path) == 0: continue
+				assert (mon_path[0] in self.get_node_neighbors(monitor))
+				assert (mon_path[-1] == ASN)
+				assert (mon_path[-2] == nbor)
+
+		return paths_seen_by_monitors
+
+
+	""" * Custom Function *
+		For a given AS node returns all of its neighbors that offer a path to the specified prefix.
+		Limitations:
+			The function may have a different output depending on when it is used; before or after the hijack.
+			IF used before, then return the neighbors that offer a valid path.
+			IF used after, then return the neighbors that offer both a valid and a poisoned path introduced by the hijacker.
+				NOTE: if ASN = Hijacker_ASN and IPprefix = Hijacked_prefix output is UNDEFINED
+
+		Input arguements:
+			a) The ASN which will be checked 
+			b) The prefix of which the paths will be queried.
+			c) (optional) A safety flag to void unintended use. Please Read description
+		"""
+
+	def get_neighbors_of_node_with_path_to_prefix(self, ASN, IPprefix, prefix_is_hijacked=False):
+		# if ASN in self.list_of_all_BGP_nodes:
+		if not prefix_is_hijacked:
+			hijacked_prefixes = self.get_list_of_hijacked_prefixes()
+			assert (IPprefix not in hijacked_prefixes), "Change Prefix is hijacked flag to True"
+
+		node = self.list_of_all_BGP_nodes[ASN]
+		return node.get_neighbors_with_path_to_prefix(IPprefix)
+
+
+	""" * Custom Function *
+	Given a node's ASN returns number of its neighbors. For a multiple AS input, refer to get_nb_neighbors function.
+	"""
+	def get_node_neighbors_nb(self, ASN):
+		nb_of_providers, nb_of_peers, nb_of_customers = self.list_of_all_BGP_nodes[ASN].get_nb_of_neighbors()
+		return nb_of_providers + nb_of_peers + nb_of_customers
+
+	""" * Custom Function *
+	Given a node's ASN returns a unified list of all of its neighbors independent of type (i.e customer, peer, provider).
+	"""
+
+	def get_node_neighbors(self, ASN):
+		return self.list_of_all_BGP_nodes[ASN].ASneighbors.keys()
+		## Old code (slower) follows
+		# ASN_nbors = set()
+		# nbor_by_type = self.list_of_all_BGP_nodes[ASN].get_neighbors()	## dict of the form: {'providers' : list_of_providers, 'peers' : list_of_peers, 'customers' : list_of_customers}
+		# for nbor_type in nbor_by_type: ASN_nbors.update( nbor_by_type[nbor_type] )
+		# return ASN_nbors
+
+
+	""" * Custom Function *
+		Given a node's ASN returns the neighbor dictionary in the form  {'providers' : list_of_providers, 'peers' : list_of_peers, 'customers' : list_of_customers}
+		Useful when the type of nbor connection matters. If not use the "get_node_neighbors" function
+	"""
+	def get_node_neighbors_by_type(self, ASN):
+		return self.list_of_all_BGP_nodes[ASN].get_neighbors()  ## dict of the form: {'providers' : list_of_providers, 'peers' : list_of_peers, 'customers' : list_of_customers}
+
+
+	""" * Custom Function *
+		Given an AS and one of its neighbors, returns the conn-type to the neighbor (customers, providers or peers)
+		Notes: This is similar to "get_link_type" function but without verifying that the nbor exists
+	"""
+	def get_node_neighbor_type(self, ASN, nborAS):
+		nbor_rel = self.list_of_all_BGP_nodes[ASN].get_neighbor_relation(nborAS)  ## -1: customer, 0: peer, 1: provider
+		if nbor_rel == -1: return "customers"
+		elif nbor_rel == 1: return "providers"
+		elif nbor_rel == 0: return "peers"
+		else: assert (False), "Unknown neighbor conn-type"
+
+
+	""" * Custom Function *
+		Given a node's ASN returns the list of its providers and peers
+	"""
+	def get_node_providers_and_peers(self, ASN):
+		ASN_nbors = set()
+		nbor_by_type = self.list_of_all_BGP_nodes[ASN].get_neighbors()  ## dict of the form: {'providers' : list_of_providers, 'peers' : list_of_peers, 'customers' : list_of_customers}
+		ASN_nbors.update(nbor_by_type["providers"])
+		ASN_nbors.update(nbor_by_type["peers"])
+
+		return ASN_nbors
+
+
+	""" * Custom Function *
+		Given a node's ASN returns the list of its customers
+	"""
+	def get_node_customers(self, ASN):
+		ASN_nbors = set()
+		nbor_by_type = self.list_of_all_BGP_nodes[ASN].get_neighbors()  ## dict of the form: {'providers' : list_of_providers, 'peers' : list_of_peers, 'customers' : list_of_customers}
+		ASN_nbors.update(nbor_by_type["customers"])
+
+		return ASN_nbors
+
+
+	""" * Custom Function *
+		Given a node's ASN returns the list of its providers
+	"""
+	def get_node_providers(self, ASN):
+		ASN_nbors = set()
+		nbor_by_type = self.list_of_all_BGP_nodes[ASN].get_neighbors()  ## dict of the form: {'providers' : list_of_providers, 'peers' : list_of_peers, 'customers' : list_of_customers}
+		ASN_nbors.update(nbor_by_type["providers"])
+
+		return ASN_nbors
+
+
+	""" * Custom Function *
+		For the specified node check which nbor is more tie-prefered.
+		Returns: True if nbor1 more tied-prefered than nbor 2, else False
+	"""
+	def has_highest_tie_preference(self, node_ASN, nbor1, nbor2):
+		return self.list_of_all_BGP_nodes[node_ASN].has_highest_tie_prefererence(nbor1, nbor2)
+
+
+	""" * Custom Function *
+		Checks whether the hijacker maintains a path towards the victim network or not.
+		A path is maintained, if no node along the path has been poisoned. 
+
+		Inputs:
+			a) the hijacker ASN
+			b) the victim   ASN
+			c) the hijacked prefix
+			d) the specific nbor to check (optional). If not provided, checks all nbors.
+		Returns:
+			a) if nbor has been specified, the interception path provided by that nbor if it is still avalable. Else, an empty list
+			   if nbor was not  specified, the first interception path discovered that is still available. Else an empty list
+	"""
+	def interception_is_possible(self, hijackerAS, victimAS, IPprefix, nbor_to_check=None):
+		hijack_node = self.list_of_all_BGP_nodes[hijackerAS]
+
+		## for each path the hijacker still maintains towards the victim
+		## verify that the path is real; check all AS nodes along the path except the origin.
+		## If the best path of every AS along the remains unchanged then, the hijacker maintains a valid path.
+
+		if nbor_to_check is None:
+			paths_to_victim = hijack_node.all_paths[IPprefix].values()
+		else:
+			if nbor_to_check not in hijack_node.all_paths[IPprefix]: assert (False), "nbor not found in hijacker_nbors"
+			paths_to_victim = [hijack_node.all_paths[IPprefix][nbor_to_check]]
+
+		for path in paths_to_victim:
+			assert (victimAS == path[-1])
+			poisoned_ASes_in_path = self.get_set_of_nodes_with_hijacked_path_to_prefix(IPprefix, hijackerAS,list_of_nodes=path[:-1])  # checks the whole path at once.
+			if len(poisoned_ASes_in_path) == 0: return path
+
+		return []
 
 
 
