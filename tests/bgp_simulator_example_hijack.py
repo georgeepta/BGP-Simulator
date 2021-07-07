@@ -25,9 +25,10 @@ A script that (i) does a number of hijacking simulations with anycast mitigation
 
 Input (command-line) arguments:
 	(a) nb_of_sims: an integer denoting the number of experiment runs (repetitions) of the simulation
-	(b) hijack_type: an integer in {0,1,2,3,...} denoting the type of hijacking attack, with 0 = origin AS attack , 1 = 1st hop attack, etc.
-	(c) dataset: an integer of type yyyymmdd denoting the dataset from which the topology will be loaded
-	(d) max_nb_anycast_ASes: an integer denoting the maximum number of anycast ASes to be used for hijack mitigation
+	(b) hijack_prefix_type: a string denoting exact or subprefix announcement 
+	(c) hijack_type: an integer in {0,1,2,3,...} denoting the type of hijacking attack, with 0 = origin AS attack , 1 = 1st hop attack, etc.
+	(d) dataset: an integer of type yyyymmdd denoting the dataset from which the topology will be loaded
+	(e) max_nb_anycast_ASes: an integer denoting the maximum number of anycast ASes to be used for hijack mitigation
 
 Topologies are stored in the "../CAIDA AS-graph/serial-2/" folder.
 
@@ -39,13 +40,14 @@ The csv is formatted as follows:
 '''
 read the input arguments; if incorrect arguments, exit
 '''
-if len(sys.argv) is 5:
+if len(sys.argv) is 6:
 	nb_of_sims = int(sys.argv[1]) #1000
-	hijack_type = int(sys.argv[2]) # 0 or 1 or 2 or ...
-	dataset = sys.argv[3] # 20160901
-	max_nb_anycast_ASes = int(sys.argv[4]) #20
+	hijack_prefix_type = sys.argv[2]
+	hijack_type = int(sys.argv[3]) # 0 or 1 or 2 or ...
+	dataset = sys.argv[4] # 20160901
+	max_nb_anycast_ASes = int(sys.argv[5]) #20
 else:
-	sys.exit("Incorrent arguments. Arguments should be {nb_of_sims, hijack_type, dataset_id, max_nb_anycast_ASes}")
+	sys.exit("Incorrent arguments. Arguments should be {nb_of_sims, hijack_prefix_type, hijack_type, dataset_id, max_nb_anycast_ASes}")
 
 
 
@@ -83,7 +85,8 @@ for i in range(nb_of_sims):
 	legitimate_AS = r[0]
 	hijacker_AS = r[1]
 	anycast_ASes = r[2:]
-	prefix = simulation_step
+	prefix = "10.1.0.0/23"
+	subprefix = "10.1.0.0/24"
 
 	# do the legitimate announcement from the victim
 	Topo.add_prefix(legitimate_AS,prefix)
@@ -91,14 +94,32 @@ for i in range(nb_of_sims):
 	simulation_DATA.append(Topo.get_nb_of_nodes_with_path_to_prefix(prefix))
 	simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix,hijacker_AS))
 
-	# do the hijack from the hijacker
-	Topo.do_hijack(hijacker_AS,prefix,hijack_type)
-	simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix,hijacker_AS))
+	if hijack_prefix_type == "exact":
 
-	# do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
-	for anycast_AS in anycast_ASes:
-		Topo.add_prefix(anycast_AS,prefix)
-	simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix,hijacker_AS))
+		# do the hijack from the hijacker
+		Topo.do_hijack(hijacker_AS,prefix,hijack_type)
+		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix, hijacker_AS))
+
+		# do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
+		for anycast_AS in anycast_ASes:
+			Topo.add_prefix(anycast_AS, prefix)
+		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix, hijacker_AS))
+
+	else:
+
+		# do the hijack from the hijacker
+		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
+		Topo.do_subprefix_hijack(hijacker_AS, prefix, subprefix, hijack_type)
+		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
+
+		# do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
+
+		#the simplest case: helper ASes + victim announce the same prefix as the hijacker (max length)
+		Topo.add_prefix(legitimate_AS, subprefix)
+		for anycast_AS in anycast_ASes:
+			Topo.add_prefix(anycast_AS, subprefix)
+		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
+
 
 	simulation_DATA.append(hijacker_AS)
 	simulation_DATA.append(legitimate_AS)

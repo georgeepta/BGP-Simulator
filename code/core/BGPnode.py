@@ -658,6 +658,50 @@ class BGPnode:
 		return path_to_announce
 
 
+	'''
+	Hijacks the victim's prefix by combining a subprefix hijacking attack with a fake path attack 
+	
+	- The "IPprefix" argument help us to compute a poisoning path to the victim AS that owns that prefix
+	- The "IPsubprefix" argument is a more specific prefix than the "IPprefix" and is announced by the attacker AS to the neighboring ASes
+
+	'''
+
+	def do_subprefix_hijack(self, IPprefix, IPsubprefix, hijack_type=0, path=None, neighbors_to_announce=None):
+		if (not self.has_prefix(IPprefix)):
+		#if (not self.has_prefix(IPprefix)) and (not self.has_hijacked_prefix(IPprefix)):
+			self.add_hijacked_prefix(IPsubprefix,hijack_type) #BE CAREFUL!!! it works with IPsubprefix and not with the IPprefix, the hijacker should not accept BGP announcements for the subprefix (see conditions_to_add_received_path()).
+
+			if neighbors_to_announce is None:
+				neighbors_to_announce = set(self.ASneighbors.keys())	# announce the hijack to all neighbors
+			else:
+				assert (len(neighbors_to_announce) == 1), "halted: code is buggy for multiple neighbors_to_announce"
+				neighbors_to_announce = set(neighbors_to_announce)  # announce the hijack to the provided neighbors
+
+			if path is None:
+				if hijack_type == 0: 	# origin-AS
+					path_to_announce = [self.ASN]
+				else:					# 1st, 2nd, 3rd, etc. hop hijack, where hijack_type = 1,2,3,etc.
+					path_to_announce = self.get_path_poisoning_hijack(IPprefix, hijack_type, CUSTOM_MODE=False)
+			else:
+				path_to_announce = path
+
+			self.paths[IPsubprefix] = path_to_announce[1:]
+
+			if path_to_announce:	# check for the case that the "self.get_path_poisoning_hijack(...)"" function returns an empty list
+				assert (path_to_announce[0] == self.ASN), "BGP Announcer and last AS in the path do not match"
+				self.announce_path(IPsubprefix, neighbors_to_announce, path_to_announce)
+			else:
+				## To create a seemingly valid path the hijacker should have a valid path to the victim prefix.
+				## Else: This path has to be created in a custom way.
+				print("Warning: Hijacker has no path to node")
+				assert (False), "Hijacker no path to the victim?"
+
+		else:
+			assert(False)
+		return path_to_announce
+
+
+
 
 	'''
 	Returns the path to be announced for a hijack of type {1,2,3,...} (i.e., a not origin-AS hijack).
