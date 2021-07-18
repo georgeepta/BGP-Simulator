@@ -1,0 +1,41 @@
+{
+  "roas" : [ {
+    "asn" : "0",
+    "prefix" : "27.99.32.0/19",
+    "maxLength" : 19,
+    "ta" : "APNIC RPKI Root"
+  }, {
+    "asn" : "0",
+    "prefix" : "27.99.96.0/19",
+    "maxLength" : 19,
+    "ta" : "APNIC RPKI Root"
+  }, {
+    "asn" : "0",
+    "prefix" : "27.111.228.0/22",
+    "maxLength" : 24,
+    "ta" : "APNIC RPKI Root"
+  }, {
+    "asn" : "0",
+    "prefix" : "27.253.0.0/17",
+    "maxLength" : 17,
+    "ta" : "APNIC RPKI Root"
+  },
+  {
+    "asn" : "21",
+    "prefix" : "27.253.0.0/17",
+    "maxLength" : 17,
+    "ta" : "APNIC RPKI Root"
+  },
+  {
+    "asn" : "21",
+    "prefix" : "27.253.0.0/17",
+    "maxLength" : 17,
+    "ta" : "APNIC RPKI Root"
+  },
+  {
+    "asn" : "10474",
+    "prefix" : "2c0f:ff40::/26",
+    "maxLength" : 48,
+    "ta" : "APNIC RPKI Root"
+  } ]
+}
