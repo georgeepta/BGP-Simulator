@@ -85,7 +85,7 @@ for i in range(nb_of_sims):
 	legitimate_AS = r[0]
 	hijacker_AS = r[1]
 	anycast_ASes = r[2:]
-	prefix = "10.1.0.0/23"
+	prefix = "1.0.0.0/24"
 	subprefix = "10.1.0.0/24"
 
 	# do the legitimate announcement from the victim

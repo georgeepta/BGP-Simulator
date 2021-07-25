@@ -12,6 +12,10 @@
 
 
 import random
+import requests
+from requests.exceptions import Timeout
+from requests.adapters import HTTPAdapter
+from requests.exceptions import ConnectionError
 from collections import defaultdict
 from copy import deepcopy
 
@@ -32,6 +36,7 @@ class BGPnode:
 		(h) paths:				dictionary (initially empty) corresponding to the best paths per prefix - dictionary with (i) keys the IP prefixes and (ii) values the corresponding AS path given as a list (e.g., [ASNx, ASNy, ASNz, origin_ASN])
 		(i) all_paths:			dictionary of dictionaries (initially empty) representing the local FIB of BGP - dictionary with (i) keys the IP prefixes, (ii) keys (for each prefix) the ASN of the neighbor that sent the path, and (iii) values the corresponding AS path given as a list (e.g., [ASNx, ASNy, ASNz, origin_ASN])
 		(j) filters:			dictionary (initially empty) - dictionary with (i) keys the IPprefixes, and (ii) values sets of ASNs; if an ASN exists in the set, then the every path for the prefix that contains this ASN need to be filtered/discarded
+		(k) rov:				boolean variable - inticates if the RPKI Route Origin Validation is enabled for this BGPnode (default value is False)
 	'''
 
 	'''
@@ -52,6 +57,7 @@ class BGPnode:
 		self.paths = {} 
 		self.all_paths = defaultdict(dict)
 		self.filters = {}
+		self.rov = False
 
 
 	
@@ -478,12 +484,19 @@ class BGPnode:
 			self.filters[IPprefix] = set([ASN])
 
 	'''
-	Checks if the received path must be filtered, based on the stored filters.
+	Checks if the received path must be filtered, based on the stored filters and RPKI Route Origin Validation.
 	
 	IF a filter for the given prefix exists
 	THEN 	FOR EACH ASN in the given path
 				IF the ASN exists in the filter for the given prefix (i.e. the dictionary "filters")
 				THEN 	return True (i.e., filter the path)
+	
+	IF the BGPnode performs RPKI Route Origin Validation
+	THEN	check the validity state of the route announcement
+				IF the validity_state = valid THEN do not filter the route announcement
+				ELIF the validity_state = invalid THEN filter the route announcement
+				ELIF the validity_state = not-found 
+					THEN flip a coin to select if the AS must filter the announcement (no VRP Covers the Route Prefix)
 
 	Input arguments:
 		(a) IPprefix:	the prefix for which the path has to be checked if it will be filtered 
@@ -497,7 +510,61 @@ class BGPnode:
 			for ASN in path:
 				if ASN in self.filters[IPprefix]:
 					return True
+		if self.rov:
+			validity_state = self.do_rov("http://localhost:9556/api/v1/validity/", path[-1], IPprefix)
+			if validity_state == "valid":
+				return False
+			elif validity_state == "invalid":
+				return True
+			elif validity_state == "not-found":
+				# No VRP Covers the Route Prefix: flip a coin to select if the AS must filter the announcement
+				return random.choice([True, False])
+
 		return False
+
+
+	'''
+	Performs RPKI Route Origin Validation, by quering the Routinator's (open source RPKI Relying Party software) 
+	HTTP API endpoint running on a server (e.g., localhost on port 9556)
+	
+	It concatenates the endpoint_url, origin_asn, prefix arguments in a single url string and sends an GET request to the API. 
+	IF the returned HTTP status code is 200: 
+		return the validity state of this route announcement (valid, invalid, or not found)
+	ELSE:
+		return the HTTP status code (we dont have any data that indicate the validity of the route announcement)
+	
+	Input arguments:
+		(a) endpoint_url: the endpoint's URL which is used for Route Origin Validation 
+			e.g., in our case http://localhost:9556/api/v1/validity/
+		(b) origin_asn: the origin AS number of the route announcement (in AS_PATH)
+		(c) prefix: the prefix of the route announcement
+	
+	Returns:
+		The validity state of this route announcement (valid, invalid, or not found) 
+		IF the returned HTTP status code is 200, ELSE the HTTP status code 
+	'''
+
+	def do_rov(self, endpoint_url, origin_asn, prefix):
+		url = endpoint_url + origin_asn + "/" + prefix
+		routinator_adapter = HTTPAdapter(max_retries=3)
+		session = requests.Session()
+		# Use `routinator_adapter` for all requests to endpoints that start with the endpoint_url argument
+		session.mount(endpoint_url, routinator_adapter)
+		try:
+			response = session.get(url, timeout=3)
+		except ConnectionError as ce:
+			print(ce)
+		except Timeout:
+			print('The request timed out')
+		else:
+			print('The request did not time out')
+			if response.status_code == 200:
+				# Successful GET request
+				print(response.json())
+				return response.json()["validated_route"]["validity"]["state"]
+			else:
+				# HTTP Response not contains useful data for the ROV
+				return response.status_code
 
 	'''
 	### NOT USED METHOD ###
@@ -782,3 +849,5 @@ class BGPnode:
 			for ip,p in self.paths.items():
 				print('IP: '+str(ip)+'   path: '+str(p))
 		print(' ')
+
+

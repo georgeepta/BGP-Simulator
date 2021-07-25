@@ -1,5 +1,6 @@
 import json
 import pytricia
+import random
 import requests
 from netaddr import IPNetwork
 from requests.exceptions import Timeout
@@ -88,3 +89,6 @@ if __name__ == '__main__':
 
     state = do_rov(url, asn, prefix)
     print(state)
+
+    res = random.choice([True, False])
+    print(res)
