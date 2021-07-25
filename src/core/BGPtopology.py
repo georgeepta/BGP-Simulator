@@ -199,7 +199,7 @@ class BGPtopology:
 		The hijacker's announced path 
 	'''
 	def do_hijack(self, ASN, IPprefix, hijack_type = 0, path = None, neighbors_to_announce = None):
-		assert (hijack_type or path), "Either provide a path to announce or specify the hijack type to craft the attack"
+		assert (str(hijack_type) or path), "Either provide a path to announce or specify the hijack type to craft the attack"
 
 		if self.has_node(ASN):
 			return self.get_node(ASN).do_hijack(IPprefix, hijack_type, path, neighbors_to_announce)

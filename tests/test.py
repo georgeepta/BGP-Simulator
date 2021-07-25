@@ -90,5 +90,5 @@ if __name__ == '__main__':
     state = do_rov(url, asn, prefix)
     print(state)
 
-    res = random.choice([True, False])
-    print(res)
+    hijack_type = 0
+    assert (str(hijack_type) or None)
