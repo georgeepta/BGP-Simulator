@@ -61,6 +61,14 @@ Topo.load_ixps_from_json('../datasets/CAIDA IXPS/'+"ixs_202104.jsonl", '../datas
 Topo.add_extra_p2p_custom_links()
 
 '''
+select which ASes are going to do RPKI Route Origin Validation
+'''
+for asn in Topo.get_all_nodes_ASNs():
+	Topo.get_node(asn).rov = True
+
+
+
+'''
 add to the topology the list of RIPE monitors (i.e., ASNs of the members of the RIPE RIS route collectors)
 '''
 

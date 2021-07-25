@@ -545,7 +545,7 @@ class BGPnode:
 	'''
 
 	def do_rov(self, endpoint_url, origin_asn, prefix):
-		url = endpoint_url + origin_asn + "/" + prefix
+		url = endpoint_url + str(origin_asn) + "/" + prefix
 		routinator_adapter = HTTPAdapter(max_retries=3)
 		session = requests.Session()
 		# Use `routinator_adapter` for all requests to endpoints that start with the endpoint_url argument
