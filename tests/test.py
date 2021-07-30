@@ -90,5 +90,11 @@ if __name__ == '__main__':
     state = do_rov(url, asn, prefix)
     print(state)
 
-    hijack_type = 0
-    assert (str(hijack_type) or None)
+    rpki_validation = {("24409", "1.2.4.0/24") : "not-found",
+                       ("38803", "1.2.4.0/24") : "invalid",
+                       ("24151", "1.2.4.0/24"): "not-found",
+                       ("24406", "1.2.4.0/24"): "not-found",
+                       }
+
+    print(rpki_validation[("24409", "1.2.4.0/24")])
+    print(range(5))

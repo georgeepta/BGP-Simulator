@@ -61,10 +61,20 @@ Topo.load_ixps_from_json('../datasets/CAIDA IXPS/'+"ixs_202104.jsonl", '../datas
 Topo.add_extra_p2p_custom_links()
 
 '''
-select which ASes are going to do RPKI Route Origin Validation
+Select which ASes are going to do RPKI Route Origin Validation
+and set a rov table for testing purposes
 '''
 for asn in Topo.get_all_nodes_ASNs():
 	Topo.get_node(asn).rov = True
+	Topo.get_node(asn).rpki_validation = {("24409", "1.2.4.0/24") : "not-found",
+								("24409", "1.2.4.0/25"): "not-found",
+                       			("38803", "1.2.4.0/24") : "not-found",
+								("38803", "1.2.4.0/25"): "not-found",
+                       			("24151", "1.2.4.0/24"): "not-found",
+								("24151", "1.2.4.0/25"): "not-found",
+                       			("24406", "1.2.4.0/24"): "not-found",
+								("24406", "1.2.4.0/25"): "not-found",
+								}
 
 
 
@@ -84,17 +94,26 @@ print('Simulation started')
 list_of_ASNs = Topo.get_all_nodes_ASNs()
 simulation_step = 0
 DATA = []
-for i in range(nb_of_sims):
+counter = 0
+
+while counter < nb_of_sims:
 	print('simulation step: '+str(100*simulation_step/nb_of_sims)+'%\r',end='')
 	simulation_step += 1
 
 	# randomly select victim, hijacker, anycasters (for mitigation)
+	'''
 	r = random.sample(list_of_ASNs,2+max_nb_anycast_ASes)
 	legitimate_AS = r[0]
 	hijacker_AS = r[1]
 	anycast_ASes = r[2:]
 	prefix = "1.0.0.0/24"
 	subprefix = "10.1.0.0/24"
+	'''
+	legitimate_AS = 24409
+	hijacker_AS = 38803
+	anycast_ASes = [24151, 24406]
+	prefix = "1.2.4.0/24"
+	subprefix = "1.2.4.0/25"
 
 	# do the legitimate announcement from the victim
 	Topo.add_prefix(legitimate_AS,prefix)
@@ -105,28 +124,39 @@ for i in range(nb_of_sims):
 	if hijack_prefix_type == "exact":
 
 		# do the hijack from the hijacker
-		Topo.do_hijack(hijacker_AS,prefix,hijack_type)
-		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix, hijacker_AS))
+		if Topo.do_hijack(hijacker_AS,prefix,hijack_type):
+			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix, hijacker_AS))
 
-		# do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
-		for anycast_AS in anycast_ASes:
-			Topo.add_prefix(anycast_AS, prefix)
-		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix, hijacker_AS))
+			# do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
+			for anycast_AS in anycast_ASes:
+				Topo.add_prefix(anycast_AS, prefix)
+			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix, hijacker_AS))
+		else:
+			# the hijack attempt failed --> repeat the simulation
+			Topo.clear_routing_information()
+			simulation_step = simulation_step - 1
+			continue
 
 	else:
 
 		# do the hijack from the hijacker
 		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
-		Topo.do_subprefix_hijack(hijacker_AS, prefix, subprefix, hijack_type)
-		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
 
-		# do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
+		if Topo.do_subprefix_hijack(hijacker_AS, prefix, subprefix, hijack_type):
+			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
 
-		#the simplest case: helper ASes + victim announce the same prefix as the hijacker (max length)
-		Topo.add_prefix(legitimate_AS, subprefix)
-		for anycast_AS in anycast_ASes:
-			Topo.add_prefix(anycast_AS, subprefix)
-		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
+			# do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
+
+			#the simplest case: helper ASes + victim announce the same prefix as the hijacker (max length)
+			Topo.add_prefix(legitimate_AS, subprefix)
+			for anycast_AS in anycast_ASes:
+				Topo.add_prefix(anycast_AS, subprefix)
+			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
+		else:
+			# the hijack attempt failed --> repeat the simulation
+			Topo.clear_routing_information()
+			simulation_step = simulation_step - 1
+			continue
 
 
 	simulation_DATA.append(hijacker_AS)
@@ -134,6 +164,8 @@ for i in range(nb_of_sims):
 
 	DATA.append(simulation_DATA)
 	Topo.clear_routing_information()
+
+	counter = counter + 1
 
 
 

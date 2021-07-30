@@ -209,7 +209,7 @@ class BGPtopology:
 	Almost the same with the above function, but here we take 1 more argument --> the IPsubprefix
 	'''
 	def do_subprefix_hijack(self, ASN, IPprefix, IPsubprefix, hijack_type = 0, path = None, neighbors_to_announce = None):
-		assert (hijack_type or path), "Either provide a path to announce or specify the hijack type to craft the attack"
+		assert (str(hijack_type) or path), "Either provide a path to announce or specify the hijack type to craft the attack"
 
 		if self.has_node(ASN):
 			return self.get_node(ASN).do_subprefix_hijack(IPprefix, IPsubprefix, hijack_type, path, neighbors_to_announce)

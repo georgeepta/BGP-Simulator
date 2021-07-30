@@ -58,6 +58,7 @@ class BGPnode:
 		self.all_paths = defaultdict(dict)
 		self.filters = {}
 		self.rov = False
+		self.rpki_validation = {}
 
 
 	
@@ -511,7 +512,8 @@ class BGPnode:
 				if ASN in self.filters[IPprefix]:
 					return True
 		if self.rov:
-			validity_state = self.do_rov("http://localhost:9556/api/v1/validity/", path[-1], IPprefix)
+			#validity_state = self.do_rov("http://localhost:9556/api/v1/validity/", path[-1], IPprefix)
+			validity_state = self.rpki_validation[(str(path[-1]), IPprefix)]
 			if validity_state == "valid":
 				return False
 			elif validity_state == "invalid":
@@ -557,10 +559,10 @@ class BGPnode:
 		except Timeout:
 			print('The request timed out')
 		else:
-			print('The request did not time out')
+			#print('The request did not time out')
 			if response.status_code == 200:
 				# Successful GET request
-				print(response.json())
+				#print(response.json())
 				return response.json()["validated_route"]["validity"]["state"]
 			else:
 				# HTTP Response not contains useful data for the ROV
@@ -698,7 +700,7 @@ class BGPnode:
 			if neighbors_to_announce is None:
 				neighbors_to_announce = set(self.ASneighbors.keys())	# announce the hijack to all neighbors
 			else:
-				assert (len(neighbors_to_announce) == 1), "halted: src is buggy for multiple neighbors_to_announce"
+				assert (len(neighbors_to_announce) == 1), "halted: code is buggy for multiple neighbors_to_announce"
 				neighbors_to_announce = set(neighbors_to_announce)  # announce the hijack to the provided neighbors
 
 			if path is None:
@@ -717,8 +719,8 @@ class BGPnode:
 			else:
 				## To create a seemingly valid path the hijacker should have a valid path to the victim prefix.
 				## Else: This path has to be created in a custom way.
-				print("Warning: Hijacker has no path to node")
-				assert (False), "Hijacker no path to the victim?"
+				print("Warning: Hijacker has no path to the Victim - The simulation must be repeated !!!")
+				return False
 
 		else:
 			assert(False)
@@ -760,8 +762,8 @@ class BGPnode:
 			else:
 				## To create a seemingly valid path the hijacker should have a valid path to the victim prefix.
 				## Else: This path has to be created in a custom way.
-				print("Warning: Hijacker has no path to node")
-				assert (False), "Hijacker no path to the victim?"
+				print("Warning: Hijacker has no path to the Victim - The simulation must be repeated !!!")
+				return False
 
 		else:
 			assert(False)
