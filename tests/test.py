@@ -1,11 +1,14 @@
 import json
 import pytricia
 import random
+import time
 import requests
 from netaddr import IPNetwork
 from requests.exceptions import Timeout
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
+from mpipe import UnorderedStage, Pipeline, UnorderedWorker, Stage
+
 
 def create_roas_prefix_trees(file_path):
 
@@ -46,6 +49,45 @@ def create_roas_prefix_trees(file_path):
         return ipv4_pyt, ipv6_pyt
 
 
+
+class ProcessWorker(UnorderedWorker):
+
+    def do_rov(self, endpoint_url, asn, prefix):
+        url = endpoint_url + asn + "/" + prefix
+        routinator_adapter = HTTPAdapter(max_retries=3)
+        session = requests.Session()
+        # Use `routinator_adapter` for all requests to endpoints that start with the endpoint_url argument
+        session.mount(endpoint_url, routinator_adapter)
+        try:
+            response = session.get(url, timeout=3)
+        except ConnectionError as ce:
+            print(ce)
+        except Timeout:
+            print('The request timed out')
+        else:
+            print('The request did not time out')
+            if response.status_code == 200:
+                # Successful GET request
+                print(response.json())
+                return response.json()["validated_route"]["validity"]["state"]
+            else:
+                # HTTP Response not contains useful data for the ROV
+                return response.status_code
+
+    def doTask(self, task):
+        return self.do_rov(task["url"], task["asn"], task["prefix"])
+
+
+class ProcessPrinter(UnorderedWorker):
+
+    def update_progress_bar(self):
+        return
+
+    def doTask(self, sim_result):
+        self.update_progress_bar()
+
+
+
 def do_rov(endpoint_url, asn, prefix):
     url = endpoint_url + asn + "/" + prefix
     routinator_adapter = HTTPAdapter(max_retries=3)
@@ -71,6 +113,7 @@ def do_rov(endpoint_url, asn, prefix):
 
 
 
+
 if __name__ == '__main__':
 
     '''
@@ -83,13 +126,6 @@ if __name__ == '__main__':
         print(prefix, ipv6_tree[prefix])
     '''
 
-    prefix = "1.0.0.0/24"
-    asn = "13335"
-    url = "http://localhost:9556/api/v1/validity/"
-
-    state = do_rov(url, asn, prefix)
-    print(state)
-
     rpki_validation = {("24409", "1.2.4.0/24") : "not-found",
                        ("38803", "1.2.4.0/24") : "invalid",
                        ("24151", "1.2.4.0/24"): "not-found",
@@ -98,3 +134,24 @@ if __name__ == '__main__':
 
     print(rpki_validation[("24409", "1.2.4.0/24")])
     print(range(5))
+
+
+    test_data = {"prefix": "1.0.0.0/24", "asn": "13335", "url": "http://localhost:9556/api/v1/validity/"}
+
+    Stage1 = Stage(worker_class=ProcessWorker, size=5, do_stop_task=True, disable_result=False)
+    Stage2 = Stage(worker_class=ProcessPrinter, do_stop_task=True, disable_result=True)
+    ## Link the two workers in the same pipeline
+    Stage1.link(Stage2)
+    pipe = Pipeline(Stage1)
+
+
+    start = time.time()
+    for task in range(0,10000):
+        pipe.put(test_data)
+    #for task in range(0, 10000):
+    #    do_rov(test_data["url"], test_data["asn"], test_data["prefix"])
+    end = time.time()
+    print(end - start)
+
+    ## Term signal
+    pipe.put(None)
