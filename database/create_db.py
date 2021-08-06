@@ -54,7 +54,7 @@ def create_bgp_hijacking_sims_table():
       simulation_id uuid DEFAULT uuid_generate_v4 (),
       simulation_status VARCHAR(20) NOT NULL,
       simulation_data json NOT NULL, 
-      simulation_results json,
+      simulation_results jsonb NOT NULL DEFAULT '[]'::jsonb,
       num_of_simulations INTEGER NOT NULL,
       num_of_finished_simulations INTEGER,
       sim_start_time TIMESTAMPTZ,
@@ -81,13 +81,21 @@ def insert_data():
 
    # Preparing SQL queries to INSERT a record into the database.
    sql = '''
-      INSERT INTO BGP_HIJACKING_SIMULATIONS(simulation_status, simulation_data, simulation_results, sim_start_time, sim_end_time, num_of_simulations, num_of_finished_simulations) 
-      VALUES ('Pending', '{"victim_AS": "11888", "victim_prefix": "1.2.3.4/22", "hijacker_AS": "13335", "hijacker_prefix": "1.2.3.4/24"}',
-      '{"num_of_infected_ASes": "45000", "list_of_infected_ASes": [13243, 43325, 53423], "impact": "64%"}',
-      '2021-08-22 21:17:25-07', '2021-08-22 21:27:25-07', 100, 55 
-   )''';
+      INSERT INTO BGP_HIJACKING_SIMULATIONS(simulation_status, simulation_data, sim_start_time, sim_end_time, num_of_simulations, num_of_finished_simulations)
+      VALUES (%s, %s, %s, %s, %s, %s) RETURNING simulation_id''';
 
-   cursor.execute(sql)
+   cursor.execute(sql, ('Pending', '{"victim_AS": "11888", "victim_prefix": "1.2.3.4/22", "hijacker_AS": "13335", "hijacker_prefix": "1.2.3.4/24"}',
+      '2021-08-22 21:17:25-07', '2021-08-22 21:27:25-07', 100, 55 ))
+
+   simulation_uuid = cursor.fetchone()[0]
+   print("simulation uuid: " + simulation_uuid)
+
+   sql2 = '''
+      UPDATE BGP_HIJACKING_SIMULATIONS SET simulation_results = simulation_results || %s ::jsonb
+      WHERE simulation_id=%s
+   ''';
+
+   cursor.execute(sql2, ('{"num_of_infected_ASes": "45000", "list_of_infected_ASes": [13243, 43325, 53423], "impact": "64%"}', simulation_uuid))
 
    # Commit your changes in the database
    conn.commit()
