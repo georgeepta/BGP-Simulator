@@ -1,0 +1,14 @@
+{
+  "simulation_type": "predefined-pairs",
+  "legitimate_AS": 24409,
+  "legitimate_prefix": "1.2.4.0/24",
+  "hijacker_AS": 38803,
+  "hijacker_prefix": "1.2.4.0/25",
+  "hijack_type": 0,
+  "hijack_prefix_type": "subprefix",
+  "anycast_ASes": [24151, 24406],
+  "rpki_rov_mode": "all",
+  "nb_of_sims": 5,
+  "dataset": "20210301",
+  "max_nb_anycast_ASes": 2
+}

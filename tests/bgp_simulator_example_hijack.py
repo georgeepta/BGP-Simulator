@@ -13,6 +13,7 @@
 import random
 import sys
 import csv
+import json
 sys.path.insert(0, '/home/george/UOC-CSD/MASTER/master_thesis/BGP-Simulator/')
 from src.core.BGPtopology import BGPtopology
 
@@ -40,15 +41,27 @@ The csv is formatted as follows:
 '''
 read the input arguments; if incorrect arguments, exit
 '''
-if len(sys.argv) is 6:
-	nb_of_sims = int(sys.argv[1]) #1000
-	hijack_prefix_type = sys.argv[2]
-	hijack_type = int(sys.argv[3]) # 0 or 1 or 2 or ...
-	dataset = sys.argv[4] # 20160901
-	max_nb_anycast_ASes = int(sys.argv[5]) #20
-else:
-	sys.exit("Incorrent arguments. Arguments should be {nb_of_sims, hijack_prefix_type, hijack_type, dataset_id, max_nb_anycast_ASes}")
 
+if len(sys.argv) is 2:
+	input_data_file_name = sys.argv[1]
+else:
+	sys.exit("Incorrent arguments. Arguments should be {input_data_file_name}")
+
+
+with open(input_data_file_name, 'r') as jsonfile:
+	input_data = json.load(jsonfile)
+	simulation_type = input_data['simulation_type']
+	legitimate_AS  = input_data['legitimate_AS']
+	legitimate_prefix = input_data['legitimate_prefix']
+	hijacker_AS = input_data['hijacker_AS']
+	hijacker_prefix = input_data['hijacker_prefix']
+	hijack_type = input_data['hijack_type']
+	hijack_prefix_type = input_data['hijack_prefix_type']
+	anycast_ASes = input_data['anycast_ASes']
+	rpki_rov_mode = input_data['rpki_rov_mode']
+	nb_of_sims = input_data['nb_of_sims']
+	dataset = input_data['dataset']
+	max_nb_anycast_ASes = input_data['max_nb_anycast_ASes']
 
 
 '''
@@ -109,28 +122,23 @@ while counter < nb_of_sims:
 	prefix = "1.0.0.0/24"
 	subprefix = "10.1.0.0/24"
 	'''
-	legitimate_AS = 24409
-	hijacker_AS = 38803
-	anycast_ASes = [24151, 24406]
-	prefix = "1.2.4.0/24"
-	subprefix = "1.2.4.0/25"
 
 	# do the legitimate announcement from the victim
-	Topo.add_prefix(legitimate_AS,prefix)
+	Topo.add_prefix(legitimate_AS,legitimate_prefix)
 	simulation_DATA = []	# "simulation_DATA" will contain the data to be saved as the output of the simulation
-	simulation_DATA.append(Topo.get_nb_of_nodes_with_path_to_prefix(prefix))
-	simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix,hijacker_AS))
+	simulation_DATA.append(Topo.get_nb_of_nodes_with_path_to_prefix(legitimate_prefix))
+	simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(legitimate_prefix,hijacker_AS))
 
 	if hijack_prefix_type == "exact":
 
 		# do the hijack from the hijacker
-		if Topo.do_hijack(hijacker_AS,prefix,hijack_type):
-			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix, hijacker_AS))
+		if Topo.do_hijack(hijacker_AS,hijacker_prefix,hijack_type):
+			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(hijacker_prefix, hijacker_AS))
 
 			# do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
 			for anycast_AS in anycast_ASes:
-				Topo.add_prefix(anycast_AS, prefix)
-			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(prefix, hijacker_AS))
+				Topo.add_prefix(anycast_AS, hijacker_prefix)
+			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(hijacker_prefix, hijacker_AS))
 		else:
 			# the hijack attempt failed --> repeat the simulation
 			Topo.clear_routing_information()
@@ -140,18 +148,18 @@ while counter < nb_of_sims:
 	else:
 
 		# do the hijack from the hijacker
-		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
+		simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(hijacker_prefix, hijacker_AS))
 
-		if Topo.do_subprefix_hijack(hijacker_AS, prefix, subprefix, hijack_type):
-			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
+		if Topo.do_subprefix_hijack(hijacker_AS, legitimate_prefix, hijacker_prefix, hijack_type):
+			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(hijacker_prefix, hijacker_AS))
 
 			# do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
 
 			#the simplest case: helper ASes + victim announce the same prefix as the hijacker (max length)
-			Topo.add_prefix(legitimate_AS, subprefix)
+			Topo.add_prefix(legitimate_AS, hijacker_prefix)
 			for anycast_AS in anycast_ASes:
-				Topo.add_prefix(anycast_AS, subprefix)
-			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(subprefix, hijacker_AS))
+				Topo.add_prefix(anycast_AS, hijacker_prefix)
+			simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(hijacker_prefix, hijacker_AS))
 		else:
 			# the hijack attempt failed --> repeat the simulation
 			Topo.clear_routing_information()
