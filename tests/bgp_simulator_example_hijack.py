@@ -15,7 +15,7 @@ import sys
 import csv
 import json
 sys.path.insert(0, '/home/george/UOC-CSD/MASTER/master_thesis/BGP-Simulator/')
-from src.core.BGPtopology import BGPtopology
+from backend.core.BGPtopology import BGPtopology
 
 
 

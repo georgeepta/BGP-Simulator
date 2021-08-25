@@ -12,8 +12,8 @@
 
 import csv
 import json
-from src.core.BGPnode import BGPnode
-from src.core.IXPNode import IXPNode
+from backend.core.BGPnode import BGPnode
+from backend.core.IXPNode import IXPNode
 from collections import defaultdict
 from collections import Iterable
 
