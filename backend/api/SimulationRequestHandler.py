@@ -62,7 +62,7 @@ class SimulationRequestHandler(Resource):
         return
 
 
-    def set_rpki_rov_table(self, Topo, sim_data):
+    def set_rpki_rov_table(self, Topo, sim_data, validator_url):
         # In type 1,2,3,...,N hijacks, the origin AS, in the AS_PATH that the hijacker announce to its neighbors,
         # is always the victim AS !!! For this reason, the rov_table contains only entries for the hijacker, victim and helper ASes
         # Outdated --> (Furthermore, we assume that the victim and helper ASes mitigate the subprefix attack by announcing the same subprefix
@@ -89,7 +89,7 @@ class SimulationRequestHandler(Resource):
             for item in AS_to_validate:
                 origin_AS = item[0]
                 origin_prefix = item[1]
-                validity_state = self.do_rov("http://localhost:9556/api/v1/validity/", origin_AS, origin_prefix)
+                validity_state = self.do_rov(validator_url, origin_AS, origin_prefix)
                 rpki_rov_table[(origin_AS, origin_prefix)] = validity_state
 
         '''
@@ -153,7 +153,7 @@ class SimulationRequestHandler(Resource):
         Set the RPKI ROV table for each AS that do ROV, 
         according to user preference (realistic_rpki_rov -> realistic or hypothetical) 
         '''
-        self.set_rpki_rov_table(Topo, sim_data)
+        self.set_rpki_rov_table(Topo, sim_data, "http://localhost:9556/api/v1/validity/")
 
 
 
