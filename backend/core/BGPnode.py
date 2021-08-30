@@ -513,7 +513,7 @@ class BGPnode:
 					return True
 		if self.rov:
 			#validity_state = self.do_rov("http://localhost:9556/api/v1/validity/", path[-1], IPprefix)
-			validity_state = self.rpki_validation[(str(path[-1]), IPprefix)]
+			validity_state = self.rpki_validation[(path[-1], IPprefix)]
 			if validity_state == "valid":
 				return False
 			elif validity_state == "invalid":

@@ -1,3 +1,4 @@
+import csv
 import random
 import requests
 from requests.exceptions import Timeout
@@ -8,6 +9,85 @@ from backend.core.BGPtopology import BGPtopology
 
 
 class SimulationRequestHandler(Resource):
+
+    def launch_simulation(self, Topo, sim_data):
+
+        print('Simulation started')
+        simulation_step = 0
+        DATA = []
+        counter = 0
+
+        while counter < sim_data['nb_of_sims']:
+            print('simulation step: ' + str(100 * simulation_step / sim_data['nb_of_sims']) + '%\r', end='')
+            simulation_step += 1
+
+            # do the legitimate announcement from the victim
+            Topo.add_prefix(sim_data['legitimate_AS'], sim_data['legitimate_prefix'])
+            simulation_DATA = []  # "simulation_DATA" will contain the data to be saved as the output of the simulation
+            simulation_DATA.append(Topo.get_nb_of_nodes_with_path_to_prefix(sim_data['legitimate_prefix']))
+            simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['legitimate_prefix'], sim_data['hijacker_AS']))
+
+            if sim_data['hijack_prefix_type'] == "exact":
+
+                # do the hijack from the hijacker
+                if Topo.do_hijack(sim_data['hijacker_AS'], sim_data['hijacker_prefix'], sim_data['hijack_type']):
+                    simulation_DATA.append(
+                        Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS']))
+
+                    # do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
+                    for anycast_AS in sim_data['anycast_ASes']:
+                        Topo.add_prefix(anycast_AS, sim_data['hijacker_prefix'])
+                    simulation_DATA.append(
+                        Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS']))
+                else:
+                    # the hijack attempt failed --> repeat the simulation
+                    Topo.clear_routing_information()
+                    simulation_step = simulation_step - 1
+                    continue
+
+            else:
+
+                # do the hijack from the hijacker
+                simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS']))
+
+                if Topo.do_subprefix_hijack(sim_data['hijacker_AS'], sim_data['legitimate_prefix'], sim_data['hijacker_prefix'], sim_data['hijack_type']):
+                    simulation_DATA.append(
+                        Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS']))
+
+                    # do the mitigation by anycasting the mitigation prefix from victim AS + helper ASes
+                    # (assuming they will attract traffic and then tunnel it to the victim)
+
+                    Topo.add_prefix(sim_data['legitimate_AS'], sim_data['mitigation_prefix'])
+                    for anycast_AS in sim_data['anycast_ASes']:
+                        Topo.add_prefix(anycast_AS, sim_data['mitigation_prefix'])
+                    simulation_DATA.append(
+                        Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['mitigation_prefix'], sim_data['hijacker_AS']))
+                else:
+                    # the hijack attempt failed --> repeat the simulation
+                    Topo.clear_routing_information()
+                    simulation_step = simulation_step - 1
+                    continue
+
+            simulation_DATA.append(sim_data['hijacker_AS'])
+            simulation_DATA.append(sim_data['legitimate_AS'])
+
+            DATA.append(simulation_DATA)
+            Topo.clear_routing_information()
+
+            counter = counter + 1
+
+
+        '''
+        Write the results to a csv file
+        '''
+        print('Writing statistics to csv...')
+        csvfilename = '../tests/results/statistics__CAIDA' + sim_data['caida_as_graph_dataset'] + '_sims' + str(sim_data['nb_of_sims']) + '_hijackType' + str(
+            sim_data['hijack_type']) + '_test_hijacker' + '_.csv'
+        with open(csvfilename, 'w') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerows(DATA)
+
+
     '''
     	Performs RPKI Route Origin Validation, by quering the Routinator's (open source RPKI Relying Party software)
     	HTTP API endpoint running on a server (e.g., localhost on port 9556)
@@ -73,6 +153,7 @@ class SimulationRequestHandler(Resource):
         if sim_data['realistic_rpki_rov'] == False:
             print("Hypothetical ROV")
             rpki_rov_table[(sim_data['legitimate_AS'], sim_data['legitimate_prefix'])] = random.choice(["valid", "not-found"])
+            rpki_rov_table[(sim_data['legitimate_AS'], sim_data['hijacker_prefix'])] = random.choice(["valid", "not-found"]) #useful for type 1, 2, 3 ..., N attacks
             rpki_rov_table[(sim_data['legitimate_AS'], sim_data['mitigation_prefix'])] = random.choice(["valid", "not-found"])
             rpki_rov_table[(sim_data['hijacker_AS'], sim_data['hijacker_prefix'])] = random.choice(["invalid", "not-found"])
             for helper in sim_data['anycast_ASes']:
@@ -82,10 +163,12 @@ class SimulationRequestHandler(Resource):
             print("Realistic ROV")
             AS_to_validate = []
             AS_to_validate.append((sim_data['legitimate_AS'], sim_data['legitimate_prefix']))
+            AS_to_validate.append((sim_data['legitimate_AS'], sim_data['hijacker_prefix'])) #useful for type 1, 2, 3 ..., N attacks
             AS_to_validate.append((sim_data['legitimate_AS'], sim_data['mitigation_prefix']))
             AS_to_validate.append((sim_data['hijacker_AS'], sim_data['hijacker_prefix']))
             for helper in sim_data['anycast_ASes']:
                 AS_to_validate.append((helper, sim_data['mitigation_prefix']))
+            AS_to_validate = list(set([i for i in AS_to_validate])) #remove duplicates from the list
             for item in AS_to_validate:
                 origin_AS = item[0]
                 origin_prefix = item[1]
@@ -155,7 +238,10 @@ class SimulationRequestHandler(Resource):
         '''
         self.set_rpki_rov_table(Topo, sim_data, "http://localhost:9556/api/v1/validity/")
 
-
+        '''
+        Launch simulation
+        '''
+        self.launch_simulation(Topo, sim_data)
 
         return {
             'simulation_type': sim_data
