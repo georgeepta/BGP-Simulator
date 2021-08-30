@@ -1,9 +1,56 @@
 import random
+import requests
+from requests.exceptions import Timeout
+from requests.adapters import HTTPAdapter
+from requests.exceptions import ConnectionError
 from flask_restful import Api, Resource, reqparse
 from backend.core.BGPtopology import BGPtopology
 
 
 class SimulationRequestHandler(Resource):
+    '''
+    	Performs RPKI Route Origin Validation, by quering the Routinator's (open source RPKI Relying Party software)
+    	HTTP API endpoint running on a server (e.g., localhost on port 9556)
+
+    	It concatenates the endpoint_url, origin_asn, prefix arguments in a single url string and sends an GET request to the API.
+    	IF the returned HTTP status code is 200:
+    		return the validity state of this route announcement (valid, invalid, or not found)
+    	ELSE:
+    		return the HTTP status code (we dont have any data that indicate the validity of the route announcement)
+
+    	Input arguments:
+    		(a) endpoint_url: the endpoint's URL which is used for Route Origin Validation
+    			e.g., in our case http://localhost:9556/api/v1/validity/
+    		(b) origin_asn: the origin AS number of the route announcement (in AS_PATH)
+    		(c) prefix: the prefix of the route announcement
+
+    	Returns:
+    		The validity state of this route announcement (valid, invalid, or not found)
+    		IF the returned HTTP status code is 200, ELSE the HTTP status code
+    '''
+
+    def do_rov(self, endpoint_url, origin_asn, prefix):
+        url = endpoint_url + str(origin_asn) + "/" + prefix
+        routinator_adapter = HTTPAdapter(max_retries=3)
+        session = requests.Session()
+        # Use `routinator_adapter` for all requests to endpoints that start with the endpoint_url argument
+        session.mount(endpoint_url, routinator_adapter)
+        try:
+            response = session.get(url, timeout=3)
+        except ConnectionError as ce:
+            print(ce)
+        except Timeout:
+            print('The request timed out')
+        else:
+            # print('The request did not time out')
+            if response.status_code == 200:
+                # Successful GET request
+                # print(response.json())
+                return response.json()["validated_route"]["validity"]["state"]
+            else:
+                # HTTP Response not contains useful data for the ROV
+                return response.status_code
+
 
     def set_rpki_rov(self, Topo, sim_data):
         if sim_data['rpki_rov_mode'] == "all":
@@ -13,6 +60,7 @@ class SimulationRequestHandler(Resource):
         elif sim_data['rpki_rov_mode'] == "20%":
             pass
         return
+
 
     def set_rpki_rov_table(self, Topo, sim_data):
         # In type 1,2,3,...,N hijacks, the origin AS, in the AS_PATH that the hijacker announce to its neighbors,
@@ -30,16 +78,32 @@ class SimulationRequestHandler(Resource):
             for helper in sim_data['anycast_ASes']:
                 rpki_rov_table[(helper, sim_data['mitigation_prefix'])] = random.choice(["valid", "not-found"])
 
-            for asn in Topo.get_all_nodes_ASNs():
+        else:
+            print("Realistic ROV")
+            AS_to_validate = []
+            AS_to_validate.append((sim_data['legitimate_AS'], sim_data['legitimate_prefix']))
+            AS_to_validate.append((sim_data['legitimate_AS'], sim_data['mitigation_prefix']))
+            AS_to_validate.append((sim_data['hijacker_AS'], sim_data['hijacker_prefix']))
+            for helper in sim_data['anycast_ASes']:
+                AS_to_validate.append((helper, sim_data['mitigation_prefix']))
+            for item in AS_to_validate:
+                origin_AS = item[0]
+                origin_prefix = item[1]
+                validity_state = self.do_rov("http://localhost:9556/api/v1/validity/", origin_AS, origin_prefix)
+                rpki_rov_table[(origin_AS, origin_prefix)] = validity_state
+
+        '''
+        Set the rpki rov table, only if the BGPnode performs ROV 
+        '''
+        for asn in Topo.get_all_nodes_ASNs():
+            if Topo.get_node(asn).rov == True:
                 Topo.get_node(asn).rpki_validation = rpki_rov_table
 
-            for entry in rpki_rov_table:
-                print(entry, rpki_rov_table[entry])
-
-        else:
-            pass
+        for entry in rpki_rov_table:
+            print(entry, rpki_rov_table[entry])
 
         return rpki_rov_table
+
 
     def load_create_Topology(self, Topo, sim_data):
         '''
@@ -51,6 +115,7 @@ class SimulationRequestHandler(Resource):
         Topo.load_ixps_from_json('../datasets/CAIDA IXPS/' + 'ixs_' + sim_data['caida_ixps_datasets'] + '.jsonl',
                                  '../datasets/CAIDA IXPS/' + 'ix-asns_' + sim_data['caida_ixps_datasets'] + '.jsonl')
         Topo.add_extra_p2p_custom_links()
+
 
     def post(self):
         req_parser = reqparse.RequestParser()
