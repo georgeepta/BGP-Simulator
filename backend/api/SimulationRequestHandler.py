@@ -1,4 +1,4 @@
-import csv
+import json
 import random
 import requests
 from requests.exceptions import Timeout
@@ -14,7 +14,7 @@ class SimulationRequestHandler(Resource):
 
         print('Simulation started')
         simulation_step = 0
-        DATA = []
+        RESULTS = []
         counter = 0
 
         while counter < sim_data['nb_of_sims']:
@@ -23,22 +23,21 @@ class SimulationRequestHandler(Resource):
 
             # do the legitimate announcement from the victim
             Topo.add_prefix(sim_data['legitimate_AS'], sim_data['legitimate_prefix'])
-            simulation_DATA = []  # "simulation_DATA" will contain the data to be saved as the output of the simulation
-            simulation_DATA.append(Topo.get_nb_of_nodes_with_path_to_prefix(sim_data['legitimate_prefix']))
-            simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['legitimate_prefix'], sim_data['hijacker_AS']))
+            simulation_RESULTS = {'before_hijack': {}, 'after_hijack': {}, 'after_mitigation': {}}  # "simulation_DATA" will contain the data to be saved as the output of the simulation
+            simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix'] = Topo.get_nb_of_nodes_with_path_to_prefix(sim_data['legitimate_prefix'])
+            simulation_RESULTS['before_hijack']['nb_of_nodes_with_hijacked_path_to_legitimate_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['legitimate_prefix'], sim_data['hijacker_AS'])
 
             if sim_data['hijack_prefix_type'] == "exact":
 
                 # do the hijack from the hijacker
                 if Topo.do_hijack(sim_data['hijacker_AS'], sim_data['hijacker_prefix'], sim_data['hijack_type']):
-                    simulation_DATA.append(
-                        Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS']))
+                    simulation_RESULTS['after_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
 
                     # do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
                     for anycast_AS in sim_data['anycast_ASes']:
                         Topo.add_prefix(anycast_AS, sim_data['hijacker_prefix'])
-                    simulation_DATA.append(
-                        Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS']))
+                    simulation_RESULTS['after_mitigation']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+
                 else:
                     # the hijack attempt failed --> repeat the simulation
                     Topo.clear_routing_information()
@@ -48,11 +47,10 @@ class SimulationRequestHandler(Resource):
             else:
 
                 # do the hijack from the hijacker
-                simulation_DATA.append(Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS']))
+                simulation_RESULTS['before_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
 
                 if Topo.do_subprefix_hijack(sim_data['hijacker_AS'], sim_data['legitimate_prefix'], sim_data['hijacker_prefix'], sim_data['hijack_type']):
-                    simulation_DATA.append(
-                        Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS']))
+                    simulation_RESULTS['after_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
 
                     # do the mitigation by anycasting the mitigation prefix from victim AS + helper ASes
                     # (assuming they will attract traffic and then tunnel it to the victim)
@@ -60,32 +58,31 @@ class SimulationRequestHandler(Resource):
                     Topo.add_prefix(sim_data['legitimate_AS'], sim_data['mitigation_prefix'])
                     for anycast_AS in sim_data['anycast_ASes']:
                         Topo.add_prefix(anycast_AS, sim_data['mitigation_prefix'])
-                    simulation_DATA.append(
-                        Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['mitigation_prefix'], sim_data['hijacker_AS']))
+                    simulation_RESULTS['after_mitigation']['nb_of_nodes_with_hijacked_path_to_mitigation_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['mitigation_prefix'], sim_data['hijacker_AS'])
+
                 else:
                     # the hijack attempt failed --> repeat the simulation
                     Topo.clear_routing_information()
                     simulation_step = simulation_step - 1
                     continue
 
-            simulation_DATA.append(sim_data['hijacker_AS'])
-            simulation_DATA.append(sim_data['legitimate_AS'])
+            simulation_RESULTS['hijacker_AS'] = sim_data['hijacker_AS']
+            simulation_RESULTS['legitimate_AS'] = sim_data['legitimate_AS']
 
-            DATA.append(simulation_DATA)
+            RESULTS.append(simulation_RESULTS)
             Topo.clear_routing_information()
 
             counter = counter + 1
 
 
         '''
-        Write the results to a csv file
+        Write the results to a json file
         '''
-        print('Writing statistics to csv...')
-        csvfilename = '../tests/results/statistics__CAIDA' + sim_data['caida_as_graph_dataset'] + '_sims' + str(sim_data['nb_of_sims']) + '_hijackType' + str(
-            sim_data['hijack_type']) + '_test_hijacker' + '_.csv'
-        with open(csvfilename, 'w') as csvfile:
-            writer = csv.writer(csvfile, delimiter=',')
-            writer.writerows(DATA)
+        print('Writing statistics to json...')
+        jsonfilename = '../tests/results/statistics__CAIDA' + sim_data['caida_as_graph_dataset'] + '_sims' + str(sim_data['nb_of_sims']) + '_hijackType' + str(
+            sim_data['hijack_type']) + '_test_hijacker' + '_.json'
+        with open(jsonfilename, 'w') as jsonfile:
+            json.dump(RESULTS, jsonfile)
 
 
     '''
