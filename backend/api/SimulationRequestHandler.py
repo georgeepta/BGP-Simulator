@@ -1,6 +1,8 @@
 import json
 import random
+import psycopg2
 import requests
+from datetime import datetime, timezone
 from requests.exceptions import Timeout
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
@@ -8,9 +10,10 @@ from flask_restful import Api, Resource, reqparse
 from backend.core.BGPtopology import BGPtopology
 
 
+
 class SimulationRequestHandler(Resource):
 
-    def launch_simulation(self, Topo, sim_data):
+    def launch_simulation(self, Topo, sim_data, simulation_uuid, conn):
 
         print('Simulation started')
         simulation_step = 0
@@ -32,6 +35,9 @@ class SimulationRequestHandler(Resource):
                 # do the hijack from the hijacker
                 if Topo.do_hijack(sim_data['hijacker_AS'], sim_data['hijacker_prefix'], sim_data['hijack_type']):
                     simulation_RESULTS['after_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+                    simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_list_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+                    simulation_RESULTS['after_hijack']['dict_of_nodes_and_infected_paths_to_hijacker_prefix'] = Topo.Get_path_to_prefix(sim_data['hijacker_prefix'], simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'])
+                    simulation_RESULTS['after_hijack']['impact_estimation'] = simulation_RESULTS['after_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] / simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix']
 
                     # do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
                     for anycast_AS in sim_data['anycast_ASes']:
@@ -69,11 +75,17 @@ class SimulationRequestHandler(Resource):
             simulation_RESULTS['hijacker_AS'] = sim_data['hijacker_AS']
             simulation_RESULTS['legitimate_AS'] = sim_data['legitimate_AS']
 
+
             RESULTS.append(simulation_RESULTS)
             Topo.clear_routing_information()
 
             counter = counter + 1
 
+
+        '''
+        Insert simulation results in database
+        '''
+        self.insert_simulation_results_in_db(RESULTS, simulation_uuid, conn)
 
         '''
         Write the results to a json file
@@ -197,6 +209,52 @@ class SimulationRequestHandler(Resource):
         Topo.add_extra_p2p_custom_links()
 
 
+    def connect_to_db(self, db_name, user, password, host, port):
+        # establishing the connection
+        conn = psycopg2.connect(
+            database=db_name, user=user, password=password, host=host, port=port
+        )
+
+        '''
+        psycopg2 is Python DB API-compliant, so the auto-commit feature is off by default. 
+        We need to set conn.autocommit to True to commit any pending transaction to the database.
+        '''
+        conn.autocommit = True
+
+        return conn
+
+
+    def insert_simulation_data_in_db(self, sim_data, conn):
+        # Creating a cursor object using the cursor() method
+        cursor = conn.cursor()
+
+        # Preparing SQL queries to INSERT a record into the database.
+        sql = '''
+              INSERT INTO BGP_HIJACKING_SIMULATIONS(simulation_status, simulation_data, sim_start_time, num_of_simulations, num_of_finished_simulations)
+              VALUES (%s, %s, %s, %s, %s) RETURNING simulation_id''';
+
+        cursor.execute(sql, ('Pending', json.dumps(sim_data), datetime.now(timezone.utc), sim_data['nb_of_sims'], 0))
+
+        simulation_uuid = cursor.fetchone()[0]
+        print("Simulation UUID: " + simulation_uuid)
+        print("Simulation data inserted in db........")
+        return simulation_uuid
+
+
+    def insert_simulation_results_in_db(self, sim_results, simulation_uuid, conn):
+        # Creating a cursor object using the cursor() method
+        cursor = conn.cursor()
+
+        sql = '''
+              UPDATE BGP_HIJACKING_SIMULATIONS SET simulation_results = simulation_results || %s ::jsonb
+              WHERE simulation_id=%s
+           ''';
+
+        for result in sim_results:
+            cursor.execute(sql, (json.dumps(result), simulation_uuid))
+        print("Simulation results inserted in db........")
+
+
     def post(self):
         req_parser = reqparse.RequestParser()
         req_parser.add_argument('simulation_type', type=str, help="Simulation type is required (custom or as-vulnerability or country-vulnerability)")
@@ -216,6 +274,16 @@ class SimulationRequestHandler(Resource):
         req_parser.add_argument('max_nb_anycast_ASes', type=int, help="An integer denoting the maximum number of anycast ASes to be used for hijack mitigation")
 
         sim_data = req_parser.parse_args()
+
+        '''
+        create a connection to the database
+        '''
+        conn = self.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
+
+        '''
+        insert simulation data in database
+        '''
+        simulation_uuid = self.insert_simulation_data_in_db(sim_data, conn)
 
         '''
         load and create topology
@@ -238,7 +306,12 @@ class SimulationRequestHandler(Resource):
         '''
         Launch simulation
         '''
-        self.launch_simulation(Topo, sim_data)
+        self.launch_simulation(Topo, sim_data, simulation_uuid, conn)
+
+        '''
+        close connection to database
+        '''
+        conn.close()
 
         return {
             'simulation_type': sim_data

@@ -497,7 +497,7 @@ class BGPtopology:
 		return set_of_nodes_with_path_to_prefix
 
 	'''
-	Returns the set of the (given) nodes that have a path (for the given prefix) that includes the hijacker ASN.
+	Returns the list of the (given) nodes that have a path (for the given prefix) that includes the hijacker ASN.
 
 	IF a list_of_nodes is given:
 	THEN 	consider only the list of the given nodes (that exist in the topology)
@@ -506,7 +506,7 @@ class BGPtopology:
 	FOR all the considered nodes
 		IF the node has a path to the prefix
 		THEN	IF the path contains the given ASN
-				THEN 	add node to the set_of_nodes_with_path_to_prefix
+				THEN 	add node to the list_of_nodes_with_path_to_prefix
 
 	Input arguments:
 		(a) IPprefix: 		the prefix for which paths to be considered
@@ -514,10 +514,10 @@ class BGPtopology:
 		(c) list_of_nodes: 	the list of nodes, which will be considered ; default value is None (i.e., consider all the nodes of the topology)
 
 	Returns:
-		A set of ASNs
+		A list of ASNs
 	'''
-	def get_set_of_nodes_with_hijacked_path_to_prefix(self,IPprefix,hijacker_ASN, list_of_nodes=None):
-		set_of_nodes_with_path_to_prefix = set()
+	def get_list_of_nodes_with_hijacked_path_to_prefix(self,IPprefix,hijacker_ASN, list_of_nodes=None):
+		#set_of_nodes_with_path_to_prefix = set()
 		assert (hijacker_ASN in self.list_of_all_BGP_nodes)
 
 		if list_of_nodes:
@@ -539,7 +539,7 @@ class BGPtopology:
 		#return set_of_nodes_with_path_to_prefix
 
 		## Replaced with optimized one line src (functionality same as above)
-		return {node.ASN for node in list_of_nodes_to_search.values() if hijacker_ASN in node.paths.get(IPprefix, [])}
+		return [node.ASN for node in list_of_nodes_to_search.values() if hijacker_ASN in node.paths.get(IPprefix, [])]
 
 
 	''' *Custom function*
