@@ -78,6 +78,7 @@ class SimulationRequestHandler(Resource):
 
             RESULTS.append(simulation_RESULTS)
             Topo.clear_routing_information()
+            self.update_num_of_finished_sims(simulation_uuid, conn)
 
             counter = counter + 1
 
@@ -255,6 +256,42 @@ class SimulationRequestHandler(Resource):
         print("Simulation results inserted in db........")
 
 
+    def update_num_of_finished_sims(self, simulation_uuid, conn):
+        # Creating a cursor object using the cursor() method
+        cursor = conn.cursor()
+
+        sql = '''
+            UPDATE BGP_HIJACKING_SIMULATIONS SET num_of_finished_simulations = num_of_finished_simulations + 1 
+            WHERE simulation_id=%s 
+        ''';
+
+        cursor.execute(sql, (simulation_uuid,))
+
+
+    def update_simulation_status(self, status, simulation_uuid, conn):
+        # Creating a cursor object using the cursor() method
+        cursor = conn.cursor()
+
+        sql = '''
+            UPDATE BGP_HIJACKING_SIMULATIONS SET simulation_status=%s
+            WHERE simulation_id=%s 
+        ''';
+
+        cursor.execute(sql, (status, simulation_uuid))
+
+
+    def update_simulation_end_time(self, simulation_uuid, conn):
+        # Creating a cursor object using the cursor() method
+        cursor = conn.cursor()
+
+        sql = '''
+            UPDATE BGP_HIJACKING_SIMULATIONS SET sim_end_time=%s
+            WHERE simulation_id=%s 
+        ''';
+
+        cursor.execute(sql, (datetime.now(timezone.utc), simulation_uuid))
+
+
     def post(self):
         req_parser = reqparse.RequestParser()
         req_parser.add_argument('simulation_type', type=str, help="Simulation type is required (custom or as-vulnerability or country-vulnerability)")
@@ -307,6 +344,12 @@ class SimulationRequestHandler(Resource):
         Launch simulation
         '''
         self.launch_simulation(Topo, sim_data, simulation_uuid, conn)
+
+        '''
+        Update some statistic fields in db for the simulation
+        '''
+        self.update_simulation_status('Finished', simulation_uuid, conn)
+        self.update_simulation_end_time(simulation_uuid, conn)
 
         '''
         close connection to database

@@ -117,7 +117,14 @@ def select_data():
    cursor = conn.cursor()
 
    # Retrieving data
-   cursor.execute('''SELECT simulation_results FROM BGP_HIJACKING_SIMULATIONS''')
+   cursor.execute('''SELECT simulation_id, 
+                            simulation_status,
+                            simulation_data, 
+                            num_of_simulations,
+                            num_of_finished_simulations,
+                            sim_start_time,
+                            sim_end_time
+                     FROM BGP_HIJACKING_SIMULATIONS''')
 
    # Fetching 1st row from the table
    #result = cursor.fetchone();
