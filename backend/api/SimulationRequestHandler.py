@@ -63,6 +63,9 @@ class SimulationRequestHandler(Resource):
 
                 if Topo.do_subprefix_hijack(sim_data['hijacker_AS'], sim_data['legitimate_prefix'], sim_data['hijacker_prefix'], sim_data['hijack_type']):
                     simulation_RESULTS['after_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+                    simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_list_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+                    simulation_RESULTS['after_hijack']['dict_of_nodes_and_infected_paths_to_hijacker_prefix'] = Topo.Get_path_to_prefix(sim_data['hijacker_prefix'], simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'])
+                    simulation_RESULTS['after_hijack']['impact_estimation'] = "X%"
 
                     # do the mitigation by anycasting the mitigation prefix from victim AS + helper ASes
                     # (assuming they will attract traffic and then tunnel it to the victim)
