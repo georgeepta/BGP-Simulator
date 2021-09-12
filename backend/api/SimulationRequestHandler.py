@@ -13,6 +13,12 @@ from backend.core.BGPtopology import BGPtopology
 
 class SimulationRequestHandler(Resource):
 
+    '''
+    The constructor of the class. Useful for variable initialization
+    '''
+    def __init__(self):
+        self.rpki_rov_table = {}
+
     def launch_simulation(self, Topo, sim_data, simulation_uuid, conn):
 
         print('Simulation started')
@@ -74,6 +80,7 @@ class SimulationRequestHandler(Resource):
 
             simulation_RESULTS['hijacker_AS'] = sim_data['hijacker_AS']
             simulation_RESULTS['legitimate_AS'] = sim_data['legitimate_AS']
+            self.save_rov_table_in_sim_results(simulation_RESULTS)
 
 
             RESULTS.append(simulation_RESULTS)
@@ -158,16 +165,14 @@ class SimulationRequestHandler(Resource):
         # Outdated --> (Furthermore, we assume that the victim and helper ASes mitigate the subprefix attack by announcing the same subprefix
         # as the hijacker (e.g., the hijacker announces the longest subprefix that is permissible)).
 
-        rpki_rov_table = {}
-
         if sim_data['realistic_rpki_rov'] == False:
             print("Hypothetical ROV")
-            rpki_rov_table[(sim_data['legitimate_AS'], sim_data['legitimate_prefix'])] = random.choice(["valid", "not-found"])
-            rpki_rov_table[(sim_data['legitimate_AS'], sim_data['hijacker_prefix'])] = random.choice(["valid", "not-found"]) #useful for type 1, 2, 3 ..., N attacks
-            rpki_rov_table[(sim_data['legitimate_AS'], sim_data['mitigation_prefix'])] = random.choice(["valid", "not-found"])
-            rpki_rov_table[(sim_data['hijacker_AS'], sim_data['hijacker_prefix'])] = random.choice(["invalid", "not-found"])
+            self.rpki_rov_table[(sim_data['legitimate_AS'], sim_data['legitimate_prefix'])] = random.choice(["valid", "not-found"])
+            self.rpki_rov_table[(sim_data['legitimate_AS'], sim_data['hijacker_prefix'])] = random.choice(["valid", "not-found"]) #useful for type 1, 2, 3 ..., N attacks
+            self.rpki_rov_table[(sim_data['legitimate_AS'], sim_data['mitigation_prefix'])] = random.choice(["valid", "not-found"])
+            self.rpki_rov_table[(sim_data['hijacker_AS'], sim_data['hijacker_prefix'])] = random.choice(["invalid", "not-found"])
             for helper in sim_data['anycast_ASes']:
-                rpki_rov_table[(helper, sim_data['mitigation_prefix'])] = random.choice(["valid", "not-found"])
+                self.rpki_rov_table[(helper, sim_data['mitigation_prefix'])] = random.choice(["valid", "not-found"])
 
         else:
             print("Realistic ROV")
@@ -183,19 +188,17 @@ class SimulationRequestHandler(Resource):
                 origin_AS = item[0]
                 origin_prefix = item[1]
                 validity_state = self.do_rov(validator_url, origin_AS, origin_prefix)
-                rpki_rov_table[(origin_AS, origin_prefix)] = validity_state
+                self.rpki_rov_table[(origin_AS, origin_prefix)] = validity_state
 
         '''
         Set the rpki rov table, only if the BGPnode performs ROV 
         '''
         for asn in Topo.get_all_nodes_ASNs():
             if Topo.get_node(asn).rov == True:
-                Topo.get_node(asn).rpki_validation = rpki_rov_table
+                Topo.get_node(asn).rpki_validation = self.rpki_rov_table
 
-        for entry in rpki_rov_table:
-            print(entry, rpki_rov_table[entry])
-
-        return rpki_rov_table
+        for entry in self.rpki_rov_table:
+            print(entry, self.rpki_rov_table[entry])
 
 
     def load_create_Topology(self, Topo, sim_data):
@@ -290,6 +293,16 @@ class SimulationRequestHandler(Resource):
         ''';
 
         cursor.execute(sql, (datetime.now(timezone.utc), simulation_uuid))
+
+
+    def save_rov_table_in_sim_results(self, simulation_RESULTS):
+
+        simulation_RESULTS.update({'rpki_rov_table': {}})
+        for entry in self.rpki_rov_table:
+            if simulation_RESULTS['rpki_rov_table'].get(entry[0]) == None:
+                simulation_RESULTS['rpki_rov_table'].update({entry[0]: {entry[1]: self.rpki_rov_table[entry]}})
+            else:
+                simulation_RESULTS['rpki_rov_table'][entry[0]].update({entry[1]: self.rpki_rov_table[entry]})
 
 
     def post(self):
