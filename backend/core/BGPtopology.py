@@ -454,7 +454,7 @@ class BGPtopology:
 
 
 	'''
-	Returns the set of the (given) nodes that have a path to the given prefix (and, if any ASN is given, consider only paths originated by the given ASN)
+	Returns the list of the (given) nodes that have a path to the given prefix (and, if any ASN is given, consider only paths originated by the given ASN)
 
 	IF a list_of_nodes is given:
 	THEN 	consider only the list of the given nodes (that exist in the topology)
@@ -465,7 +465,7 @@ class BGPtopology:
 		THEN	IF an ASN is given
 				THEN 	IF the path that the node has, is originated by the given ASN,
 						THEN increment the nb_of_nodes_with_path_to_prefix
-				ELSE 	add node to the set_of_nodes_with_path_to_prefix
+				ELSE 	add node to the list_of_nodes_with_path_to_prefix
 
 	Input arguments:
 		(a) IPprefix: 		the prefix for which paths to be considered
@@ -473,10 +473,10 @@ class BGPtopology:
 		(c) list_of_nodes: 	the list of nodes, which will be considered ; default value is None (i.e., consider all the nodes of the topology)
 
 	Returns:
-		A set of ASNs
+		A list of ASNs
 	'''
-	def get_set_of_nodes_with_path_to_prefix(self,IPprefix,origin_ASN = None, list_of_nodes=None):
-		set_of_nodes_with_path_to_prefix = set()
+	def get_list_of_nodes_with_path_to_prefix(self,IPprefix,origin_ASN = None, list_of_nodes=None):
+		list_of_nodes_with_path_to_prefix = list()
 
 		if list_of_nodes:
 			list_of_nodes_to_search = {}
@@ -490,11 +490,11 @@ class BGPtopology:
 			if node.paths.get(IPprefix):
 				if origin_ASN:
 					if node.paths.get(IPprefix)[-1] == origin_ASN:	# in case there is path, check the origin AS in the path
-						set_of_nodes_with_path_to_prefix.add(node.ASN)
+						list_of_nodes_with_path_to_prefix.append(node.ASN)
 				else:
-					set_of_nodes_with_path_to_prefix.add(node.ASN)
+					list_of_nodes_with_path_to_prefix.append(node.ASN)
 
-		return set_of_nodes_with_path_to_prefix
+		return list_of_nodes_with_path_to_prefix
 
 	'''
 	Returns the list of the (given) nodes that have a path (for the given prefix) that includes the hijacker ASN.

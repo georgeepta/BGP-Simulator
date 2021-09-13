@@ -34,6 +34,7 @@ class SimulationRequestHandler(Resource):
             Topo.add_prefix(sim_data['legitimate_AS'], sim_data['legitimate_prefix'])
             simulation_RESULTS = {'before_hijack': {}, 'after_hijack': {}, 'after_mitigation': {}}  # "simulation_DATA" will contain the data to be saved as the output of the simulation
             simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix'] = Topo.get_nb_of_nodes_with_path_to_prefix(sim_data['legitimate_prefix'])
+            simulation_RESULTS['before_hijack']['list_of_nodes_with_path_to_legitimate_prefix'] = Topo.get_list_of_nodes_with_path_to_prefix(sim_data['legitimate_prefix'])
             simulation_RESULTS['before_hijack']['nb_of_nodes_with_hijacked_path_to_legitimate_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['legitimate_prefix'], sim_data['hijacker_AS'])
 
             if sim_data['hijack_prefix_type'] == "exact":
@@ -43,12 +44,13 @@ class SimulationRequestHandler(Resource):
                     simulation_RESULTS['after_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
                     simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_list_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
                     simulation_RESULTS['after_hijack']['dict_of_nodes_and_infected_paths_to_hijacker_prefix'] = Topo.Get_path_to_prefix(sim_data['hijacker_prefix'], simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'])
-                    simulation_RESULTS['after_hijack']['impact_estimation'] = simulation_RESULTS['after_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] / simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix']
+                    simulation_RESULTS['after_hijack']['impact_estimation'] = self.impact_estimation_after_hijack(Topo, sim_data, simulation_RESULTS)
 
                     # do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
                     for anycast_AS in sim_data['anycast_ASes']:
                         Topo.add_prefix(anycast_AS, sim_data['hijacker_prefix'])
                     simulation_RESULTS['after_mitigation']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+                    simulation_RESULTS['after_mitigation']['impact_estimation'] = self.impact_estimation_after_mitigation(Topo, sim_data, simulation_RESULTS)
 
                 else:
                     # the hijack attempt failed --> repeat the simulation
@@ -65,7 +67,7 @@ class SimulationRequestHandler(Resource):
                     simulation_RESULTS['after_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
                     simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_list_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
                     simulation_RESULTS['after_hijack']['dict_of_nodes_and_infected_paths_to_hijacker_prefix'] = Topo.Get_path_to_prefix(sim_data['hijacker_prefix'], simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'])
-                    simulation_RESULTS['after_hijack']['impact_estimation'] = "X%"
+                    simulation_RESULTS['after_hijack']['impact_estimation'] = self.impact_estimation_after_hijack(Topo, sim_data, simulation_RESULTS)
 
                     # do the mitigation by anycasting the mitigation prefix from victim AS + helper ASes
                     # (assuming they will attract traffic and then tunnel it to the victim)
@@ -74,6 +76,7 @@ class SimulationRequestHandler(Resource):
                     for anycast_AS in sim_data['anycast_ASes']:
                         Topo.add_prefix(anycast_AS, sim_data['mitigation_prefix'])
                     simulation_RESULTS['after_mitigation']['nb_of_nodes_with_hijacked_path_to_mitigation_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['mitigation_prefix'], sim_data['hijacker_AS'])
+                    simulation_RESULTS['after_mitigation']['impact_estimation'] = self.impact_estimation_after_mitigation(Topo, sim_data, simulation_RESULTS)
 
                 else:
                     # the hijack attempt failed --> repeat the simulation
@@ -306,6 +309,31 @@ class SimulationRequestHandler(Resource):
                 simulation_RESULTS['rpki_rov_table'].update({entry[0]: {entry[1]: self.rpki_rov_table[entry]}})
             else:
                 simulation_RESULTS['rpki_rov_table'][entry[0]].update({entry[1]: self.rpki_rov_table[entry]})
+
+
+    def impact_estimation_after_hijack(self, Topo, sim_data, simulation_RESULTS):
+        nb_of_nodes_with_hijacked_path_to_hijacker_prefix = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(
+            sim_data['hijacker_prefix'],
+            sim_data['hijacker_AS'],
+            simulation_RESULTS['before_hijack']['list_of_nodes_with_path_to_legitimate_prefix']
+        )
+        return nb_of_nodes_with_hijacked_path_to_hijacker_prefix / simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix']
+
+
+    def impact_estimation_after_mitigation(self, Topo, sim_data, simulation_RESULTS):
+        if sim_data['hijacker_prefix'] == sim_data['mitigation_prefix']:
+            return self.impact_estimation_after_hijack(Topo, sim_data, simulation_RESULTS)
+        else:
+            nb_of_nodes_with_path_to_mitigation_prefix = Topo.get_nb_of_nodes_with_path_to_prefix(
+                IPprefix=sim_data['mitigation_prefix'],
+                list_of_nodes=simulation_RESULTS['before_hijack']['list_of_nodes_with_path_to_legitimate_prefix']
+            )
+            nb_of_nodes_with_hijacked_path_to_mitigation_prefix = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(
+                sim_data['mitigation_prefix'],
+                sim_data['hijacker_AS'],
+                simulation_RESULTS['before_hijack']['list_of_nodes_with_path_to_legitimate_prefix']
+            )
+            return 1 - ((nb_of_nodes_with_path_to_mitigation_prefix - nb_of_nodes_with_hijacked_path_to_mitigation_prefix) / simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix'])
 
 
     def post(self):
