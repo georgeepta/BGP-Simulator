@@ -1,3 +1,4 @@
+import json
 import psycopg2
 
 
@@ -56,6 +57,7 @@ def create_bgp_hijacking_sims_table():
       simulation_data json NOT NULL, 
       simulation_results jsonb NOT NULL DEFAULT '[]'::jsonb,
       num_of_simulations INTEGER NOT NULL,
+      num_of_repetitions INTEGER NOT NULL,
       num_of_finished_simulations INTEGER,
       sim_start_time TIMESTAMPTZ,
       sim_end_time TIMESTAMPTZ, 
@@ -81,11 +83,11 @@ def insert_data():
 
    # Preparing SQL queries to INSERT a record into the database.
    sql = '''
-      INSERT INTO BGP_HIJACKING_SIMULATIONS(simulation_status, simulation_data, sim_start_time, sim_end_time, num_of_simulations, num_of_finished_simulations)
-      VALUES (%s, %s, %s, %s, %s, %s) RETURNING simulation_id''';
+      INSERT INTO BGP_HIJACKING_SIMULATIONS(simulation_status, simulation_data, sim_start_time, sim_end_time, num_of_simulations, num_of_repetitions, num_of_finished_simulations)
+      VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING simulation_id''';
 
    cursor.execute(sql, ('Pending', '{"victim_AS": "11888", "victim_prefix": "1.2.3.4/22", "hijacker_AS": "13335", "hijacker_prefix": "1.2.3.4/24"}',
-      '2021-08-22 21:17:25-07', '2021-08-22 21:27:25-07', 100, 55 ))
+      '2021-08-22 21:17:25-07', '2021-08-22 21:27:25-07', 100, 5, 55 ))
 
    simulation_uuid = cursor.fetchone()[0]
    print("simulation uuid: " + simulation_uuid)
@@ -117,14 +119,9 @@ def select_data():
    cursor = conn.cursor()
 
    # Retrieving data
-   cursor.execute('''SELECT simulation_id, 
-                            simulation_status,
-                            simulation_data, 
-                            num_of_simulations,
-                            num_of_finished_simulations,
-                            sim_start_time,
-                            sim_end_time
-                     FROM BGP_HIJACKING_SIMULATIONS''')
+   cursor.execute('''SELECT simulation_results 
+   FROM BGP_HIJACKING_SIMULATIONS 
+   WHERE simulation_id=%s''', ("2a7e9b3a-d6f0-429d-8cce-1af8f2b6155e",))
 
    # Fetching 1st row from the table
    #result = cursor.fetchone();
@@ -132,13 +129,23 @@ def select_data():
 
    # Fetching all rows from the table
    result = cursor.fetchall()
-   print(result)
+   print_results_in_json_file(result)
 
    # Commit your changes in the database
    conn.commit()
 
    # Closing the connection
    conn.close()
+
+
+def print_results_in_json_file(result):
+   '''
+   Write the results to a json file
+   '''
+   print('Writing statistics to json...')
+   jsonfilename = '../tests/results/output.json'
+   with open(jsonfilename, 'w') as jsonfile:
+      json.dump(result, jsonfile)
 
 
 if __name__ == '__main__':
