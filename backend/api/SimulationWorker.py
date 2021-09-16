@@ -158,12 +158,8 @@ class SimulationWorker:
         '''
         self.insert_simulation_results_in_db(RESULTS, simulation_uuid, conn)
 
-        return RESULTS
-
-
 
     def start(self, Topo, sim_data, rpki_rov_table, simulation_uuid):
         conn = self.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
-        simulation_results = self.launch_simulation(Topo, sim_data, rpki_rov_table, simulation_uuid, conn)
+        self.launch_simulation(Topo, sim_data, rpki_rov_table, simulation_uuid, conn)
         conn.close()
-        return simulation_results

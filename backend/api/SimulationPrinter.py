@@ -1,8 +1,8 @@
 import json
 import psycopg2
+from datetime import datetime, timezone
 
 class SimulationPrinter:
-
 
     def connect_to_db(self, db_name, user, password, host, port):
         # establishing the connection
@@ -19,35 +19,74 @@ class SimulationPrinter:
         return conn
 
 
-    def update_progress_bar(self, sim_data, simulation_uuid):
-        conn = self.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
+    def print_results_in_json_file(self, simulation_uuid, sim_data, conn):
+        '''
+        Write the results to a json file for debugging purposes
+        '''
+
+        # Creating a cursor object using the cursor() method
+        cursor = conn.cursor()
+
+        # Retrieving data
+        cursor.execute('''SELECT simulation_results FROM BGP_HIJACKING_SIMULATIONS WHERE simulation_id=%s''', (simulation_uuid,))
+
+        # Fetching all rows from the table
+        results = cursor.fetchall()[0][0]
+
+        print('Writing statistics to json...')
+        jsonfilename = '../tests/results/statistics__' + str(simulation_uuid) + '__CAIDA' + sim_data['caida_as_graph_dataset'] + '_sims' + str(
+            sim_data['nb_of_sims']) + '_hijackType' + str(sim_data['hijack_type']) + '_test_hijacker' + '_.json'
+        with open(jsonfilename, 'w') as jsonfile:
+            json.dump(results, jsonfile)
+
+
+
+    def update_simulation_status(self, status, simulation_uuid, conn):
+        # Creating a cursor object using the cursor() method
+        cursor = conn.cursor()
+
+        sql = '''
+            UPDATE BGP_HIJACKING_SIMULATIONS SET simulation_status=%s
+            WHERE simulation_id=%s 
+        ''';
+
+        cursor.execute(sql, (status, simulation_uuid))
+
+
+    def update_simulation_end_time(self, simulation_uuid, conn):
+        # Creating a cursor object using the cursor() method
+        cursor = conn.cursor()
+
+        sql = '''
+            UPDATE BGP_HIJACKING_SIMULATIONS SET sim_end_time=%s
+            WHERE simulation_id=%s 
+        ''';
+
+        cursor.execute(sql, (datetime.now(timezone.utc), simulation_uuid))
+
+
+
+    def isLastRepetition(self, simulation_uuid, sim_data, conn):
         # Creating a cursor object using the cursor() method
         cursor = conn.cursor()
         sql = '''
-               SELECT num_of_finished_simulations FROM BGP_HIJACKING_SIMULATIONS 
-               WHERE simulation_id=%s 
-           ''';
+                   SELECT num_of_finished_simulations FROM BGP_HIJACKING_SIMULATIONS 
+                   WHERE simulation_id=%s 
+               ''';
 
         cursor.execute(sql, (simulation_uuid,))
         num_of_finished_simulations = cursor.fetchone()[0]
 
-        if sim_data['simulation_type'] == "custom":
-            print('simulation step: ' + str(100 * num_of_finished_simulations / sim_data['nb_of_sims']) + '%\r', end='')
+        if num_of_finished_simulations == (sim_data['nb_of_sims'] * sim_data['nb_of_reps']):
+            print("Last Repetition ...")
+            return True
         else:
-            print('simulation step: ' + str(100 * num_of_finished_simulations / (sim_data['nb_of_reps'] * sim_data['nb_of_sims'])) + '%\r', end='')
-        return
+            return False
 
-    def print_results_in_json_file(self, sim_results, sim_data):
-        '''
-        Write the results to a json file
-        '''
-        print('Writing statistics to json...')
-        jsonfilename = '../tests/results/statistics__CAIDA' + sim_data['caida_as_graph_dataset'] + '_sims' + str(
-            sim_data['nb_of_sims']) + '_hijackType' + str(
-            sim_data['hijack_type']) + '_test_hijacker' + '_.json'
-        with open(jsonfilename, 'w') as jsonfile:
-            json.dump(sim_results, jsonfile)
-
-    def save_results(self, sim_results, sim_data):
-        self.print_results_in_json_file(sim_results, sim_data)
-        #self.update_progress_bar(task_results['sim_data'], task_results['simulation_uuid'])
+    def save_statistics(self, simulation_uuid, sim_data):
+        conn = self.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
+        if self.isLastRepetition(simulation_uuid, sim_data, conn):
+            self.update_simulation_status('Finished', simulation_uuid, conn)
+            self.update_simulation_end_time(simulation_uuid, conn)
+            self.print_results_in_json_file(simulation_uuid, sim_data, conn)
+        conn.close()

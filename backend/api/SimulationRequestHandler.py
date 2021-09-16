@@ -1,15 +1,10 @@
 import json
-import copy
 import random
 import psycopg2
-import requests
 from datetime import datetime, timezone
-from requests.exceptions import Timeout
-from requests.adapters import HTTPAdapter
-from requests.exceptions import ConnectionError
-from flask_restful import Api, Resource, reqparse
+from flask_restful import Resource, reqparse
 from backend.api.SimulationConstructor import SimulationConstructor
-from mpipe import UnorderedStage, Pipeline, UnorderedWorker, Stage
+from mpipe import Pipeline, Stage
 from backend.core.BGPtopology import BGPtopology
 
 
@@ -48,30 +43,6 @@ class SimulationRequestHandler(Resource):
         return simulation_uuid
 
 
-    def update_simulation_status(self, status, simulation_uuid, conn):
-        # Creating a cursor object using the cursor() method
-        cursor = conn.cursor()
-
-        sql = '''
-            UPDATE BGP_HIJACKING_SIMULATIONS SET simulation_status=%s
-            WHERE simulation_id=%s 
-        ''';
-
-        cursor.execute(sql, (status, simulation_uuid))
-
-
-    def update_simulation_end_time(self, simulation_uuid, conn):
-        # Creating a cursor object using the cursor() method
-        cursor = conn.cursor()
-
-        sql = '''
-            UPDATE BGP_HIJACKING_SIMULATIONS SET sim_end_time=%s
-            WHERE simulation_id=%s 
-        ''';
-
-        cursor.execute(sql, (datetime.now(timezone.utc), simulation_uuid))
-
-
     def post(self):
         req_parser = reqparse.RequestParser()
         req_parser.add_argument('simulation_type', type=str, help="Simulation type is required (custom or as-vulnerability or country-vulnerability)")
@@ -104,6 +75,11 @@ class SimulationRequestHandler(Resource):
         simulation_uuid = self.insert_simulation_data_in_db(sim_data, conn)
 
         '''
+        close connection to database
+        '''
+        conn.close()
+
+        '''
         Instantiate the BGP Hijacking Simulations
         '''
 
@@ -111,10 +87,8 @@ class SimulationRequestHandler(Resource):
         pipe = Pipeline(Stage1)
 
         print('Simulation started')
-        #print('simulation step: ' + '0.0%\r', end='')
         for task in range(0, sim_data['nb_of_sims']):
             if sim_data['simulation_type'] == "custom":
-                print(type(sim_data))
                 task_data = {"simulation_uuid": simulation_uuid, "sim_data": sim_data}
                 pipe.put(task_data)
             else:
@@ -126,16 +100,6 @@ class SimulationRequestHandler(Resource):
                 # 5) set_rpki_rov_table again
                 pass
 
-        '''
-        Update some statistic fields in db for the simulation
-        '''
-        self.update_simulation_status('Finished', simulation_uuid, conn)
-        self.update_simulation_end_time(simulation_uuid, conn)
-
-        '''
-        close connection to database
-        '''
-        conn.close()
 
         return {
             'simulation_type': sim_data

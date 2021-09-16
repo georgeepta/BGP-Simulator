@@ -1,42 +1,36 @@
-import json
 import random
-import psycopg2
 import requests
-from datetime import datetime, timezone
 from requests.exceptions import Timeout
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
-from flask_restful import Api, Resource, reqparse
 from backend.core.BGPtopology import BGPtopology
-from copy import deepcopy
 from backend.api.SimulationWorker import SimulationWorker
 from backend.api.SimulationPrinter import SimulationPrinter
-from backend.api.SimulationPrinter import SimulationPrinter
-from mpipe import UnorderedStage, Pipeline, UnorderedWorker, Stage
+from mpipe import UnorderedWorker
 
 
 class SimulationConstructor(UnorderedWorker):
 
     '''
-        Performs RPKI Route Origin Validation, by quering the Routinator's (open source RPKI Relying Party software)
-        HTTP API endpoint running on a server (e.g., localhost on port 9556)
+    Performs RPKI Route Origin Validation, by quering the Routinator's (open source RPKI Relying Party software)
+    HTTP API endpoint running on a server (e.g., localhost on port 9556)
 
-        It concatenates the endpoint_url, origin_asn, prefix arguments in a single url string and sends an GET request to the API.
-        IF the returned HTTP status code is 200:
-            return the validity state of this route announcement (valid, invalid, or not found)
-        ELSE:
-            return the HTTP status code (we dont have any data that indicate the validity of the route announcement)
+    It concatenates the endpoint_url, origin_asn, prefix arguments in a single url string and sends an GET request to the API.
+    IF the returned HTTP status code is 200:
+        return the validity state of this route announcement (valid, invalid, or not found)
+    ELSE:
+        return the HTTP status code (we dont have any data that indicate the validity of the route announcement)
 
-        Input arguments:
-            (a) endpoint_url: the endpoint's URL which is used for Route Origin Validation
-                e.g., in our case http://localhost:9556/api/v1/validity/
-            (b) origin_asn: the origin AS number of the route announcement (in AS_PATH)
-            (c) prefix: the prefix of the route announcement
+    Input arguments:
+        (a) endpoint_url: the endpoint's URL which is used for Route Origin Validation
+            e.g., in our case http://localhost:9556/api/v1/validity/
+        (b) origin_asn: the origin AS number of the route announcement (in AS_PATH)
+        (c) prefix: the prefix of the route announcement
 
-        Returns:
-            The validity state of this route announcement (valid, invalid, or not found)
-            IF the returned HTTP status code is 200, ELSE the HTTP status code
-        '''
+    Returns:
+        The validity state of this route announcement (valid, invalid, or not found)
+        IF the returned HTTP status code is 200, ELSE the HTTP status code
+    '''
 
     def do_rov(self, endpoint_url, origin_asn, prefix):
         url = endpoint_url + str(origin_asn) + "/" + prefix
@@ -155,10 +149,11 @@ class SimulationConstructor(UnorderedWorker):
         Launch simulation
         '''
         sw = SimulationWorker()
-        simulation_results = sw.start(Topo, sim_data, rpki_rov_table, simulation_uuid)
+        sw.start(Topo, sim_data, rpki_rov_table, simulation_uuid)
 
         '''
-        Save simulation results into json file
+        Update some statistic fields in db for the simulation and save simulation results into json file
+        (only if, it is the last repetition of all simulations)
         '''
-        #sp = SimulationPrinter()
-        #sp.save_results(simulation_results, sim_data)
+        sp = SimulationPrinter()
+        sp.save_statistics(simulation_uuid, sim_data)
