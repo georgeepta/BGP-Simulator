@@ -100,6 +100,9 @@ class SimulationRequestHandler(Resource):
                 # 5) set_rpki_rov_table again
                 pass
 
+        ## Term signal
+        pipe.put(None)
+
 
         return {
             'simulation_type': sim_data
