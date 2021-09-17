@@ -86,7 +86,7 @@ class SimulationPrinter:
     def save_statistics(self, simulation_uuid, sim_data):
         conn = self.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
         if self.isLastRepetition(simulation_uuid, sim_data, conn):
-            self.update_simulation_status('Finished', simulation_uuid, conn)
+            self.update_simulation_status('Completed', simulation_uuid, conn)
             self.update_simulation_end_time(simulation_uuid, conn)
             self.print_results_in_json_file(simulation_uuid, sim_data, conn)
         conn.close()

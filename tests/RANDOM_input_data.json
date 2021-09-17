@@ -1,0 +1,18 @@
+{
+  "simulation_type": "random",
+  "legitimate_AS": 0,
+  "legitimate_prefix": "x.y.z.w/m",
+  "hijacker_AS": 0,
+  "hijacker_prefix": "x.y.z.w/m",
+  "hijack_type": 2,
+  "hijack_prefix_type": "exact",
+  "anycast_ASes": [0],
+  "mitigation_prefix": "x.y.z.w/m",
+  "rpki_rov_mode": "all",
+  "nb_of_sims": 5,
+  "nb_of_reps": 1,
+  "caida_as_graph_dataset": "20210301",
+  "caida_ixps_datasets": "202104",
+  "max_nb_anycast_ASes": 2,
+  "realistic_rpki_rov": false
+}

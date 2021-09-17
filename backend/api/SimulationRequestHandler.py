@@ -1,6 +1,7 @@
 import json
 import random
 import psycopg2
+from copy import deepcopy
 from datetime import datetime, timezone
 from flask_restful import Resource, reqparse
 from backend.api.SimulationConstructor import SimulationConstructor
@@ -35,12 +36,25 @@ class SimulationRequestHandler(Resource):
               INSERT INTO BGP_HIJACKING_SIMULATIONS(simulation_status, simulation_data, sim_start_time, num_of_simulations, num_of_repetitions, num_of_finished_simulations)
               VALUES (%s, %s, %s, %s, %s, %s) RETURNING simulation_id''';
 
-        cursor.execute(sql, ('Pending', json.dumps(sim_data), datetime.now(timezone.utc), sim_data['nb_of_sims'], sim_data['nb_of_reps'], 0))
+        cursor.execute(sql, ('In-Progress', json.dumps(sim_data), datetime.now(timezone.utc), sim_data['nb_of_sims'], sim_data['nb_of_reps'], 0))
 
         simulation_uuid = cursor.fetchone()[0]
         print("Simulation UUID: " + simulation_uuid)
         print("Simulation data inserted in db........")
         return simulation_uuid
+
+
+    def load_create_Topology(self, Topo, sim_data):
+        '''
+        load and create topology
+        '''
+        print('Loading topology...')
+        Topo.load_topology_from_csv(
+            '../datasets/CAIDA AS-graph/serial-2/' + sim_data['caida_as_graph_dataset'] + '.as-rel2.txt')
+        Topo.load_ixps_from_json('../datasets/CAIDA IXPS/' + 'ixs_' + sim_data['caida_ixps_datasets'] + '.jsonl',
+                                 '../datasets/CAIDA IXPS/' + 'ix-asns_' + sim_data['caida_ixps_datasets'] + '.jsonl')
+        Topo.add_extra_p2p_custom_links()
+
 
 
     def post(self):
@@ -83,25 +97,44 @@ class SimulationRequestHandler(Resource):
         Instantiate the BGP Hijacking Simulations
         '''
 
-        Stage1 = Stage(worker_class=SimulationConstructor, size=3, do_stop_task=True, disable_result=False)
+        Stage1 = Stage(worker_class=SimulationConstructor, size=2, do_stop_task=True, disable_result=False)
         pipe = Pipeline(Stage1)
 
         print('Simulation started')
-        for task in range(0, sim_data['nb_of_sims']):
-            if sim_data['simulation_type'] == "custom":
+        if sim_data['simulation_type'] == "custom":
+            for task in range(0, sim_data['nb_of_sims']):
                 task_data = {"simulation_uuid": simulation_uuid, "sim_data": sim_data}
                 pipe.put(task_data)
-            else:
-                #TODO:
-                # 1) make a for loop with nb_of_random_pairs and select the random pairs using the Topo pointer
-                # 2) put the selected pairs in the sim data
-                # 3) clear the self.rpki_rov_table
-                # 4) clear the Topo.get_node(asn).rpki_validation from each node
-                # 5) set_rpki_rov_table again
-                pass
+            ## Term signal
+            pipe.put(None)
 
-        ## Term signal
-        pipe.put(None)
+        else:
+            # Random simulation --> get the list of all ASN
+            Topo = BGPtopology()
+            self.load_create_Topology(Topo, sim_data)
+            ASN_List = Topo.get_all_nodes_ASNs()
+            del Topo
+
+            for task in range(0, sim_data['nb_of_sims']):
+                '''
+                Full randomness at each simulation
+                '''
+                random_ASNs = random.sample(ASN_List, 2 + sim_data['max_nb_anycast_ASes'])
+                sim_data['legitimate_AS'] = random_ASNs[0]
+                sim_data['hijacker_AS'] = random_ASNs[1]
+                sim_data['anycast_ASes'] = random_ASNs[2:]
+                '''
+                Alternative selection (victim, hijacker of this simulation are not available on the other simulations)
+                
+                sim_data['legitimate_AS'] = ASN_List.pop(random.randrange(len(ASN_List)))
+                sim_data['hijacker_AS'] = ASN_List.pop(random.randrange(len(ASN_List)))
+                sim_data['anycast_ASes'] = random.sample(ASN_List, sim_data['max_nb_anycast_ASes'])                
+                '''
+                task_data = {"simulation_uuid": simulation_uuid, "sim_data": deepcopy(sim_data)}
+                pipe.put(task_data)
+
+            ## Term signal
+            pipe.put(None)
 
 
         return {
