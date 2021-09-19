@@ -4,6 +4,7 @@ sys.path.insert(0, os.path.abspath(os.getcwd()))
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 from api.SimulationRequestHandler import SimulationRequestHandler
+from api.ASVulnerabilityRequestHandler import ASVulnerabilityRequestHandler
 
 app = Flask(__name__)
 api = Api(app)
@@ -16,6 +17,7 @@ def index():
     }
 
 api.add_resource(SimulationRequestHandler, '/launch_simulation')
+api.add_resource(ASVulnerabilityRequestHandler, '/as_vulnerability_ranking')
 
 if __name__ == '__main__':
     app.run(debug=True)

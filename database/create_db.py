@@ -148,6 +148,7 @@ def print_results_in_json_file(result):
       json.dump(result, jsonfile)
 
 
+
 if __name__ == '__main__':
    #create_db()
    #create_bgp_hijacking_sims_table()
