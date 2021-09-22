@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import NewSimulation from './pages/NewSimulation';
 import SimulationEvents from './pages/SimulationEvents';
 import Home from './pages/Home';
+import Footer from './components/Footer';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path='/new-simulation' exact component={NewSimulation} />
         <Route path='/simulation-events' exact component={SimulationEvents} />
       </Switch>
+      <Footer />
     </Router>
   );
 }
