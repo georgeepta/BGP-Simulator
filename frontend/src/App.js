@@ -6,6 +6,8 @@ import NewSimulation from './pages/NewSimulation';
 import SimulationEvents from './pages/SimulationEvents';
 import Home from './pages/Home';
 import Footer from './components/Footer';
+import CustomSimulation from './pages/CustomSimulation';
+import RandomSimulation from './pages/RandomSimulation';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path='/' exact component={Home} />
         <Route path='/new-simulation' exact component={NewSimulation} />
         <Route path='/simulation-events' exact component={SimulationEvents} />
+        <Route path='/custom-simulation' exact component={CustomSimulation} />
+        <Route path='/random-simulation' exact component={RandomSimulation} />
       </Switch>
       <Footer />
     </Router>

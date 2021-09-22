@@ -1,0 +1,9 @@
+.random-simulation {
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    height: 90vh;
+    font-size: 3rem;
+    font-family: 'PT Sans', sans-serif;
+  }

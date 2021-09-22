@@ -1,5 +1,6 @@
   
   .btn.primary {
+    margin: 5px;
     padding: 8px 20px;
     border-radius: 4px;
     outline: none;
@@ -12,7 +13,6 @@
   
   .btn.primary:hover {
     padding: 6px 18px;
-    transition: all 0.3s ease-out;
     background-color: rgb(2, 129, 248);
     color: #fff;
     border-radius: 4px;
@@ -21,6 +21,7 @@
   }
 
   .btn.success {
+    margin: 5px;
     padding: 8px 20px;
     border-radius: 4px;
     outline: none;

@@ -12,6 +12,15 @@
   font-family: 'PT Sans', sans-serif;
 }
 
+.simulation-type {
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  font-family: 'PT Sans', sans-serif;
+}
+
 .home-launch {
   display:flex;
   flex-wrap: wrap;
@@ -31,7 +40,17 @@
   font-family: 'PT Sans', sans-serif;
 }
 
-.new-simulation,
+.new-simulation {
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  font-size: 3rem;
+  font-family: 'PT Sans', sans-serif;
+}
+
+
 .simulation-events {
   display: flex;
   height: 90vh;
