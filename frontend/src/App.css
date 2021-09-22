@@ -1,11 +1,36 @@
 * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
     font-family: 'PT Sans', sans-serif;
 }
 
-.home,
+.line-break {
+  width: 100%;
+}
+
+.h1 {
+  font-size: 3rem;
+  font-family: 'PT Sans', sans-serif;
+}
+
+.home-launch {
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  font-family: 'PT Sans', sans-serif;
+}
+
+.home {
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  font-size: 3rem;
+  font-family: 'PT Sans', sans-serif;
+}
+
 .new-simulation,
 .simulation-events {
   display: flex;
@@ -17,7 +42,7 @@
 
 .footer{
   margin-top: 1rem;
-  padding: 0.5rem;
+  padding: 0.1rem;
   background-color: rgb(0, 0, 0);
   position: relative;
   bottom: 0;
@@ -25,5 +50,6 @@
   width: 100%;
   color: rgb(255, 255, 255);
   text-align: right;
+  font-family: 'PT Sans', sans-serif;
 }
 
