@@ -2,11 +2,13 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath(os.getcwd()))
 from flask import Flask
+from flask_cors import CORS
 from flask_restful import Api, Resource, reqparse
 from api.SimulationRequestHandler import SimulationRequestHandler
 from api.ASVulnerabilityRequestHandler import ASVulnerabilityRequestHandler
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 @app.route('/hello', methods=['GET'])
