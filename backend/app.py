@@ -6,6 +6,7 @@ from flask_cors import CORS
 from flask_restful import Api, Resource, reqparse
 from api.SimulationRequestHandler import SimulationRequestHandler
 from api.ASVulnerabilityRequestHandler import ASVulnerabilityRequestHandler
+from api.SimulationEventsRequestHandler import SimulationEventsRequestHandler
 
 app = Flask(__name__)
 CORS(app)
@@ -20,6 +21,7 @@ def index():
 
 api.add_resource(SimulationRequestHandler, '/launch_simulation')
 api.add_resource(ASVulnerabilityRequestHandler, '/as_vulnerability_ranking')
+api.add_resource(SimulationEventsRequestHandler, '/simulation_events')
 
 if __name__ == '__main__':
     app.run(debug=True)

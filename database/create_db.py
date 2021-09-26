@@ -148,9 +148,38 @@ def print_results_in_json_file(result):
       json.dump(result, jsonfile)
 
 
+def select_data_as_json():
+   # Establishing the connection
+   conn = psycopg2.connect(
+      database="bgp_simulator", user='gepta', password='1821', host='127.0.0.1', port='5432'
+   )
+   # Setting auto commit false
+   conn.autocommit = True
+
+   # Creating a cursor object using the cursor() method
+   cursor = conn.cursor()
+
+   # Retrieving data
+
+   sql = '''SELECT json_agg(json_build_object(
+   'simulation_id',simulation_id,
+   'simulation_status', simulation_status,
+   'simulation_data', simulation_data))
+      FROM BGP_HIJACKING_SIMULATIONS''';
+
+   cursor.execute(sql)
+
+   # Fetching all rows from the table
+   result = cursor.fetchall()[0][0]
+   print(result)
+
+   # Closing the connection
+   conn.close()
+
 
 if __name__ == '__main__':
    #create_db()
    #create_bgp_hijacking_sims_table()
    #insert_data()
-   select_data()
+   #select_data()
+   select_data_as_json()

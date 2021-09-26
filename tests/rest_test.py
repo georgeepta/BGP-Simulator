@@ -13,3 +13,8 @@ print(response.json())
 as_vulnerability_ranking [GET]
 curl -X GET -H "Content-Type: application/json" -d "@as_vuln_rank_data.json" http://localhost:5000/as_vulnerability_ranking
 '''
+
+'''
+get all simulation events from db [GET]
+curl -X GET -H "Content-Type: application/json" http://localhost:5000/simulation_events
+'''
