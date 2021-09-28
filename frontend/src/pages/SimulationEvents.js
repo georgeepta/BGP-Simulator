@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
+import { useHistory } from 'react-router';
 import '../App.css';
 import './SimulationEvents.css'
 
@@ -8,6 +9,7 @@ function SimulationEvents() {
   const [data, setData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
 	const [toggleCleared, setToggleCleared] = useState(false);
+  const history = useHistory();
 
   const columns = [
     {
@@ -62,9 +64,16 @@ function SimulationEvents() {
     },
   ];
 
+
   const handleRowSelected = React.useCallback(state => {
 		setSelectedRows(state.selectedRows);
 	}, []);
+
+
+  const handleRowClicked = React.useCallback((row, event) => {
+    history.push('/simulation-details', {data: row.simulation_id})
+  }, [history]);
+
 
   const contextActions = React.useMemo(() => {
 		const handleDelete = () => {
@@ -119,6 +128,7 @@ function SimulationEvents() {
 		);
 	}, [data, selectedRows, toggleCleared]);
   
+
   
   useEffect(() => {
     fetch('http://127.0.0.1:5000/simulation_events', {
@@ -156,6 +166,7 @@ function SimulationEvents() {
         contextActions={contextActions}
 			  onSelectedRowsChange={handleRowSelected}
 			  clearSelectedRows={toggleCleared}
+        onRowClicked={handleRowClicked}
         pagination
       />
     </div>
