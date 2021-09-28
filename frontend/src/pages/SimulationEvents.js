@@ -11,14 +11,34 @@ function SimulationEvents() {
 
   const columns = [
     {
-      name: 'Simualtion UUID',
+      name: 'Simulation UUID',
       selector: row => row.simulation_id,
       sortable: true,
     },
     {
-      name: 'Simualtion Status',
+      name: 'Simulation Status',
       selector: row => row.simulation_status,
       sortable: true,
+      conditionalCellStyles: [
+        {
+          when: row => row.simulation_status === 'Completed',
+          style: {
+            color: '#009610'
+          }
+        },
+        {
+          when: row => row.simulation_status === 'In-Progress',
+          style: {
+            color: '#004b96'
+          }
+        },
+        {
+          when: row => row.simulation_status === 'Failed',
+          style: {
+            color: '#e40101'
+          }
+        },
+      ]
     },
     {
       name: 'Simulation Type',
@@ -40,7 +60,7 @@ function SimulationEvents() {
       selector: row => row.sim_end_time,
       sortable: true,
     },
-  ]
+  ];
 
   const handleRowSelected = React.useCallback(state => {
 		setSelectedRows(state.selectedRows);
@@ -49,9 +69,36 @@ function SimulationEvents() {
   const contextActions = React.useMemo(() => {
 		const handleDelete = () => {
 			
-			if (window.confirm(`Are you sure you want to delete:\r ${selectedRows.map(r => r.simulation_id)}?`)) {
+			if (window.confirm(`The following Simulations will permanently deleted from db: \n\n ${selectedRows.map(r => r.simulation_id + '\n')} \nAre you sure?`)) {
 				setToggleCleared(!toggleCleared);
 				setData(data.filter(x => !selectedRows.includes(x)));
+        selectedRows.forEach(row => {
+
+          fetch('http://127.0.0.1:5000/simulation_events', {
+            method: 'DELETE',
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({'simulation_uuid': row.simulation_id})
+          }).then(async response => {
+            const isJson = response.headers.get('content-type')?.includes('application/json');
+            const data = isJson && await response.json();
+
+            // check for error response
+            if (!response.ok) {
+                // get error message from body or default to response status
+                console.log(data)
+                const error = data || response.status;
+                throw error;
+                /*return Promise.reject(error);*/
+            }
+
+            //Successful Request --> do some action
+            console.log(data)
+
+          }).catch(error => {
+            console.error('There was an error!', error.message);
+          });
+
+        });
 			}
 		};
 

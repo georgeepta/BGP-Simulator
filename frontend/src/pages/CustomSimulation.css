@@ -2,6 +2,7 @@
     max-width: 400px;
     margin: 0 auto;
     text-align: center;
+    font-family: 'PT Sans', sans-serif;
   }
   .custom-simulation label {
     text-align: left;
@@ -30,6 +31,7 @@
     padding: 8px;
     border-radius: 8px;
     cursor: pointer;
+    font-family: 'PT Sans', sans-serif;
   }
 
   .custom-simulation button:hover {    

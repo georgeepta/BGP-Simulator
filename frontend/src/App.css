@@ -1,6 +1,5 @@
 * {
     box-sizing: border-box;
-    font-family: 'PT Sans', sans-serif;
 }
 
 .line-break {
@@ -49,6 +48,7 @@
   font-size: 3rem;
   font-family: 'PT Sans', sans-serif;
 }
+
 
 .footer{
   margin-top: 1rem;

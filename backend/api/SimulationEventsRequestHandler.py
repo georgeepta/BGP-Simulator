@@ -43,6 +43,23 @@ class SimulationEventsRequestHandler(Resource):
         return results
 
 
+    def delete_simulation_from_db(self, simulation_uuid, conn):
+        # Creating a cursor object using the cursor() method
+        cursor = conn.cursor()
+
+        sql = '''
+        DELETE FROM BGP_HIJACKING_SIMULATIONS
+        WHERE simulation_id=%s
+        RETURNING simulation_id
+        ''';
+
+        cursor.execute(sql, (simulation_uuid,))
+
+        simulation_uuid = cursor.fetchone()[0]
+        print('Simulation with UUID: ' + simulation_uuid + ' deleted permanently from db')
+        return simulation_uuid
+
+
     def get(self):
         '''
         create a connection to the database
@@ -60,4 +77,29 @@ class SimulationEventsRequestHandler(Resource):
         conn.close()
 
         return results, 200
+
+
+    def delete(self):
+        req_parser = reqparse.RequestParser()
+        req_parser.add_argument('simulation_uuid', type=str, required=True, help="Give the unique UUID of the simulation.")
+        simulation_uuid = req_parser.parse_args()['simulation_uuid']
+
+        '''
+        create a connection to the database
+        '''
+        conn = self.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
+
+        '''
+        Delete the requested simulation from db
+        '''
+        self.delete_simulation_from_db(simulation_uuid, conn)
+
+        '''
+        close connection to database
+        '''
+        conn.close()
+
+        return {'message': 'Simulation with UUID: ' + simulation_uuid + ' deleted permanently from db'}, 200
+
+
 
