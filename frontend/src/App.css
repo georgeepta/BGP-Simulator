@@ -50,15 +50,6 @@
   font-family: 'PT Sans', sans-serif;
 }
 
-
-.simulation-events {
-  display: flex;
-  height: 90vh;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-}
-
 .footer{
   margin-top: 1rem;
   padding: 0.1rem;
