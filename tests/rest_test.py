@@ -18,3 +18,8 @@ curl -X GET -H "Content-Type: application/json" -d "@as_vuln_rank_data.json" htt
 get all simulation events from db [GET]
 curl -X GET -H "Content-Type: application/json" http://localhost:5000/simulation_events
 '''
+
+'''
+get all info for a specific simulation [GET]
+curl -X GET "http://localhost:5000/simulation_details?simulation_uuid=a5d3c351-bfd8-40be-ae25-e0c1912c5b7e"
+'''

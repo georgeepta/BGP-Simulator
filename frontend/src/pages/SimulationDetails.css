@@ -3,6 +3,13 @@
     display:flex;
   }
   
+  .simulation-details h1 {
+    font-weight: 500;
+    padding-bottom: 9px;
+    margin: 40px 20px 20px;
+    border-bottom: 1px solid #eee;
+  }
+
   .table-striped {
     min-height: .01%;
     width: 100%;
