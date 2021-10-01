@@ -111,7 +111,36 @@ def do_rov(endpoint_url, asn, prefix):
             return response.status_code
 
 
+def AsToOrgDict():
 
+    AS_dict = {}
+    Org_dict = {}
+
+    file_path = '/home/george/UOC-CSD/MASTER/master_thesis/BGP-Simulator/datasets/AS-2-Orgs-mappings/20210701.as-org2info.jsonl'
+
+    with open(file_path) as f:
+        for line in f:
+            data  = json.loads(line)
+            if data["type"] == "ASN":
+                ASN = data.pop("asn", None)
+                if ASN not in AS_dict:
+                    AS_dict[ASN] = data
+            elif data["type"] == "Organization":
+                Org = data.pop("organizationId", None)
+                if Org not in Org_dict:
+                    Org_dict[Org] = data
+            else:
+                #invalid line
+                pass
+
+    #ASN to Organization mapping
+    for ASN in AS_dict:
+        org_id = AS_dict[ASN]["organizationId"]
+        if org_id in Org_dict.keys():
+            org_data = Org_dict[org_id]
+            AS_dict[ASN]["organizationDetails"] = org_data
+
+    print(AS_dict)
 
 
 if __name__ == '__main__':
@@ -124,7 +153,7 @@ if __name__ == '__main__':
 
     for prefix in ipv6_tree:
         print(prefix, ipv6_tree[prefix])
-    '''
+    
 
     rpki_validation = {("24409", "1.2.4.0/24") : "not-found",
                        ("38803", "1.2.4.0/24") : "invalid",
@@ -155,3 +184,5 @@ if __name__ == '__main__':
 
     ## Term signal
     pipe.put(None)
+    '''
+    AsToOrgDict()
