@@ -40,9 +40,24 @@ class SimulationDetailsRequestHandler(Resource):
         cursor.execute(sql, (simulation_uuid,))
 
         # Fetching all rows from the table
-        result = cursor.fetchall()[0][0][0]
+        sim_details = cursor.fetchall()[0][0][0]
 
-        return result
+        asns_details_dict = {}
+
+        for result in sim_details["simulation_results"]:
+            asn_list = [] #result["anycast_ASes"] TODO: Important !!! should be added
+            asn_list.extend([result["legitimate_AS"], result["hijacker_AS"]])
+            for asn in asn_list:
+                if asn not in asns_details_dict:
+                    sql2 = '''SELECT asn_to_org_data FROM ASN_TO_ORG WHERE asn=%s''';
+                    # Retrieving data
+                    cursor.execute(sql2, (asn,))
+                    asn_details = cursor.fetchall()[0][0]
+                    asns_details_dict[asn] = asn_details
+
+        sim_details["asns_details"] = asns_details_dict
+
+        return sim_details
 
 
     def get(self):
