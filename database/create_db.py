@@ -152,7 +152,7 @@ class Init_Database():
       AS_dict = {}
       Org_dict = {}
 
-      file_path = '/home/george/UOC-CSD/MASTER/master_thesis/BGP-Simulator/datasets/AS-2-Orgs-mappings/20210701.as-org2info.jsonl'
+      file_path = '../datasets/AS-2-Orgs-mappings/20210701.as-org2info.jsonl'
 
       with open(file_path) as f:
          for line in f:
