@@ -41,6 +41,7 @@ class SimulationDetailsRequestHandler(Resource):
 
         # Fetching all rows from the table
         sim_details = cursor.fetchall()[0][0][0]
+        [result.update({"id": str(index)}) for index, result in enumerate(sim_details["simulation_results"])]
 
         asns_details_dict = {}
 

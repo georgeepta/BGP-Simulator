@@ -49,6 +49,30 @@
     text-align: left;
   }
 
+
+  .simulation-details .btn {
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    touch-action: manipulation;
+    cursor: pointer;
+    border: 1px solid transparent;
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+  }
+
+  .simulation-details .btn:hover {
+    background-color: #2e6da4;
+  }
+
+
   @media screen and (max-width: 960px) {
     .row {
         display:block;
