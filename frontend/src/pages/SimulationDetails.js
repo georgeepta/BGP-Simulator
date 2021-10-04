@@ -5,16 +5,32 @@ import '../App.css';
 import './SimulationDetails.css';
 import {ASInfo} from '../components/ASInfo';
 import '../components/ASInfo.css';
+import Popup from '../components/Popup';
 
 
 function SimulationDetails() {
     
     const [data, setData] = useState();
+    const [PopUpData, setPopUpData] = useState();
     const [isDataAvailable, setIsDataAvailable] = useState(false);
     const [simResults, setSimResults] = useState();
     const history = useHistory();
     const simulation_uuid = history.location.state.data;
+    const [isOpen, setIsOpen] = useState(false);
 
+    const togglePopup = () => {
+        setIsOpen(!isOpen);
+    }
+
+    const setPopup = (id) => {
+        data.simulation_results.forEach(element => {
+            if(element["id"] === id) {
+                setPopUpData(element);
+                togglePopup();
+                return;
+            }
+        });
+    }
 
 
     const columns = [
@@ -133,7 +149,7 @@ function SimulationDetails() {
             ]
         },
         {
-            cell:(row) => <button id={row.id} className="btn">More Details</button>,
+            cell:(row) => <button id={row.id} className="btn" onClick={() => setPopup(row.id)}>More Details</button>,
             ignoreRowClick: true,
             allowOverflow: true,
             button: true,
@@ -272,6 +288,7 @@ function SimulationDetails() {
                     pagination
                 />
             </div>
+            {isOpen && <Popup rep_data={PopUpData} handleClose={togglePopup} />}
         </div>
   );
 }
