@@ -185,8 +185,4 @@ if __name__ == '__main__':
     ## Term signal
     pipe.put(None)
     '''
-    #AsToOrgDict()
-
-    test_data = [{"hijacker": "cedevf"}, {"hijacker": "feefrf"}]
-    [result.update({"id": str(index)}) for index, result in enumerate(test_data)]
-    print(test_data)
+    AsToOrgDict()

@@ -3,6 +3,9 @@ import DataTable from 'react-data-table-component';
 import { useHistory } from 'react-router';
 import '../App.css';
 import './SimulationDetails.css';
+import {ASInfo} from '../components/ASInfo';
+import '../components/ASInfo.css';
+
 
 function SimulationDetails() {
     
@@ -22,12 +25,12 @@ function SimulationDetails() {
         },
         {
             name: 'Legitimate AS',
-            selector: row => row.legitimate_AS,
+            cell: (row) => <ASInfo asn={row.legitimate_AS} asns_details_dict={data.asns_details} />,
             sortable: true,
         },
         {
             name: 'Hijacker AS',
-            selector: row => row.hijacker_AS,
+            cell: (row) => <ASInfo asn={row.hijacker_AS} asns_details_dict={data.asns_details} />,
             sortable: true,
         },
         {
@@ -37,22 +40,105 @@ function SimulationDetails() {
         },
         {
             name: 'Impact Estimation (After Hijack)',
-            selector: row => row.after_hijack.impact_estimation,
+            selector: row => parseFloat(row.after_hijack.impact_estimation * 100).toFixed(4) + '%',
             sortable: true,
+            center: true,
+            style: {
+                borderRadius: '40px',
+            },
+            conditionalCellStyles: [
+                {
+                    when: row => parseFloat(row.after_hijack.impact_estimation) < 0.01,
+                    style: {
+                        background: 'rgba(69,223,73,0.13627449270723913)',
+                    }
+                },
+                {
+                    when: row => parseFloat(row.after_hijack.impact_estimation) > 0.01 && parseFloat(row.after_hijack.impact_estimation) < 0.10,
+                    style: {
+                        background: 'rgba(156,223,69,0.13627449270723913)',
+                    }
+                },
+                {
+                    when: row => parseFloat(row.after_hijack.impact_estimation) > 0.10 && parseFloat(row.after_hijack.impact_estimation) < 0.20,
+                    style: {
+                        background: 'rgba(223,199,69,0.13627449270723913)',
+                    }
+                },
+                {
+                    when: row => parseFloat(row.after_hijack.impact_estimation) > 0.20 && parseFloat(row.after_hijack.impact_estimation) < 0.40,
+                    style: {
+                        background: 'rgba(223,143,69,0.5536414394859506)',
+                    }
+                },
+                {
+                    when: row => parseFloat(row.after_hijack.impact_estimation) > 0.40 && parseFloat(row.after_hijack.impact_estimation) < 0.70,
+                    style: {
+                        background: 'rgba(223,86,69,0.5956582462086397)',
+                    }
+                },
+                {
+                    when: row => parseFloat(row.after_hijack.impact_estimation) > 0.70,
+                    style: {
+                        background: 'rgba(223,69,69,0.7833333162366509)',
+                    }
+                },
+            ]
         },
         {
             name: 'Impact Estimation (After Mitigation)',
-            selector: row => row.after_mitigation.impact_estimation,
+            selector: row => parseFloat(row.after_mitigation.impact_estimation * 100).toFixed(4) + '%',
             sortable: true,
+            center: true,
+            style: {
+                borderRadius: '40px',
+            },
+            conditionalCellStyles: [
+                {
+                    when: row => parseFloat(row.after_mitigation.impact_estimation) < 0.01,
+                    style: {
+                        background: 'rgba(69,223,73,0.13627449270723913)',
+                    }
+                },
+                {
+                    when: row => parseFloat(row.after_mitigation.impact_estimation) > 0.01 && parseFloat(row.after_mitigation.impact_estimation) < 0.10,
+                    style: {
+                        background: 'rgba(156,223,69,0.13627449270723913)',
+                    }
+                },
+                {
+                    when: row => parseFloat(row.after_mitigation.impact_estimation) > 0.10 && parseFloat(row.after_mitigation.impact_estimation) < 0.20,
+                    style: {
+                        background: 'rgba(223,199,69,0.13627449270723913)',
+                    }
+                },
+                {
+                    when: row => parseFloat(row.after_mitigation.impact_estimation) > 0.20 && parseFloat(row.after_mitigation.impact_estimation) < 0.40,
+                    style: {
+                        background: 'rgba(223,143,69,0.5536414394859506)',
+                    }
+                },
+                {
+                    when: row => parseFloat(row.after_mitigation.impact_estimation) > 0.40 && parseFloat(row.after_mitigation.impact_estimation) < 0.70,
+                    style: {
+                        background: 'rgba(223,86,69,0.5956582462086397)',
+                    }
+                },
+                {
+                    when: row => parseFloat(row.after_mitigation.impact_estimation) > 0.70,
+                    style: {
+                        background: 'rgba(223,69,69,0.7833333162366509)',
+                    }
+                },
+            ]
         },
         {
             cell:(row) => <button id={row.id} className="btn">More Details</button>,
             ignoreRowClick: true,
             allowOverflow: true,
-            button: true
+            button: true,
         },
-    ]
-
+    ];
   
     
     useEffect(() => {
@@ -146,19 +232,46 @@ function SimulationDetails() {
                             {isDataAvailable && <td>{data.simulation_data.max_nb_anycast_ASes}</td>}
                             {!isDataAvailable && <td>N/A</td>}
                         </tr>
+                        {isDataAvailable && data.simulation_data.simulation_type === "custom" && <tr>
+                            <th>Legitimate AS Prefix:</th>
+                            {isDataAvailable && <td className="asn-info">
+                                <a href={"https://stat.ripe.net/" + data.simulation_data.legitimate_prefix + "#tabId=routing"} target="_blank" rel="noreferrer">
+                                    {data.simulation_data.legitimate_prefix}
+                                </a>
+                                </td>}
+                            {!isDataAvailable && <td>N/A</td>}
+                        </tr>}
+                        {isDataAvailable && data.simulation_data.simulation_type === "custom" && <tr>
+                            <th>Hijacker AS Prefix:</th>
+                            {isDataAvailable && <td className="asn-info">
+                                <a href={"https://stat.ripe.net/" + data.simulation_data.hijacker_prefix + "#tabId=routing"} target="_blank" rel="noreferrer">
+                                    {data.simulation_data.hijacker_prefix}
+                                </a>
+                                </td>}
+                            {!isDataAvailable && <td>N/A</td>}
+                        </tr>}
+                        {isDataAvailable && data.simulation_data.simulation_type === "custom" && <tr>
+                            <th>Mitigation Prefix:</th>
+                            {isDataAvailable && <td className="asn-info">
+                                <a href={"https://stat.ripe.net/" + data.simulation_data.mitigation_prefix + "#tabId=routing"} target="_blank" rel="noreferrer">
+                                    {data.simulation_data.mitigation_prefix}
+                                </a>
+                                </td>}
+                            {!isDataAvailable && <td>N/A</td>}
+                        </tr>}
                     </tbody>
                 </table>
             </div>
-
-            <DataTable 
-                title="Results per Repetition"
-                columns={columns}
-                data={simResults}
-                highlightOnHover
-                selectableRows
-                pagination
-            />
-
+            <div className="data-table">
+                <DataTable 
+                    title="Results per Repetition"
+                    columns={columns}
+                    data={simResults}
+                    progressPending={!isDataAvailable}
+                    highlightOnHover
+                    pagination
+                />
+            </div>
         </div>
   );
 }
