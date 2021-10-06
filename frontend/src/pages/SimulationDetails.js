@@ -288,7 +288,7 @@ function SimulationDetails() {
                     pagination
                 />
             </div>
-            {isOpen && <Popup rep_data={PopUpData} handleClose={togglePopup} />}
+            {isOpen && <Popup rep_data={PopUpData} asns_details_dict={data.asns_details} handleClose={togglePopup} />}
         </div>
   );
 }

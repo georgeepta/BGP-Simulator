@@ -1,6 +1,7 @@
 
   .row {
     display:flex;
+    overflow: auto;
   }
   
   .simulation-details h1 {
