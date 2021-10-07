@@ -95,14 +95,14 @@ const Popup = props => {
                 </tbody>
               </table>
             </div>
-            <div style={{marginLeft: "50px"}}>
+            <div style={{marginLeft: "50px", marginRight: "30px"}}>
               <h1>RPKI ROV Table</h1>
               <DataTable 
                 columns={rpki_rov_table_columns}
                 data={rpki_rov_table_data}
               />
             </div>
-            <div style={{marginLeft: "50px"}}>
+            <div>
               <h1>List of ASes that do ROV</h1>
               <DataTable 
                 columns={rpki_rov_table_columns}
@@ -112,30 +112,59 @@ const Popup = props => {
           </div>
           <h1>Useful Statistics/Metrics</h1>
           <div className='row'>
-            <Chart
-              width={400}
-              height={300}
-              chartType="ColumnChart"
-              loader={<div>Loading Chart</div>}
-              data={[
-                ['%', 'After Hijack', 'After Mitigation'],
-                ['23443', 56, 23],
-              ]}
-              options={{
-                title: 'Impact Estimation',
-                chartArea: { width: '30%' },
-                colors: ['#b0120a', '#ffab91'],
-                hAxis: {
-                  title: '# Route Collectors \n(Monitors)',
-                  minValue: 0,
-                  maxValue: 100
-                },
-                vAxis: {
-                  title: '% Impact',
-                },
-              }}
-              legendToggle
-            />
+            <div>
+              <Chart
+                chartType="ColumnChart"
+                loader={<div>Loading Chart</div>}
+                data={[
+                  ['%', 'After Hijack', 'After Mitigation'],
+                  [props.rep_data.before_hijack.nb_of_nodes_with_path_to_legitimate_prefix.toString(), 
+                    props.rep_data.after_hijack.impact_estimation,
+                    props.rep_data.after_mitigation.impact_estimation
+                  ],
+                ]}
+                options={{
+                  title: 'Impact Estimation',
+                  chartArea: { width: '40%' },
+                  colors: ['#b0120a', '#ffab91'],
+                  hAxis: {
+                    title: '# Route Collectors \n(Monitors)',
+                    minValue: 0,
+                    maxValue: 100
+                  },
+                  vAxis: {
+                    title: '% Impact',
+                  },
+                  width: 500,
+                  height: 300
+                }}
+                legendToggle
+              />
+            </div>
+            <div style={{marginLeft: "180px"}}>
+              <Chart
+                chartType="Bar"
+                loader={<div>Loading Chart</div>}
+                data={[
+                  ['', 'Before Hijack', 'After Hijack', 'After Mitigation'],
+                  ['# Nodes with Hijacked Path', 
+                    props.rep_data.before_hijack.nb_of_nodes_with_hijacked_path_to_legitimate_prefix, 
+                    props.rep_data.after_hijack.nb_of_nodes_with_hijacked_path_to_hijacker_prefix, 
+                    props.rep_data.after_mitigation.nb_of_nodes_with_hijacked_path_to_hijacker_prefix,
+                  ],
+                ]}
+                options={{
+                  // Material design options
+                  chart: {
+                    title: '',
+                    subtitle: '',
+                  },
+                  width: 400,
+                  height: 300
+                }}
+              />
+            </div>
+
           </div>
           <DataTable 
             title="Infected ASes and Paths"
