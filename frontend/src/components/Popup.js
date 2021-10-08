@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './Popup.css';
-import DataTable from 'react-data-table-component';
+import InfectedPathsTable from './InfectedPathsTable';
 import ASPath from '../components/ASPath';
 import {ASInfo} from '../components/ASInfo';
 import Chart from "react-google-charts";
+import DataTable from 'react-data-table-component';
 
 
 
@@ -164,16 +165,17 @@ const Popup = props => {
                 }}
               />
             </div>
-
           </div>
-          <DataTable 
-            title="Infected ASes and Paths"
-            columns={columns_infectedASes_AfterHijack}
-            data={infectedASes_AfterHijack}
-            progressPending={!isRenderAvailable}
-            highlightOnHover
-            pagination
-          />
+          <div style={{marginTop: "100px"}}>
+            {isRenderAvailable && <InfectedPathsTable
+              title="Infected ASes and Paths After Hijack"
+              columns={columns_infectedASes_AfterHijack}
+              data={infectedASes_AfterHijack}
+              progressPending={!isRenderAvailable}
+              highlightOnHover
+              pagination
+            />}
+          </div>
         </div>
       </div>
     );
