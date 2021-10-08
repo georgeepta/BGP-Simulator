@@ -194,6 +194,22 @@ class Init_Database():
       print("Records inserted........")
 
 
+   def selelect_asn_details(self, conn):
+      # Creating a cursor object using the cursor() method
+      cursor = conn.cursor()
+
+      # Preparing SQL queries to INSERT a record into the database.
+      sql = '''SELECT * FROM ASN_TO_ORG''';
+      cursor.execute(sql)
+      result = cursor.fetchall()
+      print(result)
+      asns_details_dict = {}
+      for row in result:
+         asns_details_dict[row[0]] = row[1]
+
+      print(asns_details_dict)
+
+
 
 if __name__ == '__main__':
    init_db = Init_Database()
@@ -203,6 +219,7 @@ if __name__ == '__main__':
    #insert_data()
    #select_data()
    #select_data_as_json()
-   init_db.create_asn_to_org_table(conn)
-   init_db.insert_data_asn_to_org(init_db.create_As_To_Org_Dict(), conn)
+   #init_db.create_asn_to_org_table(conn)
+   #init_db.insert_data_asn_to_org(init_db.create_As_To_Org_Dict(), conn)
+   init_db.selelect_asn_details(conn)
    conn.close()
