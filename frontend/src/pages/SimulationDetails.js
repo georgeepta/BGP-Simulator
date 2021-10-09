@@ -51,7 +51,9 @@ function SimulationDetails() {
         },
         {
             name: 'Helper ASes',
-            selector: row => row.anycast_ASes,
+            cell: (row) => <div>
+                {row.anycast_ASes.map((asn, i) => <ASInfo key={i} asn={asn} asns_details_dict={data.asns_details} />)}
+            </div>,
             sortable: true,
         },
         {

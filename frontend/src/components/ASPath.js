@@ -28,13 +28,17 @@ function ASPath(props) {
         };
 
         const AS_info_str = (asn) => {
-            return (
-                "AS Name: "+props.asns_details_dict[asn]["name"]+"</br>"+
-                "Country: "+props.asns_details_dict[asn]["organizationDetails"]["country"]+"</br>"+
-                "Organization Name: "+props.asns_details_dict[asn]["organizationDetails"]["name"]+"</br>"+
-                "Organization ID: "+props.asns_details_dict[asn]["organizationId"]+"</br>"+
-                "RIR: "+props.asns_details_dict[asn]["organizationDetails"]["source"]+"</br>"
-            )
+            if (props.asns_details_dict.hasOwnProperty(asn)){
+                return (
+                    "AS Name: "+props.asns_details_dict[asn]["name"]+"</br>"+
+                    "Country: "+props.asns_details_dict[asn]["organizationDetails"]["country"]+"</br>"+
+                    "Organization Name: "+props.asns_details_dict[asn]["organizationDetails"]["name"]+"</br>"+
+                    "Organization ID: "+props.asns_details_dict[asn]["organizationId"]+"</br>"+
+                    "RIR: "+props.asns_details_dict[asn]["organizationDetails"]["source"]+"</br>"
+                )
+            }else{
+                return "No Info Available"
+            }
         }
 
         graph.nodes.push({id: props.asn, label: props.asn, title: AS_info_str(props.asn)})

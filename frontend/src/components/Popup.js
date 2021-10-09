@@ -94,7 +94,9 @@ const Popup = (props) => {
                   </tr>
                   <tr>
                       <th>Helper ASes:</th>
-                      <td></td>
+                      <td>
+                        {props.rep_data.anycast_ASes.map((asn, i) => <ASInfo key={i} asn={asn} asns_details_dict={props.asns_details_dict} />)}
+                      </td>
                   </tr>
                 </tbody>
               </table>
@@ -154,7 +156,7 @@ const Popup = (props) => {
                   ['# Nodes with Hijacked Path', 
                     props.rep_data.before_hijack.nb_of_nodes_with_hijacked_path_to_legitimate_prefix, 
                     props.rep_data.after_hijack.nb_of_nodes_with_hijacked_path_to_hijacker_prefix, 
-                    props.rep_data.after_mitigation.nb_of_nodes_with_hijacked_path_to_hijacker_prefix,
+                    props.rep_data.after_mitigation.nb_of_nodes_with_hijacked_path_to_mitigation_prefix,
                   ],
                 ]}
                 options={{
