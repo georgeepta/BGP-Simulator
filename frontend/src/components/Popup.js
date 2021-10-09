@@ -9,7 +9,7 @@ import DataTable from 'react-data-table-component';
 
 
 
-const Popup = props => {
+const Popup = (props) => {
     
   const [rpki_rov_table_data, setRpki_rov_table_data] = useState();
   const [infectedASes_AfterHijack, setInfectedASes_AfterHijack] = useState();
@@ -20,12 +20,12 @@ const Popup = props => {
   const columns_infectedASes_AfterHijack = [
     {
       name: 'Infected AS',
-      selector: row => row.asn,
+      selector: row => <ASInfo asn={row.asn.split(",")[0]} asns_details_dict={props.asns_details_dict} />,
       sortable: true,
     },
     {
       name: 'Infected AS_PATH',
-      cell: (row) => <ASPath asn={row.asn} as_path={props.rep_data.after_hijack.dict_of_nodes_and_infected_paths_to_hijacker_prefix[row.asn]}/>,
+      cell: (row) => <ASPath asn={row.asn.split(",")[0]} asns_details_dict={props.asns_details_dict} as_path={props.rep_data.after_hijack.dict_of_nodes_and_infected_paths_to_hijacker_prefix[row.asn.split(",")[0]]}/>,
     },
   ]
 
@@ -62,10 +62,13 @@ const Popup = props => {
     
     
     for (let asn in props.rep_data.after_hijack.dict_of_nodes_and_infected_paths_to_hijacker_prefix){
-      infectedASes_AfterHijack.push({"asn": asn})
+      if (props.asns_details_dict.hasOwnProperty(asn)){
+        infectedASes_AfterHijack.push({"asn": asn+','+props.asns_details_dict[asn]["name"]})
+      }else{
+        infectedASes_AfterHijack.push({"asn": asn+','})
+      }
     }
     setInfectedASes_AfterHijack(infectedASes_AfterHijack)
-
     
     setIsRenderAvailable(true)
     
@@ -171,6 +174,7 @@ const Popup = props => {
               title="Infected ASes and Paths After Hijack"
               columns={columns_infectedASes_AfterHijack}
               data={infectedASes_AfterHijack}
+              asns_details_dict={props.asns_details_dict}
               progressPending={!isRenderAvailable}
               highlightOnHover
               pagination

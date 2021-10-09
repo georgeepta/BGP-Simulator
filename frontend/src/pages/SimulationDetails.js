@@ -174,7 +174,6 @@ function SimulationDetails() {
                 }
     
                 //Successful Request --> do some action
-                console.log(data);
                 setData(data);
                 setSimResults(data.simulation_results)
                 setIsDataAvailable(true);
