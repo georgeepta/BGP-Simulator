@@ -67,7 +67,10 @@ class SimulationWorker:
                 sim_data['hijacker_AS'],
                 simulation_RESULTS['before_hijack']['list_of_nodes_with_path_to_legitimate_prefix']
             )
-            return 1 - ((nb_of_nodes_with_path_to_mitigation_prefix - nb_of_nodes_with_hijacked_path_to_mitigation_prefix) / simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix'])
+            if simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix'] > 0:
+                return 1 - ((nb_of_nodes_with_path_to_mitigation_prefix - nb_of_nodes_with_hijacked_path_to_mitigation_prefix) / simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix'])
+            else:
+                return 0
 
 
     def impact_estimation_after_hijack(self, Topo, sim_data, simulation_RESULTS):
@@ -76,7 +79,10 @@ class SimulationWorker:
             sim_data['hijacker_AS'],
             simulation_RESULTS['before_hijack']['list_of_nodes_with_path_to_legitimate_prefix']
         )
-        return nb_of_nodes_with_hijacked_path_to_hijacker_prefix / simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix']
+        if simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix'] > 0:
+            return nb_of_nodes_with_hijacked_path_to_hijacker_prefix / simulation_RESULTS['before_hijack']['nb_of_nodes_with_path_to_legitimate_prefix']
+        else:
+            return 0
 
 
     def launch_simulation(self, Topo, sim_data, rpki_rov_table, simulation_uuid, conn):
@@ -101,14 +107,20 @@ class SimulationWorker:
                 # do the hijack from the hijacker
                 if Topo.do_hijack(sim_data['hijacker_AS'], sim_data['hijacker_prefix'], sim_data['hijack_type']):
                     simulation_RESULTS['after_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
-                    simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_list_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
-                    simulation_RESULTS['after_hijack']['dict_of_nodes_and_infected_paths_to_hijacker_prefix'] = Topo.Get_path_to_prefix(sim_data['hijacker_prefix'], simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'])
+                    simulation_RESULTS['after_hijack']['dict_of_nodes_and_infected_paths_to_hijacker_prefix'] = Topo.Get_path_to_prefix(
+                        sim_data['hijacker_prefix'],
+                        Topo.get_list_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+                    )
                     simulation_RESULTS['after_hijack']['impact_estimation'] = self.impact_estimation_after_hijack(Topo, sim_data, simulation_RESULTS)
 
                     # do the mitigation by anycasting the prefix from helper ASes (assuming they will attract traffic and then tunnel it to the victim)
                     for anycast_AS in sim_data['anycast_ASes']:
                         Topo.add_prefix(anycast_AS, sim_data['hijacker_prefix'])
-                    simulation_RESULTS['after_mitigation']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+                    simulation_RESULTS['after_mitigation']['nb_of_nodes_with_hijacked_path_to_mitigation_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+                    simulation_RESULTS['after_mitigation']['dict_of_nodes_and_infected_paths_to_mitigation_prefix'] = Topo.Get_path_to_prefix(
+                        sim_data['hijacker_prefix'],
+                        Topo.get_list_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+                    )
                     simulation_RESULTS['after_mitigation']['impact_estimation'] = self.impact_estimation_after_mitigation(Topo, sim_data, simulation_RESULTS)
 
                 else:
@@ -124,8 +136,10 @@ class SimulationWorker:
 
                 if Topo.do_subprefix_hijack(sim_data['hijacker_AS'], sim_data['legitimate_prefix'], sim_data['hijacker_prefix'], sim_data['hijack_type']):
                     simulation_RESULTS['after_hijack']['nb_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
-                    simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'] = Topo.get_list_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
-                    simulation_RESULTS['after_hijack']['dict_of_nodes_and_infected_paths_to_hijacker_prefix'] = Topo.Get_path_to_prefix(sim_data['hijacker_prefix'], simulation_RESULTS['after_hijack']['list_of_nodes_with_hijacked_path_to_hijacker_prefix'])
+                    simulation_RESULTS['after_hijack']['dict_of_nodes_and_infected_paths_to_hijacker_prefix'] = Topo.Get_path_to_prefix(
+                        sim_data['hijacker_prefix'],
+                        Topo.get_list_of_nodes_with_hijacked_path_to_prefix(sim_data['hijacker_prefix'], sim_data['hijacker_AS'])
+                    )
                     simulation_RESULTS['after_hijack']['impact_estimation'] = self.impact_estimation_after_hijack(Topo, sim_data, simulation_RESULTS)
 
                     # do the mitigation by anycasting the mitigation prefix from victim AS + helper ASes
@@ -135,6 +149,10 @@ class SimulationWorker:
                     for anycast_AS in sim_data['anycast_ASes']:
                         Topo.add_prefix(anycast_AS, sim_data['mitigation_prefix'])
                     simulation_RESULTS['after_mitigation']['nb_of_nodes_with_hijacked_path_to_mitigation_prefix'] = Topo.get_nb_of_nodes_with_hijacked_path_to_prefix(sim_data['mitigation_prefix'], sim_data['hijacker_AS'])
+                    simulation_RESULTS['after_mitigation']['dict_of_nodes_and_infected_paths_to_mitigation_prefix'] = Topo.Get_path_to_prefix(
+                        sim_data['mitigation_prefix'],
+                        Topo.get_list_of_nodes_with_hijacked_path_to_prefix(sim_data['mitigation_prefix'], sim_data['hijacker_AS'])
+                    )
                     simulation_RESULTS['after_mitigation']['impact_estimation'] = self.impact_estimation_after_mitigation(Topo, sim_data, simulation_RESULTS)
 
                 else:
@@ -145,6 +163,7 @@ class SimulationWorker:
 
             simulation_RESULTS['hijacker_AS'] = sim_data['hijacker_AS']
             simulation_RESULTS['legitimate_AS'] = sim_data['legitimate_AS']
+            simulation_RESULTS['anycast_ASes'] = sim_data['anycast_ASes']
             self.save_rov_table_in_sim_results(simulation_RESULTS, rpki_rov_table)
 
             RESULTS.append(simulation_RESULTS)
