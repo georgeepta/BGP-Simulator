@@ -13,6 +13,7 @@ const Popup = (props) => {
     
   const [rpki_rov_table_data, setRpki_rov_table_data] = useState();
   const [infectedASes_AfterHijack, setInfectedASes_AfterHijack] = useState();
+  const [infectedASes_AfterMitigation, setInfectedASes_AfterMitigation] = useState();
   const [isRenderAvailable, setIsRenderAvailable] = useState(false);
 
 
@@ -26,6 +27,18 @@ const Popup = (props) => {
     {
       name: 'Infected AS_PATH',
       cell: (row) => <ASPath asn={row.asn.split(",")[0]} asns_details_dict={props.asns_details_dict} as_path={props.rep_data.after_hijack.dict_of_nodes_and_infected_paths_to_hijacker_prefix[row.asn.split(",")[0]]}/>,
+    },
+  ]
+  
+  const columns_infectedASes_AfterMitigation = [
+    {
+      name: 'Infected AS',
+      selector: row => <ASInfo asn={row.asn.split(",")[0]} asns_details_dict={props.asns_details_dict} />,
+      sortable: true,
+    },
+    {
+      name: 'Infected AS_PATH',
+      cell: (row) => <ASPath asn={row.asn.split(",")[0]} asns_details_dict={props.asns_details_dict} as_path={props.rep_data.after_mitigation.dict_of_nodes_and_infected_paths_to_mitigation_prefix[row.asn.split(",")[0]]}/>,
     },
   ]
 
@@ -50,26 +63,28 @@ const Popup = (props) => {
 
   useEffect(() => {
 
-    const infectedASes_AfterHijack = [];
     const rpki_rov_table_data = [];
-
     for (let asn in props.rep_data.rpki_rov_table) {
       for (let prefix in props.rep_data.rpki_rov_table[asn]){
         rpki_rov_table_data.push({"asn": asn, "prefix": prefix, "state": props.rep_data.rpki_rov_table[asn][prefix]})
       }
     }
     setRpki_rov_table_data(rpki_rov_table_data)
-    
-    
-    for (let asn in props.rep_data.after_hijack.dict_of_nodes_and_infected_paths_to_hijacker_prefix){
-      if (props.asns_details_dict.hasOwnProperty(asn)){
-        infectedASes_AfterHijack.push({"asn": asn+','+props.asns_details_dict[asn]["name"]})
-      }else{
-        infectedASes_AfterHijack.push({"asn": asn+','})
+
+    const generate_infected_AS_path_data = (dict_of_nodes_and_infected_paths) => {
+      const infectedASes = [];
+      for (let asn in dict_of_nodes_and_infected_paths){
+        if (props.asns_details_dict.hasOwnProperty(asn)){
+          infectedASes.push({"asn": asn+','+props.asns_details_dict[asn]["name"]})
+        }else{
+          infectedASes.push({"asn": asn+','})
+        }
       }
+      return infectedASes
     }
-    setInfectedASes_AfterHijack(infectedASes_AfterHijack)
     
+    setInfectedASes_AfterHijack(generate_infected_AS_path_data(props.rep_data.after_hijack.dict_of_nodes_and_infected_paths_to_hijacker_prefix))
+    setInfectedASes_AfterMitigation(generate_infected_AS_path_data(props.rep_data.after_mitigation.dict_of_nodes_and_infected_paths_to_mitigation_prefix))
     setIsRenderAvailable(true)
     
   }, [props]);
@@ -176,6 +191,17 @@ const Popup = (props) => {
               title="Infected ASes and Paths After Hijack"
               columns={columns_infectedASes_AfterHijack}
               data={infectedASes_AfterHijack}
+              asns_details_dict={props.asns_details_dict}
+              progressPending={!isRenderAvailable}
+              highlightOnHover
+              pagination
+            />}
+          </div>
+          <div style={{marginTop: "100px"}}>
+            {isRenderAvailable && <InfectedPathsTable
+              title="Infected ASes and Paths After Mitigation"
+              columns={columns_infectedASes_AfterMitigation}
+              data={infectedASes_AfterMitigation}
               asns_details_dict={props.asns_details_dict}
               progressPending={!isRenderAvailable}
               highlightOnHover
