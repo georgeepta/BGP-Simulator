@@ -1104,3 +1104,10 @@ class BGPtopology:
 			list_of_nodes = self.get_all_nodes_ASNs()
 		for ASN in list_of_nodes:
 			self.get_node(ASN).clear_routing_tables()
+
+	'''
+	Returns a list containing the BGPNodes that do 
+	Route Origin Validation (ROV)
+	'''
+	def get_list_of_nodes_that_do_rov(self):
+		return [ASN for ASN in self.get_all_nodes_ASNs() if self.get_node(ASN).rov == True]

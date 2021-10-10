@@ -164,6 +164,7 @@ class SimulationWorker:
             simulation_RESULTS['hijacker_AS'] = sim_data['hijacker_AS']
             simulation_RESULTS['legitimate_AS'] = sim_data['legitimate_AS']
             simulation_RESULTS['anycast_ASes'] = sim_data['anycast_ASes']
+            simulation_RESULTS['ASes_that_do_ROV'] = Topo.get_list_of_nodes_that_do_rov()
             self.save_rov_table_in_sim_results(simulation_RESULTS, rpki_rov_table)
 
             RESULTS.append(simulation_RESULTS)
