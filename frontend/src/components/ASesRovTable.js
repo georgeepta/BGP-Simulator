@@ -3,7 +3,7 @@ import DataTable from 'react-data-table-component';
 import FilterComponent from './FilterComponent';
 
 
-function InfectedPathsTable(props){
+function ASesRovTable(props){
     
     const [filterText, setFilterText] = React.useState('');
 	const [resetPaginationToggle, setResetPaginationToggle] = React.useState(false);
@@ -26,19 +26,18 @@ function InfectedPathsTable(props){
     
     return(
         <DataTable 
-            title={props.title}
             columns={props.columns}
             data={filteredItems}
-            progressPending={props.progressPending}
+            pagination
             paginationPerPage={props.paginationPerPage}
             paginationRowsPerPageOptions={props.paginationRowsPerPageOptions}
+            noTableHead={props.noTableHead}
             paginationResetDefaultPage={resetPaginationToggle} // optionally, a hook to reset pagination to page 1
             subHeader
             subHeaderComponent={subHeaderComponentMemo}
             highlightOnHover
-            pagination
         />
     );
 }
 
-export default InfectedPathsTable;
+export default ASesRovTable;

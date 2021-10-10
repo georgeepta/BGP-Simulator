@@ -5,6 +5,7 @@ import ASPath from '../components/ASPath';
 import {ASInfo} from '../components/ASInfo';
 import Chart from "react-google-charts";
 import DataTable from 'react-data-table-component';
+import ASesRovTable from './ASesRovTable';
 
 
 
@@ -12,6 +13,7 @@ import DataTable from 'react-data-table-component';
 const Popup = (props) => {
     
   const [rpki_rov_table_data, setRpki_rov_table_data] = useState();
+  const [ASes_that_do_ROV, setASes_that_do_ROV] = useState();
   const [infectedASes_AfterHijack, setInfectedASes_AfterHijack] = useState();
   const [infectedASes_AfterMitigation, setInfectedASes_AfterMitigation] = useState();
   const [isRenderAvailable, setIsRenderAvailable] = useState(false);
@@ -60,9 +62,17 @@ const Popup = (props) => {
     },
   ]
 
+  const ASes_ROV_table_columns = [
+    {
+      name: 'AS',
+      cell: (row) => <ASInfo asn={row.asn.split(",")[0]} asns_details_dict={props.asns_details_dict} />,
+    },
+  ]
+
 
   useEffect(() => {
 
+    /*Prepare RPKI ROV TABLE Data*/
     const rpki_rov_table_data = [];
     for (let asn in props.rep_data.rpki_rov_table) {
       for (let prefix in props.rep_data.rpki_rov_table[asn]){
@@ -71,6 +81,18 @@ const Popup = (props) => {
     }
     setRpki_rov_table_data(rpki_rov_table_data)
 
+    /*Prepare the list of ASes that do ROV*/
+    const ASes_that_do_ROV = [];
+    for (let asn in props.rep_data.ASes_that_do_ROV){
+      if (props.asns_details_dict.hasOwnProperty(asn)){
+        ASes_that_do_ROV.push({"asn": asn+','+props.asns_details_dict[asn]["name"]})
+      }else{
+        ASes_that_do_ROV.push({"asn": asn+','})
+      }
+    }
+    setASes_that_do_ROV(ASes_that_do_ROV)
+
+    /*Prepare the data of the tables that depict the infected ASes and AS_PATHS*/
     const generate_infected_AS_path_data = (dict_of_nodes_and_infected_paths) => {
       const infectedASes = [];
       for (let asn in dict_of_nodes_and_infected_paths){
@@ -118,17 +140,23 @@ const Popup = (props) => {
             </div>
             <div style={{marginLeft: "50px", marginRight: "30px"}}>
               <h1>RPKI ROV Table</h1>
-              <DataTable 
+              {isRenderAvailable && <DataTable 
                 columns={rpki_rov_table_columns}
                 data={rpki_rov_table_data}
-              />
+                pagination
+                paginationPerPage={5}
+                paginationRowsPerPageOptions={[5, 10]}
+              />}
             </div>
             <div>
               <h1>List of ASes that do ROV</h1>
-              <DataTable 
-                columns={rpki_rov_table_columns}
-                data={rpki_rov_table_data}
-              />
+              {isRenderAvailable && <ASesRovTable
+                columns={ASes_ROV_table_columns}
+                data={ASes_that_do_ROV}
+                paginationPerPage={5}
+                paginationRowsPerPageOptions={[5, 10]}
+                noTableHead={true}
+              />}
             </div>
           </div>
           <h1>Useful Statistics/Metrics</h1>
@@ -191,10 +219,9 @@ const Popup = (props) => {
               title="Infected ASes and Paths After Hijack"
               columns={columns_infectedASes_AfterHijack}
               data={infectedASes_AfterHijack}
-              asns_details_dict={props.asns_details_dict}
               progressPending={!isRenderAvailable}
-              highlightOnHover
-              pagination
+              paginationPerPage={5}
+              paginationRowsPerPageOptions={[5, 10, 15, 20, 25, 30]}
             />}
           </div>
           <div style={{marginTop: "100px"}}>
@@ -202,10 +229,9 @@ const Popup = (props) => {
               title="Infected ASes and Paths After Mitigation"
               columns={columns_infectedASes_AfterMitigation}
               data={infectedASes_AfterMitigation}
-              asns_details_dict={props.asns_details_dict}
               progressPending={!isRenderAvailable}
-              highlightOnHover
-              pagination
+              paginationPerPage={5}
+              paginationRowsPerPageOptions={[5, 10, 15, 20, 25, 30]}
             />}
           </div>
         </div>
