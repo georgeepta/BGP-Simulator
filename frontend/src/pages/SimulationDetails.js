@@ -6,6 +6,8 @@ import './SimulationDetails.css';
 import {ASInfo} from '../components/ASInfo';
 import '../components/ASInfo.css';
 import Popup from '../components/Popup';
+import Chart from "react-google-charts";
+
 
 
 function SimulationDetails() {
@@ -288,6 +290,25 @@ function SimulationDetails() {
                     highlightOnHover
                     pagination
                 />
+            </div>
+            <div className='row'>
+                <div>
+                    <div className="row-h2">Country Vulnerability (%)</div>
+                    <Chart
+                        width={'500px'}
+                        height={'300px'}
+                        chartType="GeoChart"
+                        data={[
+                            ['Country', 'Popularity'],
+                            ['Germany', 200],
+                            ['United States', 300],
+                            ['Brazil', 400],
+                            ['Canada', 500],
+                            ['FR', 600],
+                            ['RU', 700],
+                        ]}
+                    />
+                </div>
             </div>
             {isOpen && <Popup rep_data={PopUpData} asns_details_dict={data.asns_details} handleClose={togglePopup} />}
         </div>
