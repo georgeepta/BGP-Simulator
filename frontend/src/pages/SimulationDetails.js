@@ -19,6 +19,10 @@ function SimulationDetails() {
     const history = useHistory();
     const simulation_uuid = history.location.state.data;
     const [isOpen, setIsOpen] = useState(false);
+    const [as_vuln_data, set_as_vuln_data] = useState();
+    const [is_as_vuln_data_available, set_is_as_vuln_data_available] = useState(false);
+    const [country_vuln_data, set_country_vuln_data] = useState();
+    const [is_country_vuln_data_available, set_is_country_vuln_data_available] = useState(false);
 
     const togglePopup = () => {
         setIsOpen(!isOpen);
@@ -32,6 +36,23 @@ function SimulationDetails() {
                 return;
             }
         });
+    }
+
+    const manipulate_as_country_vuln_data = (data) => {
+        const as_vuln_data = [];
+        const country_vuln_data = [['Country', 'Vulnerability %']];
+        
+        for (let country in data.country_vuln_ranking){
+            country_vuln_data.push([country, data.country_vuln_ranking[country]])
+        }
+        set_country_vuln_data(country_vuln_data)
+        set_is_country_vuln_data_available(true)
+
+        for (let asn in data.as_vuln_ranking){
+            as_vuln_data.push({"asn": asn, "vuln_percent": data.as_vuln_ranking[asn]})
+        }
+        set_as_vuln_data(as_vuln_data)
+        set_is_as_vuln_data_available(true)
     }
 
 
@@ -159,6 +180,17 @@ function SimulationDetails() {
             button: true,
         },
     ];
+
+    const columns_as_vuln = [
+        {
+            name: 'AS',
+            cell: (row) => isDataAvailable && <ASInfo asn={row.asn} asns_details_dict={data.asns_details} />,
+        },
+        {
+            name: '% Vulnerability',
+            selector: (row) => parseFloat(row.vuln_percent).toFixed(4) + '%',
+        },
+    ];
   
     
     useEffect(() => {
@@ -184,6 +216,28 @@ function SimulationDetails() {
             }).catch(error => {
               console.error('There was an error!', error.message);
             });
+        
+        fetch(`http://127.0.0.1:5000/as_vulnerability_ranking?simulation_uuid=${encodeURIComponent(simulation_uuid)}`, {
+                method: 'GET', 
+            }).then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson && await response.json();
+    
+                // check for error response
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    console.log(data);
+                    const error = data || response.status;
+                    throw error;
+                    /*return Promise.reject(error);*/
+                }
+    
+                //Successful Request --> do some action
+                manipulate_as_country_vuln_data(data);
+            }).catch(error => {
+              console.error('There was an error!', error.message);
+            });
+
       }, [simulation_uuid]);
 
     
@@ -293,20 +347,30 @@ function SimulationDetails() {
             </div>
             <div className='row'>
                 <div>
-                    <div className="row-h2">Country Vulnerability (%)</div>
-                    <Chart
-                        width={'500px'}
-                        height={'300px'}
+                    <div className="row-h2">Country Vulnerability</div>
+                    {is_country_vuln_data_available && <Chart
+                        width={'600px'}
+                        height={'500px'}
                         chartType="GeoChart"
-                        data={[
-                            ['Country', 'Popularity'],
-                            ['Germany', 200],
-                            ['United States', 300],
-                            ['Brazil', 400],
-                            ['Canada', 500],
-                            ['FR', 600],
-                            ['RU', 700],
-                        ]}
+                        data={country_vuln_data}
+                        options={{
+                            colorAxis: { colors: ['#00853f', 'black', '#e31b23'] },
+                            datalessRegionColor: '#f8bbd0',
+                            defaultColor: '#f5f5f5',
+                        }}
+                    />}
+                    {!is_country_vuln_data_available && <p style={{marginLeft: "100px"}}>Loading...</p>}
+                </div>
+                <div style={{marginLeft: "50px"}}>
+                    <DataTable 
+                        title="Top 1000 Vulnerable Autonomous Systems"
+                        columns={columns_as_vuln}
+                        data={as_vuln_data}
+                        progressPending={!is_as_vuln_data_available}
+                        defaultSortFieldId={2}
+                        defaultSortAsc={false}
+                        highlightOnHover
+                        pagination
                     />
                 </div>
             </div>
