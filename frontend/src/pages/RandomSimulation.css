@@ -1,9 +1,44 @@
 .random-simulation {
-    display:flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    height: 90vh;
-    font-size: 3rem;
-    font-family: 'PT Sans', sans-serif;
-  }
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+  font-family: 'PT Sans', sans-serif;
+}
+.random-simulation label {
+  text-align: left;
+  display: block;
+  color: rgb(23, 23, 77);
+}
+.random-simulation h2 {
+  font-size: 20px;
+  color: #11121a;
+  margin-bottom: 50px;
+  margin-top: 50px;
+}
+.random-simulation input, .random-simulation textarea, .random-simulation select {
+  width: 100%;
+  padding: 6px 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  display: block;
+  color: rgb(76, 76, 85);
+}
+.random-simulation button {
+  background: #2d9712;
+  color: #fff;
+  border: 0;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'PT Sans', sans-serif;
+}
+
+.random-simulation button:hover {    
+  padding: 6px 6px;
+  background-color: #2d9712;
+  color: #fff;
+  border-radius: 4px;
+  border: 2px solid;
+  transition: all 0.3s ease-out;
+}
