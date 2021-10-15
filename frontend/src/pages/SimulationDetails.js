@@ -335,6 +335,18 @@ function SimulationDetails() {
                     </tbody>
                 </table>
             </div>
+            {isDataAvailable && <div className='row'>
+                <a 
+                    className="btn" 
+                    target="_blank"
+                    rel="noreferrer"
+                    type="button"
+                    href={"http://127.0.0.1:5000/simulation_details?simulation_uuid="+simulation_uuid}
+                    style={{marginLeft: "auto", marginRight: "20px", textDecoration: "none"}}
+                >
+                    Raw JSON
+                </a>
+            </div>}
             <div className="data-table">
                 <DataTable 
                     title="Results per Repetition"
