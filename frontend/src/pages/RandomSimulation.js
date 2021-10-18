@@ -10,7 +10,7 @@ function RandomSimulation() {
   const [HijackPrefixType, setHijackPrefixType] = useState('exact');
   const [HijackType, setHijackType] = useState(0);
   const [NumOfAnycastASes, setNumOfAnycastASes] = useState(0);
-  const [RealisticROV, setRealisticROV] = useState(false);
+  const [RealisticROV, setRealisticROV] = useState("false");
   const [RovMode, setRovMode] = useState('all');
   const [NumOfSim, setNumOfSim] = useState(1);
   const [NumOfSimReps, setNumOfSimReps] = useState(1);
@@ -33,7 +33,7 @@ function RandomSimulation() {
           "hijack_prefix_type": HijackPrefixType,
           "anycast_ASes": [0],
           "mitigation_prefix": "x.y.z.w/m",
-          "realistic_rpki_rov": RealisticROV,
+          "realistic_rpki_rov": (RealisticROV === "true"),
           "rpki_rov_mode": RovMode,
           "nb_of_sims": NumOfSim,
           "nb_of_reps": NumOfSimReps,

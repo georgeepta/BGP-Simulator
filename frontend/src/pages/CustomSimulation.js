@@ -14,7 +14,7 @@ function CustomSimulation() {
     const [HijackerPrefix, setHijackerPrefix] = useState('');
     const [AnycastASes, setAnycastASes] = useState('');
     const [MitigationPrefix, setMitigationPrefix] = useState('');
-    const [RealisticROV, setRealisticROV] = useState(true);
+    const [RealisticROV, setRealisticROV] = useState("true");
     const [RovMode, setRovMode] = useState('all');
     const [NumOfSimReps, setNumOfSimReps] = useState(1);
     const [isPending, setIsPending] = useState(false);
@@ -49,7 +49,7 @@ function CustomSimulation() {
             "hijack_prefix_type": HijackPrefixType,
             "anycast_ASes": anycast_ASes_list,
             "mitigation_prefix": MitigationPrefix.replace(/\s+/g,""),
-            "realistic_rpki_rov": RealisticROV,
+            "realistic_rpki_rov": (RealisticROV === "true"),
             "rpki_rov_mode": RovMode,
             "nb_of_sims": NumOfSimReps,
             "nb_of_reps": 1,
