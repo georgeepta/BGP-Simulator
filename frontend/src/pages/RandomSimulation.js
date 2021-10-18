@@ -37,8 +37,8 @@ function RandomSimulation() {
           "rpki_rov_mode": RovMode,
           "nb_of_sims": NumOfSim,
           "nb_of_reps": NumOfSimReps,
-          "caida_as_graph_dataset": "20210301",
-          "caida_ixps_datasets": "202104",
+          "caida_as_graph_dataset": "20211001",
+          "caida_ixps_datasets": "202107",
           "max_nb_anycast_ASes": NumOfAnycastASes
       };
 

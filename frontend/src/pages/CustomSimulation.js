@@ -53,8 +53,8 @@ function CustomSimulation() {
             "rpki_rov_mode": RovMode,
             "nb_of_sims": NumOfSimReps,
             "nb_of_reps": 1,
-            "caida_as_graph_dataset": "20210301",
-            "caida_ixps_datasets": "202104",
+            "caida_as_graph_dataset": "20211001",
+            "caida_ixps_datasets": "202107",
             "max_nb_anycast_ASes": anycast_ASes_list.length
         };
 
