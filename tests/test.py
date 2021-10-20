@@ -2,6 +2,7 @@ import json
 import pytricia
 import random
 import time
+import csv
 import requests
 from netaddr import IPNetwork
 from requests.exceptions import Timeout
@@ -143,6 +144,24 @@ def AsToOrgDict():
     print(AS_dict)
 
 
+def load_ROV_Deployment_monitor_data(file_path):
+    with open(file_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter='\t')
+        asn_do_rov_list = []
+        line_count=0
+        for row in csv_reader:
+            if line_count == 0:
+                print(f'Columns names are {", ".join(row)}')
+                line_count+=1
+            else:
+                print("ASN: "+row[0], "AS Name: "+row[1], "Certainty: "+row[2])
+                if float(row[2]) >= 0.5:
+                    asn_do_rov_list.append(int(row[0]))
+                line_count+=1
+        print(f'Processed: {line_count} lines.')
+        print(asn_do_rov_list)
+        return asn_do_rov_list
+
 if __name__ == '__main__':
 
     '''
@@ -185,4 +204,5 @@ if __name__ == '__main__':
     ## Term signal
     pipe.put(None)
     '''
-    AsToOrgDict()
+    #AsToOrgDict()
+    load_ROV_Deployment_monitor_data("../datasets/ROV-Deployment-Monitor/2020-08-31.csv")

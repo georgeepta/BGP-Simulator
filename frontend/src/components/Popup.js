@@ -65,7 +65,7 @@ const Popup = (props) => {
   const ASes_ROV_table_columns = [
     {
       name: 'AS',
-      cell: (row) => <ASInfo asn={row.asn.split(",")[0]} asns_details_dict={props.asns_details_dict} />,
+      selector: row => <ASInfo asn={row.asn.split(",")[0]} asns_details_dict={props.asns_details_dict} />,
     },
   ]
 
@@ -83,7 +83,8 @@ const Popup = (props) => {
 
     /*Prepare the list of ASes that do ROV*/
     const ASes_that_do_ROV = [];
-    for (let asn in props.rep_data.ASes_that_do_ROV){
+    for (let item in props.rep_data.ASes_that_do_ROV){
+      let asn = props.rep_data.ASes_that_do_ROV[item]
       if (props.asns_details_dict.hasOwnProperty(asn)){
         ASes_that_do_ROV.push({"asn": asn+','+props.asns_details_dict[asn]["name"]})
       }else{

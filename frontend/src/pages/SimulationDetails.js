@@ -237,7 +237,7 @@ function SimulationDetails() {
             }).catch(error => {
               console.error('There was an error!', error.message);
             });
-
+        
       }, [simulation_uuid]);
 
     

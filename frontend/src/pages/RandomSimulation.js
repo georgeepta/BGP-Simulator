@@ -104,6 +104,7 @@ function RandomSimulation() {
               <select value={RovMode} onChange={(e) => setRovMode(e.target.value)}>
                   <option value="all">All</option>
                   <option value="random_20">Random 20%</option>
+                  <option value="rov_deployment_monitor">According to ROV Deployment Monitor</option>
               </select>
               <label>Number of Random Simulations:</label>
               <input type="number" min="1" max="100" value={NumOfSim} onChange={(e) => setNumOfSim(e.target.value)} required />
