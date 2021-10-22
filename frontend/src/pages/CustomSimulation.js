@@ -184,6 +184,7 @@ function CustomSimulation() {
                     <option value="all">All</option>
                     <option value="random_20">Random 20%</option>
                     <option value="rov_deployment_monitor">According to ROV Deployment Monitor</option>
+                    <option value="rov_active_measurements">According to Active Measurements</option>
                 </select>
                 <label>Number of Simulation Repetitions:</label>
                 <input type="number" min="1" max="100" value={NumOfSimReps} onChange={(e) => setNumOfSimReps(e.target.value)} required />

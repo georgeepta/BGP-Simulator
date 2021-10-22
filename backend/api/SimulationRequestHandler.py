@@ -83,7 +83,7 @@ class SimulationRequestHandler(Resource):
         else:
             errors_dict['simulation_type'] = ""
             errors_dict['hijack_prefix_type'] = "" if sim_data['hijack_prefix_type'] in ["exact", "subprefix"] else "Invalid hijack attack --> type \"exact\" or \"subprefix\""
-            errors_dict['rpki_rov_mode'] = "" if sim_data['rpki_rov_mode'] in ["all", "random_20", "rov_deployment_monitor"] else "Invalid RPKI ROV MODE --> type \"all\" or \"random_20\""
+            errors_dict['rpki_rov_mode'] = "" if sim_data['rpki_rov_mode'] in ["all", "random_20", "rov_deployment_monitor", "rov_active_measurements"] else "Invalid RPKI ROV MODE --> type \"all\" or \"random_20\""
             #It is not required to validate the following inputs:
             #hijack_type, caida_as_graph_dataset, caida_ixps_datasets, realistic_rpki_rov
             #nb_of_sims, nb_of_reps, max_nb_anycast_ASes

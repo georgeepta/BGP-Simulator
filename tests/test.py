@@ -162,6 +162,17 @@ def load_ROV_Deployment_monitor_data(file_path):
         print(asn_do_rov_list)
         return asn_do_rov_list
 
+
+
+def load_ROV_Active_Measurements_data(file_path):
+    with open(file_path) as json_file:
+        data = json.load(json_file)
+        #use the Total Unique ROV (Fully+Partially filtering) result
+        asn_do_rov_list = [int(item) for item in data["2"][129]]
+        print(asn_do_rov_list)
+
+
+
 if __name__ == '__main__':
 
     '''
@@ -205,4 +216,5 @@ if __name__ == '__main__':
     pipe.put(None)
     '''
     #AsToOrgDict()
-    load_ROV_Deployment_monitor_data("../datasets/ROV-Deployment-Monitor/2020-08-31.csv")
+    #load_ROV_Deployment_monitor_data("../datasets/ROV-Deployment-Monitor/2020-08-31.csv")
+    load_ROV_Active_Measurements_data("../datasets/ROV-Active-Measurements-TMA-Paper/20210719_resultset_asns.json")

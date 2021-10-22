@@ -1,4 +1,5 @@
 import csv
+import json
 import random
 import requests
 from requests.exceptions import Timeout
@@ -75,15 +76,30 @@ class SimulationConstructor(UnorderedWorker):
         return asn_do_rov_list
 
 
+    def load_ROV_Active_Measurements_data(self, file_path):
+        with open(file_path) as json_file:
+            data = json.load(json_file)
+            # use the Total Unique ROV (Fully+Partially filtering) result
+            asn_do_rov_list = [int(item) for item in data["2"][129]]
+            print(asn_do_rov_list)
+            return asn_do_rov_list
+
+
     def set_rpki_rov(self, Topo, sim_data):
         if sim_data['rpki_rov_mode'] == "all":
             print("RPKI ROV mode --> all")
             for asn in Topo.get_all_nodes_ASNs():
                 Topo.get_node(asn).rov = True
-        if sim_data['rpki_rov_mode'] == "rov_deployment_monitor":
+        elif sim_data['rpki_rov_mode'] == "rov_deployment_monitor":
             print("RPKI ROV mode --> rov_deployment_monitor")
             rov_deployment_monitor_list = self.load_ROV_Deployment_monitor_data("../datasets/ROV-Deployment-Monitor/2020-08-31.csv")
             for asn in rov_deployment_monitor_list:
+                if Topo.has_node(asn):
+                    Topo.get_node(asn).rov = True
+        elif sim_data['rpki_rov_mode'] == "rov_active_measurements":
+            print("RPKI ROV mode --> rov_active_measurements")
+            rov_active_measurements_list = self.load_ROV_Active_Measurements_data("../datasets/ROV-Active-Measurements-TMA-Paper/20210719_resultset_asns.json")
+            for asn in rov_active_measurements_list:
                 if Topo.has_node(asn):
                     Topo.get_node(asn).rov = True
         elif sim_data['rpki_rov_mode'] == "20%":
