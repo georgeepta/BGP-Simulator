@@ -23,16 +23,25 @@ function RandomSimulation() {
 
   const handleSubmit = (e) => {
       e.preventDefault();
+      let hijacker_prefix = "";
+      let mitigation_prefix = "";
+      if (HijackPrefixType === 'exact'){
+          hijacker_prefix = "x.y.z.w/m"
+          mitigation_prefix = "x.y.z.w/m"
+      }else{
+          hijacker_prefix = "x.y.z.w/subm"
+          mitigation_prefix = "x.y.z.w/subm"
+      }
       const sim_data = {
           "simulation_type": "random",
           "legitimate_AS": 0,
           "legitimate_prefix": "x.y.z.w/m",
           "hijacker_AS": 0,
-          "hijacker_prefix": "x.y.z.w/m",
+          "hijacker_prefix": hijacker_prefix,
           "hijack_type": HijackType,
           "hijack_prefix_type": HijackPrefixType,
           "anycast_ASes": [0],
-          "mitigation_prefix": "x.y.z.w/m",
+          "mitigation_prefix": mitigation_prefix,
           "realistic_rpki_rov": (RealisticROV === "true"),
           "rpki_rov_mode": RovMode,
           "nb_of_sims": NumOfSim,
@@ -91,6 +100,7 @@ function RandomSimulation() {
               <label>Hijack Prefix Type:</label>
               <select value={HijackPrefixType} onChange={(e) => setHijackPrefixType(e.target.value)}>
                   <option value="exact">Exact-Prefix Attack</option>
+                  <option value="subprefix">Sub-Prefix Attack</option>
               </select>
               <label>Hijack Type:</label>
               <input type="number" min="0" value={HijackType} onChange={(e) => setHijackType(e.target.value)} required />
