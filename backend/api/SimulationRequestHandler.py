@@ -127,7 +127,8 @@ class SimulationRequestHandler(Resource):
         req_parser.add_argument('caida_as_graph_dataset', type=str, help="A string of type yyyymmdd denoting the CAIDA AS-graph dataset from which the topology will be loaded")
         req_parser.add_argument('caida_ixps_datasets', type=str, help="A string of type yyyymm denoting the CAIDA IXPs datasets (ix-asns_yyyymm.jsonl and ixs_yyyymm.jsonl) from which the topology generate the links between AS-IXPS")
         req_parser.add_argument('max_nb_anycast_ASes', type=int, required=True, help="An integer denoting the maximum number of anycast ASes to be used for hijack mitigation")
-        req_parser.add_argument('list_of_ASes_do_rov', type=list, location='json', help="Must be a list of integers denoting the ASNs that do RPKI Route Origin Validation (e.g., [12345, 67890, ...])")
+        req_parser.add_argument('num_of_top_isp_rpki_adopters', type=int, help="An Integer denoting the top N ISPs (according to ASRank) that do RPKI Route Origin Validation")
+        req_parser.add_argument('rpki_adoption_propability', type=float, help="A float number denoting the propability that someone of the top N ISPs (according to ASRank) do RPKI Route Origin Validation")
 
         sim_data = req_parser.parse_args()
 

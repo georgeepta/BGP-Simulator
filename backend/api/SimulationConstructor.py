@@ -85,6 +85,21 @@ class SimulationConstructor(UnorderedWorker):
             return asn_do_rov_list
 
 
+    def load_ASRank_data(self, file_path):
+        with open(file_path) as json_file:
+            data = json.load(json_file)
+            return data
+
+
+    def generate_rpki_rov_list(self, num_of_top_isp_rpki_adopters, rpki_adoption_propability, top_500_ASRank_ASNs):
+        n_top_ISPs = int(num_of_top_isp_rpki_adopters / rpki_adoption_propability)
+        set_of_n_top_ISPs = top_500_ASRank_ASNs["data"]["asns"]["edges"][0:n_top_ISPs]
+        list_of_n_top_ASNs = []
+        for item in set_of_n_top_ISPs:
+            list_of_n_top_ASNs.append(int(item["node"]["asn"]))
+        return random.sample(list_of_n_top_ASNs, num_of_top_isp_rpki_adopters)
+
+
     def set_rpki_rov(self, Topo, sim_data):
         if sim_data['rpki_rov_mode'] == "all":
             print("RPKI ROV mode --> all")
@@ -104,7 +119,10 @@ class SimulationConstructor(UnorderedWorker):
                     Topo.get_node(asn).rov = True
         elif sim_data['rpki_rov_mode'] == "manual":
             print("RPKI ROV mode --> manual")
-            for asn in sim_data['list_of_ASes_do_rov']:
+            top_500_ASRank_ASNs = self.load_ASRank_data("../datasets/ASRank/top_500_ASNs.json")
+            top_random_ISPs_list = self.generate_rpki_rov_list(sim_data['num_of_top_isp_rpki_adopters'], sim_data['rpki_adoption_propability'], top_500_ASRank_ASNs)
+            print(top_random_ISPs_list)
+            for asn in top_random_ISPs_list:
                 if Topo.has_node(asn):
                     Topo.get_node(asn).rov = True
         elif sim_data['rpki_rov_mode'] == "20%":
