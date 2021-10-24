@@ -83,7 +83,7 @@ class SimulationRequestHandler(Resource):
         else:
             errors_dict['simulation_type'] = ""
             errors_dict['hijack_prefix_type'] = "" if sim_data['hijack_prefix_type'] in ["exact", "subprefix"] else "Invalid hijack attack --> type \"exact\" or \"subprefix\""
-            errors_dict['rpki_rov_mode'] = "" if sim_data['rpki_rov_mode'] in ["all", "random_20", "rov_deployment_monitor", "rov_active_measurements"] else "Invalid RPKI ROV MODE --> type \"all\" or \"random_20\""
+            errors_dict['rpki_rov_mode'] = "" if sim_data['rpki_rov_mode'] in ["all", "random_20", "rov_deployment_monitor", "rov_active_measurements", "manual"] else "Invalid RPKI ROV MODE --> type \"all\" or \"random_20\""
             #It is not required to validate the following inputs:
             #hijack_type, caida_as_graph_dataset, caida_ixps_datasets, realistic_rpki_rov
             #nb_of_sims, nb_of_reps, max_nb_anycast_ASes
@@ -127,6 +127,7 @@ class SimulationRequestHandler(Resource):
         req_parser.add_argument('caida_as_graph_dataset', type=str, help="A string of type yyyymmdd denoting the CAIDA AS-graph dataset from which the topology will be loaded")
         req_parser.add_argument('caida_ixps_datasets', type=str, help="A string of type yyyymm denoting the CAIDA IXPs datasets (ix-asns_yyyymm.jsonl and ixs_yyyymm.jsonl) from which the topology generate the links between AS-IXPS")
         req_parser.add_argument('max_nb_anycast_ASes', type=int, required=True, help="An integer denoting the maximum number of anycast ASes to be used for hijack mitigation")
+        req_parser.add_argument('list_of_ASes_do_rov', type=list, location='json', help="Must be a list of integers denoting the ASNs that do RPKI Route Origin Validation (e.g., [12345, 67890, ...])")
 
         sim_data = req_parser.parse_args()
 

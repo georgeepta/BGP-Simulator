@@ -102,6 +102,11 @@ class SimulationConstructor(UnorderedWorker):
             for asn in rov_active_measurements_list:
                 if Topo.has_node(asn):
                     Topo.get_node(asn).rov = True
+        elif sim_data['rpki_rov_mode'] == "manual":
+            print("RPKI ROV mode --> manual")
+            for asn in sim_data['list_of_ASes_do_rov']:
+                if Topo.has_node(asn):
+                    Topo.get_node(asn).rov = True
         elif sim_data['rpki_rov_mode'] == "20%":
             pass
         return
