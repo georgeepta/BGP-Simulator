@@ -17,7 +17,7 @@ def compute_avg_impact(eval_data):
     return sum(impact_estimation_after_hijack_list) / len(impact_estimation_after_hijack_list)
 
 if __name__ == '__main__':
-    rpki_adoption_propability_list = [0.25, 0.50, 0.75, 1]
+    rpki_adoption_propability_list = [0.25, 0.50, 0.75, 1.0]
     num_of_top_isp_rpki_adopters = list(range(0, 101, 10))
     print("#### Evaluation ####")
     print("Number of Top RPKI adopters | RPKI Adoption Propability | Average Impact Estimation")
