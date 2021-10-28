@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 /*import { Button } from './Button';
 import Dropdown from './Dropdown';*/
+import logo from '../images/BPHS_logo.png';
 
 
 function Navbar() {
@@ -33,7 +34,7 @@ function Navbar() {
       <>
        <nav className='navbar'>
            <Link to='/' className='navbar-logo'>
-                  BGP Hijacking Simulator
+               <img src={logo} alt="web app logo" />
            </Link>
            <div className='menu-icon' onClick={handleClick}>
                <i className={click ? 'fas fa-times' : 'fas fa-bars'} />

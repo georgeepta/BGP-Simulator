@@ -8,14 +8,16 @@
     font-family: 'PT Sans', sans-serif;
   }
   
-  .navbar-logo {
+  .navbar-logo img {
     color: #fff;
     justify-self: start;
     margin-left: 20px;
     cursor: pointer;
     text-decoration: none;
     font-size: 1rem;
-    width: 10%;
+    height: 85px;
+    width: 200px;
+    border-radius: 18px;
   }
   
   .fa-firstdraft {
@@ -101,11 +103,13 @@
       border-radius: 0;
     }
   
-    .navbar-logo {
+    .navbar-logo img{
       position: absolute;
       top: 0;
       left: 0;
-      transform: translate(25%, 15%);
+      height: 80px;
+      width: 200px;
+      border-radius: 18px;
     }
   
     .menu-icon {
