@@ -125,6 +125,33 @@ class SimulationConstructor(UnorderedWorker):
             for asn in top_random_ISPs_list:
                 if Topo.has_node(asn):
                     Topo.get_node(asn).rov = True
+        elif sim_data['rpki_rov_mode'] == "today_rov_status+other_random_prop":
+            print("RPKI ROV mode --> today_rov_status+other_random_prop")
+            rov_active_measurements_list = self.load_ROV_Active_Measurements_data("../datasets/ROV-Active-Measurements-TMA-Paper/20210719_resultset_asns.json")
+            tmp_rov_list = [item for item in Topo.get_all_nodes_ASNs() if item not in rov_active_measurements_list]
+            if sim_data['other_random_prop'] == 0:
+                other_rov_list = []
+            else:
+                other_rov_list = random.sample(tmp_rov_list, int(len(tmp_rov_list) * sim_data['other_random_prop']))
+            final_rov_list = rov_active_measurements_list + other_rov_list
+            for asn in final_rov_list:
+                if Topo.has_node(asn):
+                    Topo.get_node(asn).rov = True
+        elif sim_data['rpki_rov_mode'] == "top_isps_rov+other_random_prop":
+            print("RPKI ROV mode --> top_isps_rov+other_random_prop")
+            top_500_ASRank_ASNs = self.load_ASRank_data("../datasets/ASRank/top_500_ASNs.json")
+            top_rov_ISPs_list = self.generate_rpki_rov_list(sim_data['num_of_top_isp_rpki_adopters'],
+                                                               sim_data['rpki_adoption_propability'],
+                                                               top_500_ASRank_ASNs)
+            tmp_rov_list = [item for item in Topo.get_all_nodes_ASNs() if item not in top_rov_ISPs_list]
+            if sim_data['other_random_prop'] == 0:
+                other_rov_list = []
+            else:
+                other_rov_list = random.sample(tmp_rov_list, int(len(tmp_rov_list) * sim_data['other_random_prop']))
+            final_rov_list = top_rov_ISPs_list + other_rov_list
+            for asn in final_rov_list:
+                if Topo.has_node(asn):
+                    Topo.get_node(asn).rov = True
         elif sim_data['rpki_rov_mode'] == "20%":
             pass
         return

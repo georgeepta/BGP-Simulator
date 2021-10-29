@@ -83,7 +83,7 @@ class SimulationRequestHandler(Resource):
         else:
             errors_dict['simulation_type'] = ""
             errors_dict['hijack_prefix_type'] = "" if sim_data['hijack_prefix_type'] in ["exact", "subprefix"] else "Invalid hijack attack --> type \"exact\" or \"subprefix\""
-            errors_dict['rpki_rov_mode'] = "" if sim_data['rpki_rov_mode'] in ["all", "random_20", "rov_deployment_monitor", "rov_active_measurements", "manual"] else "Invalid RPKI ROV MODE --> type \"all\" or \"random_20\""
+            errors_dict['rpki_rov_mode'] = "" if sim_data['rpki_rov_mode'] in ["all", "random_20", "rov_deployment_monitor", "rov_active_measurements", "manual", "today_rov_status+other_random_prop", "top_isps_rov+other_random_prop"] else "Invalid RPKI ROV MODE --> type \"all\" or \"random_20\""
             #It is not required to validate the following inputs:
             #hijack_type, caida_as_graph_dataset, caida_ixps_datasets, realistic_rpki_rov
             #nb_of_sims, nb_of_reps, max_nb_anycast_ASes
@@ -129,6 +129,8 @@ class SimulationRequestHandler(Resource):
         req_parser.add_argument('max_nb_anycast_ASes', type=int, required=True, help="An integer denoting the maximum number of anycast ASes to be used for hijack mitigation")
         req_parser.add_argument('num_of_top_isp_rpki_adopters', type=int, help="An Integer denoting the top N ISPs (according to ASRank) that do RPKI Route Origin Validation")
         req_parser.add_argument('rpki_adoption_propability', type=float, help="A float number denoting the propability that someone of the top N ISPs (according to ASRank) do RPKI Route Origin Validation")
+        req_parser.add_argument('other_random_prop', type=float, help="A float number denoting the propability that a BGPNode do RPKI Route Origin Validation and this node a) not belongs in the top N ISPs (according to ASRank) or b) not belongs in the ASes that do ROV according to the todays Deployment")
+
 
         sim_data = req_parser.parse_args()
 
