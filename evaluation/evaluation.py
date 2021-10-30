@@ -56,12 +56,38 @@ def collateral_benefit_subprefix_hijacking(num_of_top_isp_rpki_adopters, rpki_ad
                 evaluation_results_dict["collateral_benefit"]["subprefix_hijacking"][str(rpki_adopters_value)][str(rpki_adoption_propability)] = avg_impact_estimation_after_hijack
 
 
+def today_rov_status_other_random_prop_prefix_hijacking(other_random_prop_list, evaluation_results_dict):
+    print("### Today ROV status + Other ASes (Prefix Hijacking) ###")
+    print("RPKI Adoption Propability of other ASes | Average Impact Estimation")
+    for prop_value in other_random_prop_list:
+        file_path = "./evaluation_data/prefix-hijacking-random/today-rov-status/other-random-prop-" + str(prop_value) + ".json"
+        eval_data = read_evaluation_data(file_path)
+        if eval_data:
+            avg_impact_estimation_after_hijack = compute_avg_impact(eval_data)
+            print(str(prop_value) + "  " + str(avg_impact_estimation_after_hijack))
+            evaluation_results_dict["today_rov_status_other_random_prop"]["prefix_hijacking"][str(prop_value)] = avg_impact_estimation_after_hijack
+
+
+def today_rov_status_other_random_prop_subprefix_hijacking(other_random_prop_list, evaluation_results_dict):
+    print("### Today ROV status + Other ASes (Subprefix Hijacking) ###")
+    print("RPKI Adoption Propability of other ASes | Average Impact Estimation")
+    for prop_value in other_random_prop_list:
+        file_path = "./evaluation_data/subprefix-hijacking-random/today-rov-status/other-random-prop-" + str(prop_value) + ".json"
+        eval_data = read_evaluation_data(file_path)
+        if eval_data:
+            avg_impact_estimation_after_hijack = compute_avg_impact(eval_data)
+            print(str(prop_value) + "  " + str(avg_impact_estimation_after_hijack))
+            evaluation_results_dict["today_rov_status_other_random_prop"]["subprefix_hijacking"][str(prop_value)] = avg_impact_estimation_after_hijack
+
 
 if __name__ == '__main__':
     rpki_adoption_propability_list = [0.25, 0.50, 0.75, 1.0]
     num_of_top_isp_rpki_adopters = list(range(0, 101, 10))
+    other_random_prop_list = [v * 0.1 for v in range(0, 11, 1)]
     print("#### Evaluation Results ####")
     evaluation_results_dict = NestedDict()
     collateral_benefit_prefix_hijacking(num_of_top_isp_rpki_adopters, rpki_adoption_propability_list, evaluation_results_dict)
     collateral_benefit_subprefix_hijacking(num_of_top_isp_rpki_adopters, rpki_adoption_propability_list, evaluation_results_dict)
+    today_rov_status_other_random_prop_prefix_hijacking(other_random_prop_list, evaluation_results_dict)
+    today_rov_status_other_random_prop_subprefix_hijacking(other_random_prop_list, evaluation_results_dict)
     write_evaluation_results(evaluation_results_dict, "evaluation_results.json")

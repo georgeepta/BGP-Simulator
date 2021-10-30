@@ -74,6 +74,49 @@ def plot_prop_line_collateral_benefit_subprefix_hijacking(prop_value, evaluation
     plt.savefig('./figures/collateral_benefit_subprefix_hijacking.png')
 
 
+def plot_today_rov_status_vs_top_isps_other_random_prop_prefix_hijacking(evaluation_results):
+    x1 = [v * 0.1 for v in range(0, 11, 1)]
+    y1 = []
+    for item in evaluation_results["today_rov_status_other_random_prop"]["prefix_hijacking"]:
+        y1.append(evaluation_results["today_rov_status_other_random_prop"]["prefix_hijacking"][item])
+
+    plt.figure(3)
+    plt.plot(x1, y1, linestyle='dashed', marker='s', color='tab:red', label="Today's ROV status")
+    plt.xticks([v * 0.1 for v in range(0, 11, 1)])
+    plt.yticks([v * 0.1 for v in range(0, 11, 1)])
+
+    plt.xlabel('Deployment Probability of other ASes')
+    # Set the y axis label of the current axis.
+    plt.ylabel('Attacker’s Success Rate')
+    # Set a title of the current axes.
+    plt.title('Prefix hijack success rate')
+    # show a legend on the plot
+    plt.legend()
+    # save figure
+    plt.savefig('./figures/today_rov_status_vs_top_isps_other_random_prop_prefix_hijacking.png')
+
+
+def plot_today_rov_status_vs_top_isps_other_random_prop_subprefix_hijacking(evaluation_results):
+    x1 = [v * 0.1 for v in range(0, 11, 1)]
+    y1 = []
+    for item in evaluation_results["today_rov_status_other_random_prop"]["subprefix_hijacking"]:
+        y1.append(evaluation_results["today_rov_status_other_random_prop"]["subprefix_hijacking"][item])
+
+    plt.figure(4)
+    plt.plot(x1, y1, linestyle='dashed', marker='s', color='tab:red', label="Today's ROV status")
+    plt.xticks([v * 0.1 for v in range(0, 11, 1)])
+    plt.yticks([v * 0.1 for v in range(0, 11, 1)])
+
+    plt.xlabel('Deployment Probability of other ASes')
+    # Set the y axis label of the current axis.
+    plt.ylabel('Attacker’s Success Rate')
+    # Set a title of the current axes.
+    plt.title('Subprefix hijack success rate')
+    # show a legend on the plot
+    plt.legend()
+    # save figure
+    plt.savefig('./figures/today_rov_status_vs_top_isps_other_random_prop_subprefix_hijacking.png')
+
 
 if __name__ == '__main__':
 
@@ -84,6 +127,9 @@ if __name__ == '__main__':
 
     for prop in rpki_adoption_propability_list:
         plot_prop_line_collateral_benefit_subprefix_hijacking(prop, evaluation_results)
+
+    plot_today_rov_status_vs_top_isps_other_random_prop_prefix_hijacking(evaluation_results)
+    plot_today_rov_status_vs_top_isps_other_random_prop_subprefix_hijacking(evaluation_results)
 
     # Display a figure.
     plt.show()
