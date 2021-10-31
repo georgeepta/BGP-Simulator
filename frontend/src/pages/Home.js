@@ -15,7 +15,7 @@ export default function Home() {
     >
       <div className='home'>
         <div className='home-launch'>
-          <h1 className='h1'>Launch a New Simulation now!</h1>
+          <h1 className='h1'>Try a BGP Prefix Hijacking Simulation now!</h1>
           <div className="line-break"></div>
           <Button 
             type="success"

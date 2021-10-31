@@ -3,6 +3,7 @@
     margin: 0 auto;
     text-align: center;
     font-family: 'PT Sans', sans-serif;
+    min-height: 100vh;
   }
   .custom-simulation label {
     text-align: left;

@@ -1,4 +1,8 @@
 
+  .simulation-details {
+    min-height: 100vh;
+  }
+
   .row {
     display:flex;
     overflow: auto;

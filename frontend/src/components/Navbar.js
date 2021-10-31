@@ -55,6 +55,13 @@ function Navbar() {
                      Simulation Events
                    </Link>
                </li>
+               <li>
+                   <div style={{marginTop: "15px"}}>
+                        <a href="https://github.com/georgeepta/BGP-Simulator" target="_blank" rel="noreferrer noopener">
+                            <i className="fab fa-github fa-2x"></i>
+                        </a>
+                    </div>
+               </li>
                {/*<li className='nav-item' onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
                    <Link to='/services' className='nav-links' onClick={closeMobileMenu}>
                      Services <i className='fas fa-caret-down' />
