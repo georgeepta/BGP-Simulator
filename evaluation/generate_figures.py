@@ -80,8 +80,13 @@ def plot_today_rov_status_vs_top_isps_other_random_prop_prefix_hijacking(evaluat
     for item in evaluation_results["today_rov_status_other_random_prop"]["prefix_hijacking"]:
         y1.append(evaluation_results["today_rov_status_other_random_prop"]["prefix_hijacking"][item])
 
+    y2 = []
+    for item in evaluation_results["top_isps_rov_other_random_prop"]["prefix_hijacking"]:
+        y2.append(evaluation_results["top_isps_rov_other_random_prop"]["prefix_hijacking"][item])
+
     plt.figure(3)
     plt.plot(x1, y1, linestyle='dashed', marker='s', color='tab:red', label="Today's ROV status")
+    plt.plot(x1, y2, linestyle='solid', marker='+', color='tab:green', label="Top 100 ISPs perform ROV")
     plt.xticks([v * 0.1 for v in range(0, 11, 1)])
     plt.yticks([v * 0.1 for v in range(0, 11, 1)])
 
@@ -102,8 +107,13 @@ def plot_today_rov_status_vs_top_isps_other_random_prop_subprefix_hijacking(eval
     for item in evaluation_results["today_rov_status_other_random_prop"]["subprefix_hijacking"]:
         y1.append(evaluation_results["today_rov_status_other_random_prop"]["subprefix_hijacking"][item])
 
+    y2 = []
+    for item in evaluation_results["top_isps_rov_other_random_prop"]["subprefix_hijacking"]:
+        y2.append(evaluation_results["top_isps_rov_other_random_prop"]["subprefix_hijacking"][item])
+
     plt.figure(4)
     plt.plot(x1, y1, linestyle='dashed', marker='s', color='tab:red', label="Today's ROV status")
+    plt.plot(x1, y2, linestyle='solid', marker='+', color='tab:green', label="Top 100 ISPs perform ROV")
     plt.xticks([v * 0.1 for v in range(0, 11, 1)])
     plt.yticks([v * 0.1 for v in range(0, 11, 1)])
 

@@ -80,6 +80,30 @@ def today_rov_status_other_random_prop_subprefix_hijacking(other_random_prop_lis
             evaluation_results_dict["today_rov_status_other_random_prop"]["subprefix_hijacking"][str(prop_value)] = avg_impact_estimation_after_hijack
 
 
+def top_isps_rov_other_random_prop_prefix_hijacking(num_of_top_isp_rpki_adopters, other_random_prop_list, evaluation_results_dict):
+    print("### Top ISPs ROV + Other ASes (Prefix Hijacking) ###")
+    print("RPKI Adoption Propability of other ASes | Average Impact Estimation")
+    for prop_value in other_random_prop_list:
+        file_path = "./evaluation_data/prefix-hijacking-random/top-isps-rov/"+str(num_of_top_isp_rpki_adopters)+"-other-random-prop-" + str(prop_value) + ".json"
+        eval_data = read_evaluation_data(file_path)
+        if eval_data:
+            avg_impact_estimation_after_hijack = compute_avg_impact(eval_data)
+            print(str(prop_value) + "  " + str(avg_impact_estimation_after_hijack))
+            evaluation_results_dict["top_isps_rov_other_random_prop"]["prefix_hijacking"][str(prop_value)] = avg_impact_estimation_after_hijack
+
+
+def top_isps_rov_other_random_prop_subprefix_hijacking(num_of_top_isp_rpki_adopters, other_random_prop_list, evaluation_results_dict):
+    print("### Top ISPs ROV + Other ASes (Subprefix Hijacking) ###")
+    print("RPKI Adoption Propability of other ASes | Average Impact Estimation")
+    for prop_value in other_random_prop_list:
+        file_path = "./evaluation_data/subprefix-hijacking-random/top-isps-rov/"+str(num_of_top_isp_rpki_adopters)+"-other-random-prop-" + str(prop_value) + ".json"
+        eval_data = read_evaluation_data(file_path)
+        if eval_data:
+            avg_impact_estimation_after_hijack = compute_avg_impact(eval_data)
+            print(str(prop_value) + "  " + str(avg_impact_estimation_after_hijack))
+            evaluation_results_dict["top_isps_rov_other_random_prop"]["subprefix_hijacking"][str(prop_value)] = avg_impact_estimation_after_hijack
+
+
 if __name__ == '__main__':
     rpki_adoption_propability_list = [0.25, 0.50, 0.75, 1.0]
     num_of_top_isp_rpki_adopters = list(range(0, 101, 10))
@@ -90,4 +114,6 @@ if __name__ == '__main__':
     collateral_benefit_subprefix_hijacking(num_of_top_isp_rpki_adopters, rpki_adoption_propability_list, evaluation_results_dict)
     today_rov_status_other_random_prop_prefix_hijacking(other_random_prop_list, evaluation_results_dict)
     today_rov_status_other_random_prop_subprefix_hijacking(other_random_prop_list, evaluation_results_dict)
+    top_isps_rov_other_random_prop_prefix_hijacking(100, other_random_prop_list, evaluation_results_dict)
+    top_isps_rov_other_random_prop_subprefix_hijacking(100, other_random_prop_list, evaluation_results_dict)
     write_evaluation_results(evaluation_results_dict, "evaluation_results.json")
