@@ -130,6 +130,7 @@ class SimulationRequestHandler(Resource):
         req_parser.add_argument('num_of_top_isp_rpki_adopters', type=int, help="An Integer denoting the top N ISPs (according to ASRank) that do RPKI Route Origin Validation")
         req_parser.add_argument('rpki_adoption_propability', type=float, help="A float number denoting the propability that someone of the top N ISPs (according to ASRank) do RPKI Route Origin Validation")
         req_parser.add_argument('other_random_prop', type=float, help="A float number denoting the propability that a BGPNode do RPKI Route Origin Validation and this node a) not belongs in the top N ISPs (according to ASRank) or b) not belongs in the ASes that do ROV according to the todays Deployment")
+        req_parser.add_argument('hist_hijack_id', type=int, help="An integer denoting the number of the file that contains the data of the historical hijack")
 
 
         sim_data = req_parser.parse_args()

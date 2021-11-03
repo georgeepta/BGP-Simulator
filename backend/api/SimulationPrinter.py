@@ -36,6 +36,7 @@ class SimulationPrinter:
         print('Writing statistics to json...')
         jsonfilename = '../tests/results/statistics__' + str(simulation_uuid) + '__CAIDA' + sim_data['caida_as_graph_dataset'] + '_sims' + str(
             sim_data['nb_of_sims']) + '_hijackType' + str(sim_data['hijack_type']) + '_test_hijacker' + '_.json'
+        #jsonfilename = '../evaluation/evaluation_data/Historical-Hijacks/subprefix-hijacks/'+str(sim_data['hist_hijack_id'])+'_sim_'+str(sim_data['legitimate_AS'])+"_"+str(sim_data['hijacker_AS'])+'.json'
         with open(jsonfilename, 'w') as jsonfile:
             json.dump(results, jsonfile)
 
