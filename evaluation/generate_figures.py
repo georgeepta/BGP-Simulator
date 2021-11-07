@@ -128,6 +128,54 @@ def plot_today_rov_status_vs_top_isps_other_random_prop_subprefix_hijacking(eval
     plt.savefig('./figures/today_rov_status_vs_top_isps_other_random_prop_subprefix_hijacking.png')
 
 
+def plot_simulator_average_accuracy_prefix_hijacks(accuracy_results):
+    x1 = list(accuracy_results["prefix_hijacks"].keys())
+    avg_accuracy_id = x1.pop()
+    y1 = list(accuracy_results["prefix_hijacks"].values())
+    avg_accuracy_value = y1.pop()
+
+    plt.figure(5)
+    plt.bar(x1, y1, linestyle='solid', width=0.5, color='peru', label="Accuracy per hijack")
+    plt.xticks(x1, rotation=50, fontsize=5, ha='right')
+    plt.yticks([v * 0.1 for v in range(0, 11, 1)])
+
+    plt.axhline(y=avg_accuracy_value, linestyle='dashed', linewidth=2, color='tab:green', label='Mean Accuracy')
+
+    plt.xlabel('Historical Hijack ID')
+    # Set the y axis label of the current axis.
+    plt.ylabel('Accuracy')
+    # Set a title of the current axes.
+    plt.title('Simulator Accuracy to detect the infected ASes (Prefix Hijacks)')
+    # show a legend on the plot
+    plt.legend()
+    # save figure
+    plt.savefig('./figures/simulator_accuracy_prefix_hijacks.png', dpi=300, bbox_inches="tight")
+
+
+def plot_simulator_average_accuracy_subprefix_hijacks(accuracy_results):
+    x1 = list(accuracy_results["subprefix_hijacks"].keys())
+    avg_accuracy_id = x1.pop()
+    y1 = list(accuracy_results["subprefix_hijacks"].values())
+    avg_accuracy_value = y1.pop()
+
+    plt.figure(6)
+    plt.bar(x1, y1, linestyle='solid', width=0.3, color='coral', label="Accuracy per hijack")
+    plt.xticks(x1, rotation=50, fontsize=5, ha='right')
+    plt.yticks([v * 0.1 for v in range(0, 11, 1)])
+
+    plt.axhline(y=avg_accuracy_value, linestyle='dashed', linewidth=2, color='tab:green', label='Mean Accuracy')
+
+    plt.xlabel('Historical Hijack ID')
+    # Set the y axis label of the current axis.
+    plt.ylabel('Accuracy')
+    # Set a title of the current axes.
+    plt.title('Simulator Accuracy to detect the infected ASes (Subprefix Hijacks)')
+    # show a legend on the plot
+    plt.legend(loc='lower right')
+    # save figure
+    plt.savefig('./figures/simulator_accuracy_subprefix_hijacks.png', dpi=300, bbox_inches="tight")
+
+
 if __name__ == '__main__':
 
     evaluation_results = read_evaluation_results("evaluation_results.json")
@@ -141,5 +189,9 @@ if __name__ == '__main__':
     plot_today_rov_status_vs_top_isps_other_random_prop_prefix_hijacking(evaluation_results)
     plot_today_rov_status_vs_top_isps_other_random_prop_subprefix_hijacking(evaluation_results)
 
+    accuracy_results = read_evaluation_results("accuracy_results.json")
+    plot_simulator_average_accuracy_prefix_hijacks(accuracy_results)
+    plot_simulator_average_accuracy_subprefix_hijacks(accuracy_results)
+
     # Display a figure.
-    plt.show()
+    #plt.show()
