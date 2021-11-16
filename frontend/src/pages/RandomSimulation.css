@@ -1,6 +1,7 @@
 .random-simulation {
   max-width: 400px;
   margin: 0 auto;
+  margin-bottom: 40px;
   text-align: center;
   font-family: 'PT Sans', sans-serif;
   min-height: 100vh;
