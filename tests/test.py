@@ -172,6 +172,14 @@ def load_ROV_Active_Measurements_data(file_path):
         print(asn_do_rov_list)
 
 
+def read_json_data(file_path):
+    try:
+        with open(file_path, 'r') as json_file:
+            data = json.load(json_file)
+            return data
+    except FileNotFoundError:
+        print("Sorry, the file, "+ file_path + " ,does not exist.")
+        return 0
 
 if __name__ == '__main__':
 
@@ -217,4 +225,12 @@ if __name__ == '__main__':
     '''
     #AsToOrgDict()
     #load_ROV_Deployment_monitor_data("../datasets/ROV-Deployment-Monitor/2020-08-31.csv")
-    load_ROV_Active_Measurements_data("../datasets/ROV-Active-Measurements-TMA-Paper/20210719_resultset_asns.json")
+    #load_ROV_Active_Measurements_data("../datasets/ROV-Active-Measurements-TMA-Paper/20210719_resultset_asns.json")
+
+    json_data = read_json_data("../evaluation/accuracy_results.json")
+    num_list = []
+    for sim in json_data["prefix_hijacks"]:
+        num_list.append(json_data["prefix_hijacks"][sim])
+    num_list.pop()
+    print(sum(num_list)/len(num_list))
+
