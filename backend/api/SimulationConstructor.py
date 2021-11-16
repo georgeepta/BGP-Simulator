@@ -152,8 +152,13 @@ class SimulationConstructor(UnorderedWorker):
             for asn in final_rov_list:
                 if Topo.has_node(asn):
                     Topo.get_node(asn).rov = True
-        elif sim_data['rpki_rov_mode'] == "20%":
-            pass
+        elif sim_data['rpki_rov_mode'] == "random_20":
+            print("RPKI ROV mode --> Random 20%")
+            all_BGP_nodes_list = Topo.get_all_nodes_ASNs()
+            random_20_BGP_nodes_list = random.sample(all_BGP_nodes_list, int(len(all_BGP_nodes_list) * 0.2))
+            for asn in random_20_BGP_nodes_list:
+                if Topo.has_node(asn):
+                    Topo.get_node(asn).rov = True
         return
 
 
