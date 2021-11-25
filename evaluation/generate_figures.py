@@ -135,17 +135,17 @@ def plot_simulator_average_accuracy_prefix_hijacks(accuracy_results):
     avg_accuracy_value = y1.pop()
 
     plt.figure(5)
-    plt.bar(x1, y1, linestyle='solid', width=0.5, color='peru', label="Accuracy per hijack")
+    plt.bar(x1, y1, linestyle='solid', width=0.5, color='peru', label="LoA per hijack")
     plt.xticks(x1, rotation=50, fontsize=5, ha='right')
     plt.yticks([v * 0.1 for v in range(0, 11, 1)])
 
-    plt.axhline(y=avg_accuracy_value, linestyle='dashed', linewidth=2, color='tab:green', label='Mean Accuracy')
+    plt.axhline(y=avg_accuracy_value, linestyle='dashed', linewidth=2, color='tab:green', label='Mean LoA')
 
     plt.xlabel('Historical Hijack ID')
     # Set the y axis label of the current axis.
-    plt.ylabel('Accuracy')
+    plt.ylabel('Level of Agreement')
     # Set a title of the current axes.
-    plt.title('Simulator Accuracy to detect the infected ASes (Prefix Hijacks)')
+    plt.title("Simulator's LoA with Historical Prefix Hijacks")
     # show a legend on the plot
     plt.legend()
     # save figure
@@ -159,17 +159,17 @@ def plot_simulator_average_accuracy_subprefix_hijacks(accuracy_results):
     avg_accuracy_value = y1.pop()
 
     plt.figure(6)
-    plt.bar(x1, y1, linestyle='solid', width=0.3, color='coral', label="Accuracy per hijack")
+    plt.bar(x1, y1, linestyle='solid', width=0.3, color='coral', label="LoA per hijack")
     plt.xticks(x1, rotation=50, fontsize=5, ha='right')
     plt.yticks([v * 0.1 for v in range(0, 11, 1)])
 
-    plt.axhline(y=avg_accuracy_value, linestyle='dashed', linewidth=2, color='tab:green', label='Mean Accuracy')
+    plt.axhline(y=avg_accuracy_value, linestyle='dashed', linewidth=2, color='tab:green', label='Mean LoA')
 
     plt.xlabel('Historical Hijack ID')
     # Set the y axis label of the current axis.
-    plt.ylabel('Accuracy')
+    plt.ylabel('Level of Agreement')
     # Set a title of the current axes.
-    plt.title('Simulator Accuracy to detect the infected ASes (Subprefix Hijacks)')
+    plt.title("Simulator's LoA with Historical Sub-Prefix Hijacks")
     # show a legend on the plot
     plt.legend(loc='lower right')
     # save figure
