@@ -1,2 +1,2 @@
 # BGP-Simulator
-A BGP hijacking simulation tool supported by RPKI filtering
+BPHS: A BGP Prefix Hijacking Simulation tool supporting RPKI filtering
