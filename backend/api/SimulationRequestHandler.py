@@ -1,3 +1,4 @@
+import os
 import json
 import random
 import psycopg2
@@ -52,7 +53,7 @@ class SimulationRequestHandler(Resource):
         '''
         print('Loading topology...')
         Topo.load_topology_from_csv(
-            '../datasets/CAIDA AS-graph/serial-2/' + sim_data['caida_as_graph_dataset'] + '.as-rel2.txt')
+            '../datasets/CAIDA AS-graph/serial-2/' + os.environ.get("AS_GRAPH_SERIAL2_DATASET_DATE") + '.as-rel2.txt')
         '''
         We comment the following lines, because are useful only if the members of the IXPs 
         that are not exists in the Topology are going to be insert in it.
@@ -154,7 +155,11 @@ class SimulationRequestHandler(Resource):
             '''
             create a connection to the database
             '''
-            conn = self.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
+            conn = self.connect_to_db(os.environ.get("DB_NAME"),
+                                      os.environ.get("DB_USERNAME"),
+                                      os.environ.get("DB_PASS"),
+                                      os.environ.get("DB_IP"),
+                                      os.environ.get("DB_PORT"))
 
             '''
             insert simulation data in database
@@ -170,7 +175,7 @@ class SimulationRequestHandler(Resource):
             Instantiate the BGP Hijacking Simulations
             '''
 
-            Stage1 = Stage(worker_class=SimulationConstructor, size=2, do_stop_task=True, disable_result=False)
+            Stage1 = Stage(worker_class=SimulationConstructor, size=int(os.environ.get("WORKERS")), do_stop_task=True, disable_result=False)
             pipe = Pipeline(Stage1)
 
             print('Simulation started')

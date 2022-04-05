@@ -1,3 +1,4 @@
+import os
 import csv
 import json
 import random
@@ -214,9 +215,9 @@ class SimulationConstructor(UnorderedWorker):
         '''
         print('Loading topology...')
         Topo.load_topology_from_csv(
-            '../datasets/CAIDA AS-graph/serial-2/' + sim_data['caida_as_graph_dataset'] + '.as-rel2.txt')
-        Topo.load_ixps_from_json('../datasets/CAIDA IXPS/' + 'ixs_' + sim_data['caida_ixps_datasets'] + '.jsonl',
-                                 '../datasets/CAIDA IXPS/' + 'ix-asns_' + sim_data['caida_ixps_datasets'] + '.jsonl')
+            '../datasets/CAIDA AS-graph/serial-2/' + os.environ.get("AS_GRAPH_SERIAL2_DATASET_DATE") + '.as-rel2.txt')
+        Topo.load_ixps_from_json('../datasets/CAIDA IXPS/' + 'ixs_' + os.environ.get("IXPS_DATASET_DATE") + '.jsonl',
+                                 '../datasets/CAIDA IXPS/' + 'ix-asns_' + os.environ.get("IXPS_DATASET_DATE") + '.jsonl')
         Topo.add_extra_p2p_custom_links()
 
 
@@ -241,7 +242,7 @@ class SimulationConstructor(UnorderedWorker):
         Set the RPKI ROV table for each AS that do ROV, 
         according to user preference (realistic_rpki_rov -> realistic or hypothetical) 
         '''
-        rpki_rov_table = self.set_rpki_rov_table(Topo, sim_data, "http://localhost:9556/api/v1/validity/")
+        rpki_rov_table = self.set_rpki_rov_table(Topo, sim_data, os.environ.get("ROOTINATOR_ROV_URL"))
 
         '''
         Launch simulation

@@ -1,3 +1,4 @@
+import os
 import json
 import psycopg2
 from datetime import datetime, timezone
@@ -34,7 +35,7 @@ class SimulationPrinter:
         results = cursor.fetchall()[0][0]
 
         print('Writing statistics to json...')
-        jsonfilename = '../tests/results/statistics__' + str(simulation_uuid) + '__CAIDA' + sim_data['caida_as_graph_dataset'] + '_sims' + str(
+        jsonfilename = '../tests/results/statistics__' + str(simulation_uuid) + '__CAIDA' + os.environ.get("AS_GRAPH_SERIAL2_DATASET_DATE") + '_sims' + str(
             sim_data['nb_of_sims']) + '_hijackType' + str(sim_data['hijack_type']) + '_test_hijacker' + '_.json'
         #jsonfilename = '../evaluation/evaluation_data/Historical-Hijacks/subprefix-hijacks/'+str(sim_data['hist_hijack_id'])+'_sim_'+str(sim_data['legitimate_AS'])+"_"+str(sim_data['hijacker_AS'])+'.json'
         with open(jsonfilename, 'w') as jsonfile:
@@ -85,7 +86,11 @@ class SimulationPrinter:
             return False
 
     def save_statistics(self, simulation_uuid, sim_data):
-        conn = self.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
+        conn = self.connect_to_db(os.environ.get("DB_NAME"),
+                                  os.environ.get("DB_USERNAME"),
+                                  os.environ.get("DB_PASS"),
+                                  os.environ.get("DB_IP"),
+                                  os.environ.get("DB_PORT"))
         if self.isLastRepetition(simulation_uuid, sim_data, conn):
             self.update_simulation_status('Completed', simulation_uuid, conn)
             self.update_simulation_end_time(simulation_uuid, conn)

@@ -1,3 +1,4 @@
+import os
 import json
 import psycopg2
 
@@ -180,6 +181,10 @@ class SimulationWorker:
 
 
     def start(self, Topo, sim_data, rpki_rov_table, simulation_uuid):
-        conn = self.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
+        conn = self.connect_to_db(os.environ.get("DB_NAME"),
+                                  os.environ.get("DB_USERNAME"),
+                                  os.environ.get("DB_PASS"),
+                                  os.environ.get("DB_IP"),
+                                  os.environ.get("DB_PORT"))
         self.launch_simulation(Topo, sim_data, rpki_rov_table, simulation_uuid, conn)
         conn.close()
