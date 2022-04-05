@@ -83,7 +83,7 @@ function SimulationEvents() {
 				setData(data.filter(x => !selectedRows.includes(x)));
         selectedRows.forEach(row => {
 
-          fetch('http://127.0.0.1:5000/simulation_events', {
+          fetch(process.env.REACT_APP_BACKEND_URL + "simulation_events", {
             method: 'DELETE',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({'simulation_uuid': row.simulation_id})
@@ -131,7 +131,7 @@ function SimulationEvents() {
 
   
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/simulation_events', {
+    fetch(process.env.REACT_APP_BACKEND_URL + "simulation_events", {
             method: 'GET',
         }).then(async response => {
             const isJson = response.headers.get('content-type')?.includes('application/json');

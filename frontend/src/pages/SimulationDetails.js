@@ -194,7 +194,7 @@ function SimulationDetails() {
   
     
     useEffect(() => {
-        fetch(`http://127.0.0.1:5000/simulation_details?simulation_uuid=${encodeURIComponent(simulation_uuid)}`, {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}simulation_details?simulation_uuid=${encodeURIComponent(simulation_uuid)}`, {
                 method: 'GET', 
             }).then(async response => {
                 const isJson = response.headers.get('content-type')?.includes('application/json');
@@ -217,7 +217,7 @@ function SimulationDetails() {
               console.error('There was an error!', error.message);
             });
         
-        fetch(`http://127.0.0.1:5000/as_vulnerability_ranking?simulation_uuid=${encodeURIComponent(simulation_uuid)}`, {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}as_vulnerability_ranking?simulation_uuid=${encodeURIComponent(simulation_uuid)}`, {
                 method: 'GET', 
             }).then(async response => {
                 const isJson = response.headers.get('content-type')?.includes('application/json');
@@ -341,7 +341,7 @@ function SimulationDetails() {
                     target="_blank"
                     rel="noreferrer"
                     type="button"
-                    href={"http://127.0.0.1:5000/simulation_details?simulation_uuid="+simulation_uuid}
+                    href={process.env.REACT_APP_BACKEND_URL+"simulation_details?simulation_uuid="+simulation_uuid}
                     style={{marginLeft: "auto", marginRight: "20px", textDecoration: "none"}}
                 >
                     Raw JSON

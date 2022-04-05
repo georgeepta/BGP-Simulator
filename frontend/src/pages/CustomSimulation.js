@@ -60,7 +60,7 @@ function CustomSimulation() {
 
         setIsPending(true);
 
-        fetch('http://127.0.0.1:5000/launch_simulation', {
+        fetch(process.env.REACT_APP_BACKEND_URL + "launch_simulation", {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(sim_data)
