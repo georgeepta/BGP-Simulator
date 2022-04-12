@@ -17,9 +17,9 @@ def read_json_data(file_path):
         print("Sorry, the file, "+ file_path + " ,does not exist.")
         return 0
 
-def write_results_to_json(infection_accuracy_dict, file_path):
+def write_results_to_json(ROV_results_dict, file_path):
     with open(file_path, 'w') as json_file:
-        json.dump(infection_accuracy_dict, json_file)
+        json.dump(ROV_results_dict, json_file)
 
 def do_rov(endpoint_url, origin_asn, prefix):
     url = endpoint_url + str(origin_asn) + "/" + prefix
