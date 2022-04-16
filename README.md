@@ -70,7 +70,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][bphs-overview]]
+![BPHS Screen Shot][bphs-overview]
 
 BPHS, is a Web-based BGP Prefix Hijacking Simulation tool that enables network operators to quickly and easily: 
 
