@@ -49,9 +49,9 @@
 [contributors-url]: https://github.com/georgeepta/BGP-Simulator/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/georgeepta/BGP-Simulator.svg?style=for-the-badge
 [forks-url]: https://github.com/georgeepta/BGP-Simulator/network/members
-[stars-shield]: https://img.shields.io/github/stars/georgeepta/BGP-Simulator.svg.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/georgeepta/BGP-Simulator.svg?style=for-the-badge
 [stars-url]: https://github.com/georgeepta/BGP-Simulator/stargazers
-[issues-shield]: https://img.shields.io/github/issues/georgeepta/BGP-Simulator.svg.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/georgeepta/BGP-Simulator.svg?style=for-the-badge
 [issues-url]: https://github.com/georgeepta/BGP-Simulator/issues
 [license-shield]: https://img.shields.io/github/license/georgeepta/BGP-Simulator.svg?style=for-the-badge
 [license-url]: https://github.com/georgeepta/BGP-Simulator/blob/master/LICENSE
