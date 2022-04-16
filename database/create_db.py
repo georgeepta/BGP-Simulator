@@ -17,6 +17,14 @@ class Init_Database():
 
       return conn
 
+   def read_json_data(self, file_path):
+      try:
+         with open(file_path, 'r') as json_file:
+            data = json.load(json_file)
+            return data
+      except FileNotFoundError:
+         print("Sorry, the file, " + file_path + " ,does not exist.")
+         return 0
 
    def create_db(self, conn):
       # Creating a cursor object using the cursor() method
@@ -27,7 +35,7 @@ class Init_Database():
 
       # Creating a database
       cursor.execute(sql)
-      print("Database BGP_Simulator created successfully........")
+      print("BPHS database created successfully........")
 
 
    def create_bgp_hijacking_sims_table(self, conn):
@@ -147,12 +155,10 @@ class Init_Database():
       print("Table ASN_TO_ORG created successfully........")
 
 
-   def create_As_To_Org_Dict(self):
+   def create_As_To_Org_Dict(self, file_path):
 
       AS_dict = {}
       Org_dict = {}
-
-      file_path = '../datasets/AS-2-Orgs-mappings/20210701.as-org2info.jsonl'
 
       with open(file_path) as f:
          for line in f:
@@ -213,15 +219,26 @@ class Init_Database():
 
 if __name__ == '__main__':
    init_db = Init_Database()
-   conn = init_db.connect_to_db("postgres", 'gepta', '1821', '127.0.0.1', '5432')
+   db_config_data = init_db.read_json_data('./config.json')
+   conn = init_db.connect_to_db(db_config_data["default_postgres_db_name"],
+                                db_config_data["db_user_username"],
+                                db_config_data["db_user_password"],
+                                db_config_data["dp_ip"],
+                                db_config_data["dp_port"])
    init_db.create_db(conn)
    conn.close()
-   conn2 = init_db.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
+   conn2 = init_db.connect_to_db(db_config_data["bphs_db_name"],
+                                db_config_data["db_user_username"],
+                                db_config_data["db_user_password"],
+                                db_config_data["dp_ip"],
+                                db_config_data["dp_port"])
    init_db.create_bgp_hijacking_sims_table(conn2)
+   init_db.create_asn_to_org_table(conn2)
+   print("Data insertion in ASN_TO_ORG table (duration ~10 minutes) Wait.........")
+   init_db.insert_data_asn_to_org(init_db.create_As_To_Org_Dict('../datasets/AS-2-Orgs-mappings/'+db_config_data["asn_to_org_dataset_date"]+'.as-org2info.jsonl'), conn2)
+   ### Test functions ###
    #init_db.insert_data(conn2)
    #init_db.select_data(conn2)
    #init_db.select_data_as_json(conn2)
-   init_db.create_asn_to_org_table(conn2)
-   init_db.insert_data_asn_to_org(init_db.create_As_To_Org_Dict(), conn2)
    #init_db.selelect_asn_details(conn2)
    conn2.close()

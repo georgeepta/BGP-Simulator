@@ -1,0 +1,9 @@
+{
+  "default_postgres_db_name": "postgres",
+  "bphs_db_name": "bgp_simulator",
+  "db_user_username": "gepta",
+  "db_user_password": "1821",
+  "dp_ip": "127.0.0.1",
+  "dp_port": "5432",
+  "asn_to_org_dataset_date": "20210701"
+}
