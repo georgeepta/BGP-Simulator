@@ -109,7 +109,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 * [Flask](https://flask.palletsprojects.com/en/2.1.x/)
 * [PostgreSQL](https://www.postgresql.org/)
 
-![BPHS Architecture][bphs-overview]
+![BPHS Architecture][bphs-architecture]
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
