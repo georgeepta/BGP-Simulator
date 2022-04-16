@@ -82,6 +82,8 @@ _With BPHS, the network operators can simulate all the different types of BGP hi
 
 ![BPHS Screen Shot][bphs-overview]
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
