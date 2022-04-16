@@ -117,7 +117,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 * Internet connection (to fetch the latest VRPs using Rootinator)
 * Python >= 3.6
 * Pip for Python3
-* Docker Engine [see here](https://docs.docker.com/engine/install/ubuntu/)
+* Docker Engine (see [here)](https://docs.docker.com/engine/install/ubuntu/)
 
 ## Installation
 
@@ -139,7 +139,9 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    ```
 4. Install Rootinator (RPKI relying party software) locally using docker:
    ```sh
-   
+   $ sudo docker volume create routinator-tals
+   $ sudo docker run --rm -v routinator-tals:/home/routinator/.rpki-cache/tals \ nlnetlabs/routinator init -f --accept-arin-rpa
+   $ sudo docker run -d --restart=unless-stopped --name routinator -p 3323:3323 \ -p 9556:9556 -v routinator-tals:/home/routinator/.rpki-cache/tals \ nlnetlabs/routinator
    ```
 
 
