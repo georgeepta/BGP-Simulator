@@ -72,8 +72,9 @@
 
 _BPHS, is a Web-based BGP Prefix Hijacking Simulation tool that enables network operators to quickly and easily:_ 
 
-_1. assess the vulnerability of their Autonomous Systems to BGP prefix hijacks_
-_2. measure the benefits of the RPKI’s adoption in the Internet_ 
+1. _assess the vulnerability of their Autonomous Systems to BGP prefix hijacks_
+
+2. _measure the benefits of the RPKI’s adoption in the Internet_ 
 
 _through a user-friendly web application._
 
