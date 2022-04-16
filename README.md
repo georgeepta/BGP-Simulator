@@ -138,12 +138,24 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ curl -sL https://deb.nodesource.com/setup_current.x | sudo -E bash -
    $ sudo apt-get install -y nodejs
    ```
-4. Install Rootinator (RPKI relying party software) locally using docker [link to source](https://hub.docker.com/r/nlnetlabs/routinator):
+4. Install Rootinator (RPKI relying party software) locally using docker ([link to source](https://hub.docker.com/r/nlnetlabs/routinator)):
    ```sh
    $ sudo docker volume create routinator-tals
    $ sudo docker run --rm -v routinator-tals:/home/routinator/.rpki-cache/tals \ nlnetlabs/routinator init -f --accept-arin-rpa
    $ sudo docker run -d --restart=unless-stopped --name routinator -p 3323:3323 \ -p 9556:9556 -v routinator-tals:/home/routinator/.rpki-cache/tals \ nlnetlabs/routinator
    ```
+5. Create a new Postgres user and do the following configurations:
+   ```sh
+   $ sudo -u postgres createuser -s your_user
+   $ sudo -u postgres -i
+   $ ALTER USER your_user PASSWORD 'your_password'
+   $ \q
+   $ cd /etc/postgresql/13/main/
+   $ sudo nano pg_hba.conf
+   ``` 
+   In pg_hba.conf find the line: "local all postgres peer" and replace it with this line: "local all postgres md5". Also add the line "local all your_user md5"
+   
+   $ sudo service postgresql restart
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
