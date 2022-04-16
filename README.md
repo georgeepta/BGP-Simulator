@@ -151,9 +151,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ ALTER USER your_user PASSWORD 'your_password'
    $ \q
    $ cd /etc/postgresql/13/main/
-   $ sudo nano pg_hba.conf
-   
-   In pg_hba.conf find the line: "local all postgres peer" and replace it with this line: "local all postgres md5". Also add the line "local all your_user md5"
+   $ sudo nano pg_hba.conf (In pg_hba.conf find the line: "local all postgres peer" and replace it with this line: "local all postgres md5". Also add the line "local all your_user md5")
    
    $ sudo service postgresql restart
    ``` 
