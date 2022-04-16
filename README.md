@@ -114,7 +114,10 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 * RAM: 2+ GB (note that needed memory depends on the number of parralel simulations)
 * HDD: 500+ MB (depends on the use case for storing the simulation data)
 * OS: Ubuntu Linux 18.04+ (other Linux distributions will work too)
+* Internet connection (to fetch the latest VRPs using Rootinator)
 * Python >= 3.6
+* Pip for Python3
+* Docker Engine [see here](https://docs.docker.com/engine/install/ubuntu/)
 
 ## Installation
 
@@ -122,17 +125,21 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    ```sh
    git clone https://github.com/georgeepta/BGP-Simulator.git
    ```
-2. Create a new python virtual environment:
+2. Create a new python virtual environment and install the required python libraries:
    ```sh
    $ cd BGP-Simulator/backend
    $ python3 -m venv venv
    $ source venv/bin/activate
-   
+   $ pip3 install -r requirements.txt
    ```
-4. Install the required python libraries:
+3. Install Node.js and npm from NodeSource
    ```sh
-   $ cd BGP-Simulator/backend
-   $ pip install -r requirements.txt
+   $ curl -sL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+   $ sudo apt-get install -y nodejs
+   ```
+4. Install Rootinator (RPKI relying party software) locally using docker:
+   ```sh
+   
    ```
 
 
