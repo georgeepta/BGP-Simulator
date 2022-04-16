@@ -103,7 +103,13 @@ Our simulator, models the Internet graph through the well-known AS relationship 
 
 ### Built With
 
+BPHS is a full-stack web application that inherits all the characteristics of the MVC model. For its developement we used the following well known frameworks/libraries, databases:
 
+* [React.js](https://reactjs.org/)
+* [Flask](https://flask.palletsprojects.com/en/2.1.x/)
+* [PostgreSQL](https://www.postgresql.org/)
+
+![BPHS Architecture][bphs-overview]
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
@@ -121,3 +127,4 @@ Our simulator, models the Internet graph through the well-known AS relationship 
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/george-eptaminitakis-5702ab1ba
 [bphs-overview]: images/BPHS_overview.png
+[bphs-architecture]: images/BPHS_Architecture.png
