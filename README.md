@@ -114,6 +114,14 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
+<!-- GETTING STARTED -->
+## Getting Started
+
+Below we list the minimum system requirements and the installation steps of BPHS.
+
+
+
+
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/georgeepta/BGP-Simulator.svg?style=for-the-badge
