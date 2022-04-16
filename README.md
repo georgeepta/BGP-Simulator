@@ -118,6 +118,22 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 
 ## Installation
 
+1. Clone BPHS repo
+   ```sh
+   git clone https://github.com/georgeepta/BGP-Simulator.git
+   ```
+2. Create a new python virtual environment:
+   ```sh
+   $ cd BGP-Simulator/backend
+   $ python3 -m venv venv
+   $ source venv/bin/activate
+   
+   ```
+4. Install the required python libraries:
+   ```sh
+   $ cd BGP-Simulator/backend
+   $ pip install -r requirements.txt
+   ```
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
