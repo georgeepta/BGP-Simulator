@@ -108,7 +108,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 
 
 
-## Minimum System Requirements
+## Minimum Technical Requirements
 
 * CPU: 2 cores
 * RAM: 2+ GB (note that needed memory depends on the number of parralel simulations)
@@ -117,7 +117,8 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 * Internet connection (to fetch the latest VRPs using Rootinator)
 * Python >= 3.6
 * Pip for Python3
-* Docker Engine (see [here)](https://docs.docker.com/engine/install/ubuntu/)
+* Docker Engine (see [here](https://docs.docker.com/engine/install/ubuntu/))
+* PostgreSQL (see [here](https://www.postgresql.org/download/linux/ubuntu/))
 
 ## Installation
 
@@ -137,7 +138,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ curl -sL https://deb.nodesource.com/setup_current.x | sudo -E bash -
    $ sudo apt-get install -y nodejs
    ```
-4. Install Rootinator (RPKI relying party software) locally using docker:
+4. Install Rootinator (RPKI relying party software) locally using docker [link to source](https://hub.docker.com/r/nlnetlabs/routinator):
    ```sh
    $ sudo docker volume create routinator-tals
    $ sudo docker run --rm -v routinator-tals:/home/routinator/.rpki-cache/tals \ nlnetlabs/routinator init -f --accept-arin-rpa
