@@ -83,13 +83,13 @@ _With BPHS, the network operators can simulate all the different types of BGP hi
 
 BPHS supports:
 
-a. user-friendly GUI for easy interaction from desktop and mobile web-browsers 
+* user-friendly GUI for easy interaction from desktop and mobile web-browsers 
 
-b. multi-threading execution enabling end-users to retrieve quicker results per simulation 
+* multi-threading execution enabling end-users to retrieve quicker results per simulation 
 
-c. REST API to allow other applications to communicate with the simulator 
+* REST API to allow other applications to communicate with the simulator 
 
-d. realtime RPKI filtering using the most up-to-date data from the RPKI databases, for more realistic simulation results
+* realtime RPKI filtering using the most up-to-date data from the RPKI databases, for more realistic simulation results
 
 Our simulator, models the Internet graph through the well-known AS relationship datasets from CAIDA, applies the user preferences on the generated graph (e.g., random or custom simulation, hijack type, RPKI filtering mode) and finally simulates the BGP protocol (i.e., BGP route propagation, import-export policies) along with different types of prefix hijacks.
 
