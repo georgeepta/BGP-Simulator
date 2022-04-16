@@ -67,6 +67,7 @@
   </ol>
 </details>
 
+
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
@@ -80,9 +81,35 @@ _through a user-friendly web application._
 
 _With BPHS, the network operators can simulate all the different types of BGP hijacking attacks and obtain the simulation results through an automated and graphical way (i.e., well-designed Graphical User Interface). Also, BPHS can be offered as a Web service to the end-users, meaning that, can be publicly deployed and easily accessible by anyone in the Internet._
 
+BPHS supports:
+
+* user-friendly GUI for easy interaction from desktop and mobile web-browsers 
+
+* multi-threading execution enabling end-users to retrieve quicker results per simulation 
+
+* REST API to allow other applications to communicate with the simulator 
+
+* realtime RPKI filtering using the most up-to-date data from the RPKI databases, for more realistic simulation results
+
+Our simulator, models the Internet graph through the well-known AS relationship datasets from CAIDA, applies the user preferences on the generated graph (e.g., random or custom simulation, hijack type, RPKI filtering mode) and finally simulates the BGP protocol (i.e., BGP route propagation, import-export policies) along with different types of prefix hijacks.
+
+
 ![BPHS Screen Shot][bphs-overview]
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+
+### Built With
+
+BPHS is a full-stack web application that inherits all the characteristics of the MVC model. For its developement we used the following well known frameworks/libraries, databases:
+
+* [React.js](https://reactjs.org/)
+* [Flask](https://flask.palletsprojects.com/en/2.1.x/)
+* [PostgreSQL](https://www.postgresql.org/)
+
+![BPHS Architecture][bphs-overview]
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
@@ -100,3 +127,4 @@ _With BPHS, the network operators can simulate all the different types of BGP hi
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/george-eptaminitakis-5702ab1ba
 [bphs-overview]: images/BPHS_overview.png
+[bphs-architecture]: images/BPHS_Architecture.png
