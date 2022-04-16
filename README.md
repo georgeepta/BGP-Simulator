@@ -132,6 +132,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ python3 -m venv venv
    $ source venv/bin/activate
    $ pip3 install -r requirements.txt
+   $ deactivate
    ```
 3. Install Node.js and npm from NodeSource
    ```sh
@@ -154,12 +155,12 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ sudo nano pg_hba.conf (In pg_hba.conf find the line: "local all postgres peer" and replace it with this line: "local all postgres md5". Also add the line "local all your_user md5")
    $ sudo service postgresql restart
    ``` 
-6.  In ```/BGP-Simulator/database/config.json``` set the "db_user_username", "db_user_password" fields according to the preferences of step .5
+6. In ```/BGP-Simulator/database/config.json``` edit the "db_user_username" and "db_user_password" fields according to the preferences of step 5.
 7. Create the BPHS database running the following script:
    ```sh
    $ python3 /BGP-Simulator/database/create_db.py
    ```
-   
+8. In ```/BGP-Simulator/backend/.env``` edit the ```DB_USERNAME``` and ```DB_PASS``` enviroment variables according to the preferences of step 5.
    
 
 <!-- MARKDOWN LINKS & IMAGES -->
