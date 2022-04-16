@@ -111,6 +111,8 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 
 ![BPHS Architecture][bphs-architecture]
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
