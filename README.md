@@ -54,7 +54,7 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#minimum system requirements">Minimum System Requirements</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
@@ -119,13 +119,16 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 
 Below we list the minimum system requirements and the installation steps of BPHS.
 
-### Minimum system requirements
+### Minimum System Requirements
 
 * CPU: 2 cores
 * RAM: 2+ GB (note that needed memory depends on the number of parralel simulations)
 * HDD: 500+ MB (depends on the use case for storing the simulation data)
 * OS: Ubuntu Linux 18.04+ (other Linux distributions will work too)
 * Python >= 3.6
+
+### Installation
+
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
