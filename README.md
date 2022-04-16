@@ -51,13 +51,8 @@
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#minimum-system-requirements">Minimum System Requirements</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
+    <li><a href="#minimum-system-requirements">Minimum System Requirements</a></li>
+    <li><a href="#installation">Installation</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
@@ -99,8 +94,6 @@ Our simulator, models the Internet graph through the well-known AS relationship 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-
-
 ### Built With
 
 BPHS is a full-stack web application that inherits all the characteristics of the MVC model. For its developement we used the following well known frameworks/libraries, databases:
@@ -114,12 +107,8 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-<!-- GETTING STARTED -->
-## Getting Started
 
-Below we list the minimum system requirements and the installation steps of BPHS.
-
-### Minimum System Requirements
+## Minimum System Requirements
 
 * CPU: 2 cores
 * RAM: 2+ GB (note that needed memory depends on the number of parralel simulations)
@@ -127,7 +116,7 @@ Below we list the minimum system requirements and the installation steps of BPHS
 * OS: Ubuntu Linux 18.04+ (other Linux distributions will work too)
 * Python >= 3.6
 
-### Installation
+## Installation
 
 
 
