@@ -67,6 +67,19 @@
   </ol>
 </details>
 
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+[![Product Name Screen Shot][bphs-overview]]
+
+BPHS, is a Web-based BGP Prefix Hijacking Simulation tool that enables network operators to quickly and easily: 
+
+a. assess the vulnerability of their Autonomous Systems to BGP prefix hijacks 
+b. measure the benefits of the RPKI’s adoption in the Internet 
+
+through a user-friendly web application. 
+
+With BPHS, the network operators can simulate all the different types of BGP hijacking attacks and obtain the simulation results through an automated and graphical way (i.e., well-designed Graphical User Interface). Also, BPHS can be offered as a Web service to the end-users, meaning that, can be publicly deployed and easily accessible by anyone in the Internet.
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
@@ -83,4 +96,4 @@
 [license-url]: https://github.com/georgeepta/BGP-Simulator/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/george-eptaminitakis-5702ab1ba
-[product-screenshot]: images/screenshot.png
+[bphs-overview]: images/BPHS_overview.png
