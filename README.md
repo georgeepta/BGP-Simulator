@@ -186,8 +186,18 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 You can access BPHS Web App at:
 
 ```sh
-http://<BPHS_HOST>/ (e.g., http://localhost:3000/)
+http://<React-App_host>/ (e.g., http://localhost:3000/)
 ```
+
+### New Simulation
+
+```sh
+http://<React-App_host>/new-simulation
+```
+Here you can choose the simulation type:
+
+1. **Custom simulation**: In this simulation type, the user before the simulation’s launch should define his/her preferences for the ASN and CIDR prefix of the victim, hijacker, helper AS(es), and also the number of simulation’s repetitions. If one of the submitted ASNs is not included in simulation topology (i.e., the loaded AS-graph of CAIDA) an error message is returned. We mention that the helper ASes (or anycast ASes as they called) collaborate with the victim AS and help it to mitigate the hijack by announcing a mitigation prefix which should be exact or more specific than hijackers to have a positive effect. In real hijacking scenarios, the traffic attracted by the helper ASes, is redirected to legitimate AS, through a tunneling mechanism. In our simulator, we abstract this process, assuming that the traffic attracted by the helper ASes "virtually" belongs to the victim AS.
+
 
 
 
