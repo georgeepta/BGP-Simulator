@@ -201,6 +201,9 @@ You can access BPHS Web App at:
 http://<React-App_host>/ (e.g., http://localhost:3000/)
 ```
 
+![gui-home][gui-home]
+
+
 ### New Simulation
 
 ```sh
@@ -246,3 +249,4 @@ For detailed information about the submission form fields read the section 4.2 [
 [linkedin-url]: https://www.linkedin.com/in/george-eptaminitakis-5702ab1ba
 [bphs-overview]: images/BPHS_overview.png
 [bphs-architecture]: images/BPHS_Architecture.png
+[gui-home]:images/gui_home.png
