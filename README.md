@@ -345,7 +345,15 @@ Below we describe the fields of the ```BGP-Simulator/database/config.json``` (is
 * ```dp_port```: indicates the PORT that the postgres db listen.
 * ```asn_to_org_dataset_date```: indicates the date of the CAIDA dataset that maps Autonmous Systems (AS) to their Organizations (Org) (the dataset located in ```BGP-Simulator/datasets/AS-2-Orgs-mappings/```). The data are inserted into BPHS db.
 
-  
+ 
+### Frontend Configuration 
+ 
+* In ```frontend/.env``` file you can specify the URL/domain-name of the Flask server (backend app) required to fetch data from database.
+  ```
+  REACT_APP_BACKEND_URL=http://127.0.0.1:5000/
+  ```
+* In ```frontend/package.json``` file find the field ```proxy``` and set its value equal to URL/domain-name of the Flask server (backend app).
+
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
