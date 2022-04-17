@@ -291,7 +291,48 @@ Here we attach information about the env variables set in the ``backend/.env``` 
   ```
   FLASK_ENV=development
   ```
-
+* The ```DB_NAME``` environement variable is used to specify the BPHS database name (must be the same with the installation process). 
+  ```
+  DB_NAME=bgp_simulator
+  ```
+* The ```DB_USERNAME``` environement variable indicates the username of the postgres user created during the installation process.
+  ```
+  DB_USERNAME=your_user
+  ``` 
+* The ```DB_PASS``` environment variable indicates the password of the postgres user created during the installation process.   
+  ```
+  DB_PASS=your_password
+  ```
+* The ```DB_IP``` environment variable indicates the IP address of the host that postgres db is installed.
+  ```
+  DB_IP=127.0.0.1
+  ``` 
+* The ```DB_PORT``` environment variable indicates the PORT that the postgres db listen.
+  ```
+  DB_PORT=5432
+  ```
+* The ```WORKERS``` environment variable indicates the maximum number of parallel simulations. BPHS uses a very powerful python module, called mpipe, enabling the execution of parallel, multi-stage pipeline algorithms. The basic principle of mpipe is the "worker", which can be defined as a separate process that runs an instance of our simulation algorithm. The user can define the number of workers that BPHS will use during the simulation process. The choice depends on the computational power of the server (or desktop) that BPHS will be installed (e.g., more workers on a powerful server). If BPHS has been configured to use 1 worker and the user wants to launch a simulation that requires 4 repetitions, then all repetitions will be executed in serial. In the scenario that BPHS uses 2 workers and the user wants to launch a simulation that requires 4 repetitions, then the load of the first 2 repetitions will be shared between the 2 workers (i.e., each worker will execute 1 repetition). When one of the 2 workers completes its simulation, then asks for the next simulation, if it exists. In the last scenario, we obtain quicker simulation results, due to parallel execution (assuming the same experimental test-bed).
+  ```
+  WORKERS=2
+  ```
+* The ```AS_GRAPH_SERIAL2_DATASET_DATE``` environment variable indicates the date of the CAIDA AS relationships dataset that will be used in simulations (the dataset located in ```BGP-Simulator/datasets/CAIDA AS-graph/serial-2/```).
+  ```
+  AS_GRAPH_SERIAL2_DATASET_DATE=20211001
+  ```  
+* The ```IXPS_DATASET_DATE``` environment variable indicates the date of the CAIDA IXPs information dataset that will be used in simulations (the dataset located in ```BGP-Simulator/datasets/CAIDA IXPS/```).
+  ```
+  IXPS_DATASET_DATE=202107
+  ``` 
+* The ```ROOTINATOR_ROV_URL``` environment variable indicates the url that BPHS use to perform realtime RPKI ROV. If you have a local Rootinator installation (see installation process) set the variable as below:
+  ```
+  ROOTINATOR_ROV_URL=http://localhost:9556/api/v1/validity/
+  ``` 
+  Otherwise you can use the public available ROV url of Rootinator:
+  ```
+  ROOTINATOR_ROV_URL=https://rpki-validator.ripe.net/api/v1/validity/
+  ```
+  
+  
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
