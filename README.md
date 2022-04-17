@@ -212,6 +212,9 @@ You can access BPHS Web App at:
 http://<React-App_host>/ (e.g., http://localhost:3000/)
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
 ### New Simulation
 
 ```sh
@@ -260,6 +263,8 @@ By clicking the More Details button a pop-up window is displayed in the foregrou
 
 Also, the Simulation Details page displays in a Geo-Chart the Country Vulnerability Ranking using information from all the repetition results and also in a separate table the top 1000 vulnerable ASes in descent order using information from all the repetition results (read section 4.2 [here](https://github.com/georgeepta/BGP-Simulator/blob/master/paper/Master_Thesis_Georgios_Eptaminitakis_BPHS.pdf) for more technical details on the ranking approach).
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## UI overview (with screenshots)
 
 * **Home**
@@ -281,6 +286,8 @@ Also, the Simulation Details page displays in a Geo-Chart the Country Vulnerabil
   ![BPHS Screen Shot][bphs-overview]
   ![GUI More details][gui-more-details]
 
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 
 ## BPHS Configuration
@@ -361,6 +368,9 @@ Below we describe the fields of the ```BGP-Simulator/database/config.json``` (is
   REACT_APP_BACKEND_URL=http://127.0.0.1:5000/
   ```
 * In ```frontend/package.json``` file find the field ```proxy``` and set its value equal to URL/domain-name of the Flask server (backend app).
+
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
