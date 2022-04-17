@@ -229,6 +229,29 @@ In this simulation type, contrary to custom simulations, BPHS is responsible to 
 For detailed information about the submission form fields read the section 4.2 [here](https://github.com/georgeepta/BGP-Simulator/blob/master/paper/Master_Thesis_Georgios_Eptaminitakis_BPHS.pdf). 
 
 
+### Simulation Events
+
+```sh
+http://<React-App_host>/simulation-events
+```
+The Simulation Events page, contains a table with brief information for each submitted simulation. The table has 6 columns showing information for the UUID (i.e, unique id) of the simulation, the simulation status, the simulation type, the number of completed simulations and the start/end time of
+the simulation. The user is enabled to click on each row for exploring the simulation results (redirection to Simulation Details page) or to delete the simulation/row by clicking the checkbox at the left corner and then the Delete button that appears in the top corner of the table. The simulation events can be sorted according to a specific column (e.g., start time) by clicking the specific column name.
+
+
+### Simulation Details
+
+```sh
+http://<React-App_host>/simulation_details?simulation_uuid=....
+```
+The Simulation Details page displays the results of the specified simulation starting from the top corner with a table including the simulation statistics/data. We mention that by clicking on the victim, hijacker, or mitigation prefix, BPHS redirects us to the RIPEstat service showing more information for the clicked prefix. Under the statistics table, we observe a button called Raw JSON. This button enables us to get all the simulation results/data in JSON format (in a new browser tab). The Results per Repetition enable us to get the simulation results of each repetition. Specifically, each row shows the selected legitimate, hijacker, helper ASes and the impact estimation value after the hijacking attempt and after the mitigation attempt. We mention that the Legitimate AS, Hijacker AS, Helper AS columns includes hoverable hyperlinks as values, enabling (a) to get more information for the hovered AS (e.g., country, name, organization name/id, RIR) and (b) redirection to AS-Rank service showing more information for the clicked AS. 
+
+By clicking the More Details button a pop-up window is displayed in the foreground including the repetition results in detail. The pop-up provides (a) the RPKI ROV table used by the ASes during the simulation, (b) a table including the ASes applying RPKI filtering, (c) bar-plots showing useful statistics/metrics, (d) two tables including the infected ASes and the infected AS_PATH of each AS (displayed as interactive AS-graph) after hijack and after mitigation respectively. We mention that all the tables provide a searching filter for easier navigation.
+
+Also, the Simulation Details page displays in a Geo-Chart the Country Vulnerability Ranking using information from all the repetition results and also in a separate table the top 1000 vulnerable ASes in descent order using information from all the repetition results (read section 4.2 [here](https://github.com/georgeepta/BGP-Simulator/blob/master/paper/Master_Thesis_Georgios_Eptaminitakis_BPHS.pdf) for more technical details on the ranking approach).
+
+
+
+
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
