@@ -63,6 +63,9 @@
             <li><a href="#1-custom-simulation">1. Custom Simulation</a></li>
             <li><a href="#2-random-simulation">2. Random Simulation</a></li>
           </ul>
+          <a href="#simulation-events">Simulation Events</a>
+          <a href="#simulation-details">Simulation Details</a>
+          <a href="#ui-overview-with-screenshots">UI overview (with screenshots)</a>
         </li>
       </ul>
     </li>
