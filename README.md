@@ -274,6 +274,6 @@ Also, the Simulation Details page displays in a Geo-Chart the Country Vulnerabil
 [bphs-overview]: images/BPHS_overview.png
 [bphs-architecture]: images/BPHS_Architecture.png
 [gui-home]:images/gui_home.png
-[gui-newsim.png]:images/gui_newsim.png
-[gui-customsim.png]:images/gui_customsim.png
-[gui-randomsim.png]:images/gui_randomsim.png
+[gui-newsim]:images/gui_newsim.png
+[gui-customsim]:images/gui_customsim.png
+[gui-randomsim]:images/gui_randomsim.png
