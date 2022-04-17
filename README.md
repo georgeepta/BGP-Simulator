@@ -57,9 +57,13 @@
     <li>
       <a href="#using-the-web-application">Using the Web Application</a>
       <ul>
-        <li><a href="#new-simulation">New Simulation</a></li>
-        <li><a href="#custom-simulation">Custom Simulation</a></li>
-        <li><a href="#random-simulation">Random Simulation</a></li>
+        <li>
+          <a href="#new-simulation">New Simulation</a>
+          <ul>
+            <li><a href="#1.-custom-simulation">1. Custom Simulation</a></li>
+            <li><a href="#2.-random-simulation">2. Random Simulation</a></li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ol>
