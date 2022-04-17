@@ -113,6 +113,9 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 * Python >= 3.6
 * Pip for Python3
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
 ## Installation
 
 1. Clone BPHS repo
@@ -156,7 +159,10 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ python3 BGP-Simulator/database/create_db.py
    ```
 10. In ```BGP-Simulator/backend/.env``` edit the ```DB_USERNAME``` and ```DB_PASS``` enviroment variables according to your preferences in step 7.
-  
+
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
   
 ## Running BPHS
 
@@ -171,7 +177,9 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ cd BGP-Simulator/frontend/
    $ npm start
    ```   
-   
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
