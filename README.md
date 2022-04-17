@@ -150,12 +150,12 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ sudo nano pg_hba.conf (In pg_hba.conf find the line: "local all postgres peer" and replace it with this line: "local all postgres md5". Also add the line "local all your_user md5")
    $ sudo service postgresql restart
    ``` 
-8. In ```BGP-Simulator/database/config.json``` edit the ```"db_user_username"``` and ```"db_user_password"``` fields according to your preferences in step 5.
+8. In ```BGP-Simulator/database/config.json``` edit the ```"db_user_username"``` and ```"db_user_password"``` fields according to your preferences in step 7.
 9. Create the BPHS database running the following script:
    ```sh
    $ python3 BGP-Simulator/database/create_db.py
    ```
-10. In ```BGP-Simulator/backend/.env``` edit the ```DB_USERNAME``` and ```DB_PASS``` enviroment variables according to your preferences in step 5.
+10. In ```BGP-Simulator/backend/.env``` edit the ```DB_USERNAME``` and ```DB_PASS``` enviroment variables according to your preferences in step 7.
   
   
 ## Running BPHS
