@@ -118,7 +118,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 
 ## Installation
 
-1. Clone BPHS repo
+1. Clone BPHS repo:
    ```sh
    git clone https://github.com/georgeepta/BGP-Simulator.git
    ```
@@ -179,6 +179,16 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    ```   
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+
+## Using the Web Application
+
+You can access BPHS Web App at:
+
+```sh
+http://<BPHS_HOST>/ (e.g., http://localhost:3000/)
+```
+
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
