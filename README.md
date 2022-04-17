@@ -249,8 +249,12 @@ By clicking the More Details button a pop-up window is displayed in the foregrou
 
 Also, the Simulation Details page displays in a Geo-Chart the Country Vulnerability Ranking using information from all the repetition results and also in a separate table the top 1000 vulnerable ASes in descent order using information from all the repetition results (read section 4.2 [here](https://github.com/georgeepta/BGP-Simulator/blob/master/paper/Master_Thesis_Georgios_Eptaminitakis_BPHS.pdf) for more technical details on the ranking approach).
 
+## UI overview (with screenshots)
 
-
+* Home
+  ![GUI HOME][gui-home]
+* New Simulation
+  ![GUI NEWSIM][gui-newsim] 
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
