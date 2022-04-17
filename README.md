@@ -60,8 +60,8 @@
         <li>
           <a href="#new-simulation">New Simulation</a>
           <ul>
-            <li><a href="#1.-custom-simulation">1. Custom Simulation</a></li>
-            <li><a href="#2.-random-simulation">2. Random Simulation</a></li>
+            <li><a href="#1-custom-simulation">1. Custom Simulation</a></li>
+            <li><a href="#2-random-simulation">2. Random Simulation</a></li>
           </ul>
         </li>
       </ul>
