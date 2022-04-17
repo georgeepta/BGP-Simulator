@@ -140,7 +140,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ sudo docker run -d --restart=unless-stopped --name routinator -p 3323:3323 \ -p 9556:9556 -v routinator-tals:/home/routinator/.rpki-cache/tals \ nlnetlabs/routinator
    ```
 6. Install PostgreSQL following the instructions [here](https://www.postgresql.org/download/linux/ubuntu/)   
-7. Create a new Postgres user and do the following configurations:
+7. Create a new Postgres user and do the required configurations:
    ```sh
    $ sudo -u postgres createuser -s your_user
    $ sudo -u postgres -i
