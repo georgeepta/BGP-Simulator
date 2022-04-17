@@ -274,6 +274,17 @@ Also, the Simulation Details page displays in a Geo-Chart the Country Vulnerabil
   ![GUI More details][gui-more-details]
 
 
+
+## BPHS Configuration
+
+The admin is enabled to configure BPHS according to his/her preferences using the provided ```backend/.env``` file of the backend app, the ```database/config.json``` of the database and the ```frontend/.env``` or ```frontend/package.json``` file of the frontend app. 
+
+### Environment Variables for the backend
+
+
+
+
+
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/georgeepta/BGP-Simulator.svg?style=for-the-badge
