@@ -26,12 +26,12 @@ class Init_Database():
          print("Sorry, the file, " + file_path + " ,does not exist.")
          return 0
 
-   def create_db(self, conn):
+   def create_db(self, conn, db_name):
       # Creating a cursor object using the cursor() method
       cursor = conn.cursor()
 
       # Preparing query to create a database
-      sql = '''CREATE database BGP_Simulator''';
+      sql = "CREATE database "+db_name+";"
 
       # Creating a database
       cursor.execute(sql)
@@ -225,7 +225,7 @@ if __name__ == '__main__':
                                 db_config_data["db_user_password"],
                                 db_config_data["dp_ip"],
                                 db_config_data["dp_port"])
-   init_db.create_db(conn)
+   init_db.create_db(conn, db_config_data["bphs_db_name"])
    conn.close()
    conn2 = init_db.connect_to_db(db_config_data["bphs_db_name"],
                                 db_config_data["db_user_username"],
