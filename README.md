@@ -279,10 +279,18 @@ Also, the Simulation Details page displays in a Geo-Chart the Country Vulnerabil
 
 The admin is enabled to configure BPHS according to his/her preferences using the provided ```backend/.env``` file of the backend app, the ```database/config.json``` of the database and the ```frontend/.env``` or ```frontend/package.json``` file of the frontend app. 
 
-### Environment Variables for the backend
+### Backend Configuration
 
+Here we attach information about the env variables set in the ``backend/.env``` file. 
 
-
+* The ```FLASK_APP``` environment variable is used to specify how to load the application.
+  ```
+  FLASK_APP=app.py
+  ```
+* The ```FLASK_ENV``` environment variable sets the environment in which the Flask app runs.
+  ```
+  FLASK_ENV=development
+  ```
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
