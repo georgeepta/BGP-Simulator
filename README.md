@@ -69,6 +69,14 @@
         </li>
       </ul>
     </li>
+    <li>
+      <a href="#bphs-configuration">BPHS Configuration</a>
+      <ul>
+        <li><a href="#backend-configuration">Backend Configuration</a></li>
+        <li><a href="#database-configuration">Database Configuration</a></li>
+        <li><a href="#frontend-configuration">Frontend Configuration</a></li>
+      </ul>
+    </li>
   </ol>
 </details>
 
