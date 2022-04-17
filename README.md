@@ -262,9 +262,6 @@ Also, the Simulation Details page displays in a Geo-Chart the Country Vulnerabil
 
 * **Random Simulation**
   ![GUI RANDOMSIM][gui-randomsim]
-
-* **Custom Simulation**
-  ![GUI CUSTOMSIM][gui-customsim]
   
 * **Simulation Events**
   ![GUI SIMEVENTS][gui-simevents]
