@@ -291,7 +291,7 @@ Here we attach information about the env variables set in the ``backend/.env``` 
   ```
   FLASK_ENV=development
   ```
-* The ```DB_NAME``` environement variable is used to specify the BPHS database name (must be the same with the installation process). 
+* The ```DB_NAME``` environement variable is used to specify the BPHS database name (the value must be the same with the value of field ```bphs_db_name``` in ```BGP-Simulator/database/config.json```). 
   ```
   DB_NAME=bgp_simulator
   ```
@@ -331,7 +331,20 @@ Here we attach information about the env variables set in the ``backend/.env``` 
   ```
   ROOTINATOR_ROV_URL=https://rpki-validator.ripe.net/api/v1/validity/
   ```
-  
+
+
+### Database Configuration
+
+Below we describe the fields of the ```BGP-Simulator/database/config.json``` (is used for BPHS database creation):
+
+* ```default_postgres_db_name```: indicates the default postgres database (edit is not required).
+* ```bphs_db_name```: indicates the BPHS database name (edit is not required).
+* ```db_user_username```: indicates the username of the postgres user created during the installation process.
+* ```db_user_password```: indicates the password of the postgres user created during the installation process.
+* ```dp_ip```: indicates the IP address of the host that postgres db is installed.
+* ```dp_port```: indicates the PORT that the postgres db listen.
+* ```asn_to_org_dataset_date```: indicates the date of the CAIDA dataset that maps Autonmous Systems (AS) to their Organizations (Org) (the dataset located in ```BGP-Simulator/datasets/AS-2-Orgs-mappings/```). The data are inserted into BPHS db.
+
   
 
 <!-- MARKDOWN LINKS & IMAGES -->
