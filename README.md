@@ -283,11 +283,11 @@ The admin is enabled to configure BPHS according to his/her preferences using th
 
 Here we attach information about the env variables set in the ``backend/.env``` file. 
 
-* The ```FLASK_APP``` environment variable is used to specify how to load the application.
+* The ```FLASK_APP``` environment variable is used to specify how to load the application (more info [here](https://flask.palletsprojects.com/en/2.1.x/cli/#application-discovery)).
   ```
   FLASK_APP=app.py
   ```
-* The ```FLASK_ENV``` environment variable sets the environment in which the Flask app runs.
+* The ```FLASK_ENV``` environment variable sets the environment in which the Flask app runs (more info [here](https://flask.palletsprojects.com/en/2.1.x/cli/#environments)).
   ```
   FLASK_ENV=development
   ```
