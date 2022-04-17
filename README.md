@@ -216,6 +216,8 @@ http://<React-App_host>/custom-simulation
 
 In this simulation type, the user before the simulation’s launch should define his/her preferences for the ASN and CIDR prefix of the victim, hijacker, helper AS(es), and also the number of simulation’s repetitions. If one of the submitted ASNs is not included in simulation topology (i.e., the loaded AS-graph of CAIDA) an error message is returned. We mention that the helper ASes (or anycast ASes as they called) collaborate with the victim AS and help it to mitigate the hijack by announcing a mitigation prefix which should be exact or more specific than hijackers to have a positive effect. In real hijacking scenarios, the traffic attracted by the helper ASes, is redirected to legitimate AS, through a tunneling mechanism. In our simulator, we abstract this process, assuming that the traffic attracted by the helper ASes "virtually" belongs to the victim AS.
 
+For detailed information about the submission form fields read the section 4.2 [here](https://github.com/georgeepta/BGP-Simulator/blob/master/paper/Master_Thesis_Georgios_Eptaminitakis_BPHS.pdf)  
+
 #### 2. **Random Simulation** 
 
 ```sh
@@ -223,6 +225,8 @@ http://<React-App_host>/random-simulation
 ```
 
 In this simulation type, contrary to custom simulations, BPHS is responsible to randomly pick the ASN of the victim, hijacker, and helper AS(es) from the AS-graph. Similarly with custom simulations, the user is enabled to launch all the available BGP prefix hijacking attacks. The simulator generates "virtually" prefixes for each attack type; for example, if a user wants to simulate a random sub-prefix hijack then the simulator assumes the prefix "x.y.z.w/24" for the randomly selected victim, and the "x.y.z.w/25" for the randomly selected attacker, helper ASes. In random simulation scenarios, we assume that the victim and helper ASes announce the longest prefix that could partially or fully mitigate the attack. We mention that the random simulation attacks do not support realistic RPKI ROV, due to the "virtually" prefixes that are picked by BPHS. The user is enabled to select the number of random victim-hijacker-helper ASes pairs that BPHS will pick randomly and the simulation repetitions of each selected pair.
+
+For detailed information about the submission form fields read the section 4.2 [here](https://github.com/georgeepta/BGP-Simulator/blob/master/paper/Master_Thesis_Georgios_Eptaminitakis_BPHS.pdf) 
 
 
 
