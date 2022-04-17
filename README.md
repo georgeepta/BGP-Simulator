@@ -208,7 +208,7 @@ http://<React-App_host>/new-simulation
 ```
 Here you can choose the simulation type:
 
-#### 1. **Custom simulation**
+#### 1. **Custom Simulation**
 
 ```sh
 http://<React-App_host>/custom-simulation
