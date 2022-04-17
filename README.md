@@ -166,7 +166,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ source venv/bin/activate
    $ flask run
    ```
-2. Start React app:
+2. Start the React app:
    ```sh
    $ cd BGP-Simulator/frontend/
    $ npm start
