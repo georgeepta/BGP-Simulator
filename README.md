@@ -117,8 +117,6 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 * Internet connection (to fetch the latest VRPs using Rootinator)
 * Python >= 3.6
 * Pip for Python3
-* Docker Engine (see [here](https://docs.docker.com/engine/install/ubuntu/))
-* PostgreSQL (see [here](https://www.postgresql.org/download/linux/ubuntu/))
 
 ## Installation
 
@@ -139,13 +137,15 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ curl -sL https://deb.nodesource.com/setup_current.x | sudo -E bash -
    $ sudo apt-get install -y nodejs
    ```
-4. Install Rootinator (RPKI relying party software) locally using docker ([link to source](https://hub.docker.com/r/nlnetlabs/routinator)):
+4. Install Docker Engine following the instructions [here](https://docs.docker.com/engine/install/ubuntu/)
+5. Install Rootinator (RPKI relying party software) locally using docker ([link to source](https://hub.docker.com/r/nlnetlabs/routinator)):
    ```sh
    $ sudo docker volume create routinator-tals
    $ sudo docker run --rm -v routinator-tals:/home/routinator/.rpki-cache/tals \ nlnetlabs/routinator init -f --accept-arin-rpa
    $ sudo docker run -d --restart=unless-stopped --name routinator -p 3323:3323 \ -p 9556:9556 -v routinator-tals:/home/routinator/.rpki-cache/tals \ nlnetlabs/routinator
    ```
-5. Create a new Postgres user and do the following configurations:
+6. Install PostgreSQL following the instructions [here](https://www.postgresql.org/download/linux/ubuntu/)   
+7. Create a new Postgres user and do the following configurations:
    ```sh
    $ sudo -u postgres createuser -s your_user
    $ sudo -u postgres -i
@@ -155,12 +155,12 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ sudo nano pg_hba.conf (In pg_hba.conf find the line: "local all postgres peer" and replace it with this line: "local all postgres md5". Also add the line "local all your_user md5")
    $ sudo service postgresql restart
    ``` 
-6. In ```BGP-Simulator/database/config.json``` edit the ```"db_user_username"``` and ```"db_user_password"``` fields according to your preferences in step 5.
-7. Create the BPHS database running the following script:
+8. In ```BGP-Simulator/database/config.json``` edit the ```"db_user_username"``` and ```"db_user_password"``` fields according to your preferences in step 5.
+9. Create the BPHS database running the following script:
    ```sh
    $ python3 BGP-Simulator/database/create_db.py
    ```
-8. In ```BGP-Simulator/backend/.env``` edit the ```DB_USERNAME``` and ```DB_PASS``` enviroment variables according to your preferences in step 5.
+10. In ```BGP-Simulator/backend/.env``` edit the ```DB_USERNAME``` and ```DB_PASS``` enviroment variables according to your preferences in step 5.
   
   
 ## Running BPHS
