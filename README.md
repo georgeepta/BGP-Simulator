@@ -251,10 +251,27 @@ Also, the Simulation Details page displays in a Geo-Chart the Country Vulnerabil
 
 ## UI overview (with screenshots)
 
-* Home
+* **Home**
   ![GUI HOME][gui-home]
-* New Simulation
-  ![GUI NEWSIM][gui-newsim] 
+  
+* **New Simulation**
+  ![GUI NEWSIM][gui-newsim]
+
+* **Custom Simulation**
+  ![GUI CUSTOMSIM][gui-customsim]
+
+* **Random Simulation**
+  ![GUI RANDOMSIM][gui-randomsim]
+
+* **Custom Simulation**
+  ![GUI CUSTOMSIM][gui-customsim]
+  
+* **Simulation Events**
+  ![GUI SIMEVENTS][gui-simevents]
+
+* **Simulation Details**
+  ![BPHS Screen Shot][bphs-overview]
+  ![GUI More details][gui-more-details]
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
@@ -277,3 +294,5 @@ Also, the Simulation Details page displays in a Geo-Chart the Country Vulnerabil
 [gui-newsim]:images/gui_newsim.png
 [gui-customsim]:images/gui_customsim.png
 [gui-randomsim]:images/gui_randomsim.png
+[gui-simevents]:images/gui_simevents.png
+[gui-more-details]:images/gui_more_details.drawio.png
