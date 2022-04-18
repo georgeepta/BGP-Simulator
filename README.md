@@ -77,6 +77,7 @@
         <li><a href="#frontend-configuration">Frontend Configuration</a></li>
       </ul>
     </li>
+    <li><a href="#contact">Contact</a></li>
   </ol>
 </details>
 
@@ -383,7 +384,7 @@ Below we describe the fields of the ```BGP-Simulator/database/config.json``` (is
 
 ## Contact
 
-In case of questions or requests for contributions please contact ```csdp1176[at]csd[dot]uoc[dot]gr```
+In case of questions or requests for contributions please contact ```giwrgosepta1997[at]hotmail[dot]com```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
