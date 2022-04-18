@@ -212,8 +212,6 @@ You can access BPHS Web App at:
 http://<React-App_host>/ (e.g., http://localhost:3000/)
 ```
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 
 ### New Simulation
 
