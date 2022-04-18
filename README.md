@@ -381,6 +381,14 @@ Below we describe the fields of the ```BGP-Simulator/database/config.json``` (is
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
+## Contact
+
+In case of questions or requests for contributions please contact ```csdp1176[at]csd[dot]uoc[dot]gr```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/georgeepta/BGP-Simulator.svg?style=for-the-badge
