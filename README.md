@@ -133,7 +133,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 * RAM: 2+ GB (note that needed memory depends on the number of parralel simulations)
 * HDD: 500+ MB (depends on the use case for storing the simulation data)
 * OS: Ubuntu Linux 18.04+ (other Linux distributions will work too)
-* Internet connection (to fetch the latest VRPs using Rootinator)
+* Internet connection (to fetch the latest VRPs using [Rootinator](https://www.nlnetlabs.nl/projects/rpki/routinator/))
 * Python >= 3.6
 * Pip for Python3
 
