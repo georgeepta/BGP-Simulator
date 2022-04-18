@@ -294,7 +294,7 @@ The admin is enabled to configure BPHS according to his/her preferences using th
 
 ### Backend Configuration
 
-Here we attach information about the env variables set in the ```backend/.env``` file. 
+Here we attach information about the environment variables set in the ```backend/.env``` file:
 
 * The ```FLASK_APP``` environment variable is used to specify how to load the application (more info [here](https://flask.palletsprojects.com/en/2.1.x/cli/#application-discovery)).
   ```
