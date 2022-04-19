@@ -61,6 +61,10 @@ def start_ROV(asn_to_pfx_json_obj_list, validator_url):
             else:
                 ROV_results_dict[validity_state][ASN].append(pfx)
 
+    ROV_results_dict["valid_count"] = len(ROV_results_dict["valid"])
+    ROV_results_dict["invalid_count"] = len(ROV_results_dict["invalid"])
+    ROV_results_dict["not-found_count"] = len(ROV_results_dict["not-found"])
+
     return ROV_results_dict
 
 if __name__ == '__main__':
@@ -73,8 +77,5 @@ if __name__ == '__main__':
     it means that this ASN has a valid ROA for this prefix.
     '''
     ROV_results_dict = start_ROV(asn_to_pfx_json_obj_list, 'http://localhost:9556/api/v1/validity/')
-    ROV_results_dict["valid_count"] = len(ROV_results_dict["valid"])
-    ROV_results_dict["invalid_count"] = len(ROV_results_dict["invalid"])
-    ROV_results_dict["not-found_count"] = len(ROV_results_dict["not-found"])
     write_results_to_json(ROV_results_dict, './evaluation_data/forth_ypourgeio_project/ROV_results.json')
     print(ROV_results_dict)
