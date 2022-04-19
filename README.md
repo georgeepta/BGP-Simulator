@@ -183,6 +183,11 @@ BPHS is a full-stack web application that inherits all the characteristics of th
    $ python3 BGP-Simulator/database/create_db.py
    ```
 10. In ```BGP-Simulator/backend/.env``` edit the ```DB_USERNAME``` and ```DB_PASS``` enviroment variables according to your preferences in step 7.
+11. Install/download the dependences of the React/fontend app:
+   ```sh
+   $ cd BGP-Simulator/frontend
+   $ npm install
+   ```
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
