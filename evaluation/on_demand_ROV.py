@@ -11,7 +11,8 @@ class NestedDict(dict):
 def read_json_data(file_path):
     try:
         with open(file_path, 'r') as json_file:
-            data = json.load(json_file)
+            json_data = json_file.read()
+            data = json.loads(json_data)
             return data
     except FileNotFoundError:
         print("Sorry, the file, "+ file_path + " ,does not exist.")
@@ -44,14 +45,16 @@ def do_rov(endpoint_url, origin_asn, prefix):
             return response.status_code
 
 
-def start_ROV(asn_to_pfx_json, validator_url):
+def start_ROV(asn_to_pfx_json_obj_list, validator_url):
     ROV_results_dict = NestedDict()
     ROV_results_dict["valid"] = {}
     ROV_results_dict["invalid"] = {}
     ROV_results_dict["not-found"] = {}
 
-    for ASN in asn_to_pfx_json:
-        for pfx in asn_to_pfx_json[ASN]:
+    for json_obj in asn_to_pfx_json_obj_list:
+        ASN = json_obj["asn"]
+        pfx_list = json_obj["prefixes"]
+        for pfx in pfx_list:
             validity_state = do_rov(validator_url, ASN, pfx)
             if ASN not in ROV_results_dict[validity_state]:
                 ROV_results_dict[validity_state][ASN] = [pfx]
@@ -61,13 +64,17 @@ def start_ROV(asn_to_pfx_json, validator_url):
     return ROV_results_dict
 
 if __name__ == '__main__':
-    asn_to_pfx_json = read_json_data(r'evaluation_data/forth_ypourgeio_project/ASN_to_prefixes.json')
+    asn_to_pfx_json_obj_list = read_json_data(r'evaluation_data/forth_ypourgeio_project/greeks_with_pref.json')
+    print(asn_to_pfx_json_obj_list)
     '''
     We use the Rootinator tool to perform ROV. Rootinator performs ROV using 
     the most up-to-date set of Validated ROA Payloads (VRPs) provided by 
     the 5 RIRs. If the ROV result for an (IP-prefix, ASN) pair is "valid"
     it means that this ASN has a valid ROA for this prefix.
     '''
-    ROV_results_dict = start_ROV(asn_to_pfx_json, 'http://localhost:9556/api/v1/validity/')
+    ROV_results_dict = start_ROV(asn_to_pfx_json_obj_list, 'http://localhost:9556/api/v1/validity/')
+    ROV_results_dict["valid_count"] = len(ROV_results_dict["valid"])
+    ROV_results_dict["invalid_count"] = len(ROV_results_dict["invalid"])
+    ROV_results_dict["not-found_count"] = len(ROV_results_dict["not-found"])
     write_results_to_json(ROV_results_dict, './evaluation_data/forth_ypourgeio_project/ROV_results.json')
     print(ROV_results_dict)
