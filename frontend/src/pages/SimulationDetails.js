@@ -194,8 +194,10 @@ function SimulationDetails() {
   
     
     useEffect(() => {
-        fetch(`${process.env.REACT_APP_BACKEND_URL}simulation_details?simulation_uuid=${encodeURIComponent(simulation_uuid)}`, {
-                method: 'GET', 
+        fetch(process.env.REACT_APP_BACKEND_URL + "simulation_details", {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({"simulation_uuid": simulation_uuid}) 
             }).then(async response => {
                 const isJson = response.headers.get('content-type')?.includes('application/json');
                 const data = isJson && await response.json();
@@ -217,8 +219,10 @@ function SimulationDetails() {
               console.error('There was an error!', error.message);
             });
         
-        fetch(`${process.env.REACT_APP_BACKEND_URL}as_vulnerability_ranking?simulation_uuid=${encodeURIComponent(simulation_uuid)}`, {
-                method: 'GET', 
+        fetch(process.env.REACT_APP_BACKEND_URL + "as_vulnerability_ranking", {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({"simulation_uuid": simulation_uuid}) 
             }).then(async response => {
                 const isJson = response.headers.get('content-type')?.includes('application/json');
                 const data = isJson && await response.json();

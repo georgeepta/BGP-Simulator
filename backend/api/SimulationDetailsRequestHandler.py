@@ -68,7 +68,7 @@ class SimulationDetailsRequestHandler(Resource):
         return sim_details
 
 
-    def get(self):
+    def post(self):
         req_parser = reqparse.RequestParser()
         req_parser.add_argument('simulation_uuid', type=str, required=True, help="Give the unique UUID of the simulation.")
         simulation_uuid = req_parser.parse_args()['simulation_uuid']
