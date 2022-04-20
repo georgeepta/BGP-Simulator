@@ -345,7 +345,21 @@ function SimulationDetails() {
                     target="_blank"
                     rel="noreferrer"
                     type="button"
-                    href={process.env.REACT_APP_BACKEND_URL+"simulation_details?simulation_uuid="+simulation_uuid}
+                    href={`data:text/json;charset=utf-8,${encodeURIComponent(
+                        JSON.stringify({
+                            "simulation_id": data.simulation_id,
+                            "simulation_status": data.simulation_status,
+                            "simulation_data": data.simulation_data,
+                            "simulations_results": data.simulation_results,
+                            "num_of_simulations": data.num_of_simulations,
+                            "num_of_repetitions": data.num_of_repetitions,
+                            "num_of_finished_simulations": data.num_of_finished_simulations,
+                            "sim_start_time": data.sim_start_time,
+                            "sim_end_time": data.sim_end_time
+                        })
+                      )}`
+                    }
+                    download={"bphs_sim_results_" + data.simulation_id + ".json"}
                     style={{marginLeft: "auto", marginRight: "20px", textDecoration: "none"}}
                 >
                     Raw JSON
