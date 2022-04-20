@@ -1,3 +1,4 @@
+import os
 import psycopg2
 from flask_restful import Resource, reqparse
 
@@ -76,7 +77,11 @@ class SimulationDetailsRequestHandler(Resource):
         '''
         create a connection to the database
         '''
-        conn = self.connect_to_db("bgp_simulator", 'gepta', '1821', '127.0.0.1', '5432')
+        conn = self.connect_to_db(os.environ.get("DB_NAME"),
+                                  os.environ.get("DB_USERNAME"),
+                                  os.environ.get("DB_PASS"),
+                                  os.environ.get("DB_IP"),
+                                  os.environ.get("DB_PORT"))
 
         '''
         Fetch everything for the requested simulation from db
