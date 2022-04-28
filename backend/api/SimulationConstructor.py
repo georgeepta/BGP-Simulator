@@ -86,6 +86,14 @@ class SimulationConstructor(UnorderedWorker):
             return asn_do_rov_list
 
 
+    def load_TMA_paper_2021_Rodday_union_ROV_Deployment_monitor_data(self, file_path):
+        with open(file_path) as json_file:
+            asn_do_rov_list = json.load(json_file)["union_ROV_ASes_of_all_datasets_list"]
+            print(asn_do_rov_list)
+            return asn_do_rov_list
+
+
+
     def load_ASRank_data(self, file_path):
         with open(file_path) as json_file:
             data = json.load(json_file)
@@ -160,6 +168,13 @@ class SimulationConstructor(UnorderedWorker):
             for asn in random_20_BGP_nodes_list:
                 if Topo.has_node(asn):
                     Topo.get_node(asn).rov = True
+        elif sim_data['rpki_rov_mode'] == "rov_active_measurements+rov_deployment_monitor":
+            print("RPKI ROV mode --> rov_active_measurements+rov_deployment_monitor")
+            ROV_ASes_union_list = self.load_TMA_paper_2021_Rodday_union_ROV_Deployment_monitor_data("../evaluation/evaluation_data/forth_ypourgeio_project/ROV_ASes_results.json")
+            for asn in ROV_ASes_union_list:
+                if Topo.has_node(asn):
+                    Topo.get_node(asn).rov = True
+
         return
 
 
