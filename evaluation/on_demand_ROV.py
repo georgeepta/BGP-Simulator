@@ -68,7 +68,7 @@ def start_ROV(asn_to_pfx_json_obj_list, validator_url):
     return ROV_results_dict
 
 if __name__ == '__main__':
-    asn_to_pfx_json_obj_list = read_json_data(r'evaluation_data/forth_ypourgeio_project/greeks_with_pref.json')
+    asn_to_pfx_json_obj_list = read_json_data(r'evaluation_data/forth_ypourgeio_project/all_greek_prefixes.json')
     print(asn_to_pfx_json_obj_list)
     '''
     We use the Rootinator tool to perform ROV. Rootinator performs ROV using 
