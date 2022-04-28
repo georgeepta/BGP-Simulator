@@ -119,9 +119,9 @@ function RandomSimulation() {
                   <option value="rov_active_measurements+rov_deployment_monitor">According to latest research results</option>
               </select>
               <label>Number of Random Simulations:</label>
-              <input type="number" min="1" max="100" value={NumOfSim} onChange={(e) => setNumOfSim(e.target.value)} required />
+              <input type="number" min="1" max="10000" value={NumOfSim} onChange={(e) => setNumOfSim(e.target.value)} required />
               <label>Repetitions per Simulation:</label>
-              <input type="number" min="1" max="100" value={NumOfSimReps} onChange={(e) => setNumOfSimReps(e.target.value)} required />
+              <input type="number" min="1" max="10000" value={NumOfSimReps} onChange={(e) => setNumOfSimReps(e.target.value)} required />
               {errorMessage && <p style={{color: "red", fontSize: "small"}}>{errorText}</p>}
               {!isPending && <button>Launch Simulation</button>}
               {isPending && <button disabled>Send Simulation Data...</button>}

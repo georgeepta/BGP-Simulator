@@ -188,7 +188,7 @@ function CustomSimulation() {
                     <option value="rov_active_measurements+rov_deployment_monitor">According to latest research results</option>
                 </select>
                 <label>Number of Simulation Repetitions:</label>
-                <input type="number" min="1" max="100" value={NumOfSimReps} onChange={(e) => setNumOfSimReps(e.target.value)} required />
+                <input type="number" min="1" max="10000" value={NumOfSimReps} onChange={(e) => setNumOfSimReps(e.target.value)} required />
                 {errorMessage && <p style={{color: "red", fontSize: "small"}}>{errorText}</p>}
                 {!isPending && <button>Launch Simulation</button>}
                 {isPending && <button disabled>Send Simulation Data...</button>}
