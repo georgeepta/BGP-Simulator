@@ -94,7 +94,40 @@ def compute_top_isps_rov_other_random_prop(num_of_top_isp_rpki_adopters, rpki_ad
         time.sleep(10 * 60)  # after 10 mins do the next request
 
 
+def send_random_sim_request():
+    sim_data = {
+        "simulation_type": "random",
+        "legitimate_AS": 0,
+        "legitimate_prefix": "x.y.z.w/m",
+        "hijacker_AS": 0,
+        "hijacker_prefix": "x.y.z.w/m",
+        "hijack_type": 0,
+        "hijack_prefix_type": "exact",
+        "anycast_ASes": [2],
+        "mitigation_prefix": "x.y.z.w/m",
+        "rpki_rov_mode": "rov_active_measurements+rov_deployment_monitor",
+        "nb_of_sims": 50,
+        "nb_of_reps": 1,
+        "caida_as_graph_dataset": "20220401",
+        "caida_ixps_datasets": "202110",
+        "max_nb_anycast_ASes": 2,
+        "realistic_rpki_rov": False
+    }
+    response = requests.post('http://127.0.0.1:5000/launch_simulation', json=sim_data)
+    print(response.json())
+
+
+def launch_random_sim(num_of_sims):
+    print("### Random Simulation Starts.... ###")
+    for sim in range(1, (num_of_sims//50) + 1):
+        send_random_sim_request()
+        time.sleep(17 * 60)  # after 17 mins do the next request
+    if (num_of_sims % 50) != 0:
+        send_random_sim_request()
+
+
 if __name__ == '__main__':
+    '''
     rpki_adoption_propability_list = [0.25, 0.50, 0.75, 1]
     num_of_top_isp_rpki_adopters = list(range(0, 101, 10))
     other_random_prop_list = [v * 0.1 for v in range(0, 11, 1)]
@@ -102,3 +135,5 @@ if __name__ == '__main__':
     #compute_collateral_benefit(num_of_top_isp_rpki_adopters, rpki_adoption_propability_list)
     #compute_today_rov_status_other_random_prop(100, 1.0, other_random_prop_list)
     compute_top_isps_rov_other_random_prop(100, 1.0, other_random_prop_list)
+    '''
+    launch_random_sim(2000)
