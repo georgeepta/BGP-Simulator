@@ -76,12 +76,15 @@ function RandomSimulation() {
           history.push('/simulation-events');
 
       }).catch(error => {
-          console.error('There was an error!', error.message);
-          
           
           if (error.message){
+              console.error('There was an error!', error.message);
               setMessage(true);
               setErrorText(error.message);
+          }else if (error.nb_of_sims !== "") {
+              console.error('There was an error!', error.nb_of_sims);
+              setMessage(true);
+              setErrorText(error.nb_of_sims);
           }else{
               setMessage(false);
               setErrorText("");
@@ -119,9 +122,9 @@ function RandomSimulation() {
                   <option value="rov_active_measurements+rov_deployment_monitor">According to latest research results</option>
               </select>
               <label>Number of Random Simulations:</label>
-              <input type="number" min="1" max="10000" value={NumOfSim} onChange={(e) => setNumOfSim(e.target.value)} required />
+              <input type="number" min="1" max="50" value={NumOfSim} onChange={(e) => setNumOfSim(e.target.value)} required />
               <label>Repetitions per Simulation:</label>
-              <input type="number" min="1" max="10000" value={NumOfSimReps} onChange={(e) => setNumOfSimReps(e.target.value)} required />
+              <input type="number" min="1" max="50" value={NumOfSimReps} onChange={(e) => setNumOfSimReps(e.target.value)} required />
               {errorMessage && <p style={{color: "red", fontSize: "small"}}>{errorText}</p>}
               {!isPending && <button>Launch Simulation</button>}
               {isPending && <button disabled>Send Simulation Data...</button>}

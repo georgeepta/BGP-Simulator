@@ -1,0 +1,31 @@
+Metadata-Version: 1.1
+Name: mpipe
+Version: 1.0.8
+Summary: Multiprocess pipeline toolkit
+Home-page: http://vmlaker.github.io/mpipe
+Author: Velimir Mlaker
+Author-email: velimir.mlaker@gmail.com
+License: MIT
+Description: .. image:: http://vmlaker.github.io/mpipe/_static/logo.png
+          :alt: MPipe Logo
+          :align: right
+          :target: http://vmlaker.github.io/mpipe
+        
+        .. image:: https://travis-ci.org/vmlaker/mpipe.png?branch=master
+          :alt: Build Result Image
+          :target: https://travis-ci.org/vmlaker/mpipe
+        
+        A tiny Python module that lets you 
+        easily write multi-stage, multiprocess pipeline algorithms. 
+        For the full description, including user guide and examples, 
+        visit `the documentation page <http://vmlaker.github.io/mpipe>`_.
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: Freeware
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

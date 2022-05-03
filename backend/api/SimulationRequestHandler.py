@@ -85,9 +85,9 @@ class SimulationRequestHandler(Resource):
             errors_dict['simulation_type'] = ""
             errors_dict['hijack_prefix_type'] = "" if sim_data['hijack_prefix_type'] in ["exact", "subprefix"] else "Invalid hijack attack --> type \"exact\" or \"subprefix\""
             errors_dict['rpki_rov_mode'] = "" if sim_data['rpki_rov_mode'] in ["all", "random_20", "rov_deployment_monitor", "rov_active_measurements", "manual", "today_rov_status+other_random_prop", "top_isps_rov+other_random_prop", "rov_active_measurements+rov_deployment_monitor"] else "Invalid RPKI ROV MODE --> type \"all\" or \"random_20\""
+            errors_dict['nb_of_sims'] = "" if (sim_data['nb_of_sims'] * sim_data['nb_of_reps']) <= 50 else "The number of simulations multiplied with the number of repetitions per simulation should not exceed 50"
             #It is not required to validate the following inputs:
-            #hijack_type, caida_as_graph_dataset, caida_ixps_datasets, realistic_rpki_rov
-            #nb_of_sims, nb_of_reps, max_nb_anycast_ASes
+            #hijack_type, caida_as_graph_dataset, caida_ixps_datasets, realistic_rpki_rov, max_nb_anycast_ASes
 
             if sim_data['simulation_type'] == "custom":
                 errors_dict['legitimate_AS'] = self.validate_ASN(ASN_List, sim_data['legitimate_AS'])
@@ -100,6 +100,12 @@ class SimulationRequestHandler(Resource):
                 errors_dict['legitimate_prefix'] = self.validate_IP_Address(sim_data['legitimate_prefix'])
                 errors_dict['hijacker_prefix'] = self.validate_IP_Address(sim_data['hijacker_prefix'])
                 errors_dict['mitigation_prefix'] = self.validate_IP_Address(sim_data['mitigation_prefix'])
+                if errors_dict['legitimate_prefix'] == "" and errors_dict['hijacker_prefix'] == "":
+                    if sim_data['hijack_prefix_type'] == "exact":
+                        errors_dict['pfx_formats'] = "" if ipaddress.ip_network(sim_data['legitimate_prefix']) == ipaddress.ip_network(sim_data['hijacker_prefix']) else "In the Exact prefix attacks, the legitimate prefix and hijacker prefix should be the same"
+                    elif sim_data['hijack_prefix_type'] == "subprefix":
+                        errors_dict['pfx_formats'] = "" if ipaddress.ip_network(sim_data['hijacker_prefix']).subnet_of(ipaddress.ip_network(sim_data['legitimate_prefix'])) else "In the Subprefix attacks, the hijacker prefix should be a subnet of the legitimate prefix"
+
 
         for item in errors_dict:
             if errors_dict[item] != "":

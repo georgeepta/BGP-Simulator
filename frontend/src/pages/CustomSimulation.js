@@ -82,17 +82,21 @@ function CustomSimulation() {
             setIsPending(false);
             history.push('/simulation-events');
 
-        }).catch(error => {
-            console.error('There was an error!', error.message);
-            
+        }).catch(error => {            
             
             if (error.message){
+                console.error('There was an error!', error.message);
                 setMessage(true);
                 setErrorText(error.message);
+            } else if (error.pfx_formats !== "") {
+                console.error('There was an error!', error.pfx_formats);
+                setMessage(true);
+                setErrorText(error.pfx_formats);
             }else{
                 setMessage(false);
                 setErrorText("");
             }
+
 
             if (error.legitimate_AS !== ""){
                 setMessageVictimASN(true);
@@ -188,7 +192,7 @@ function CustomSimulation() {
                     <option value="rov_active_measurements+rov_deployment_monitor">According to latest research results</option>
                 </select>
                 <label>Number of Simulation Repetitions:</label>
-                <input type="number" min="1" max="10000" value={NumOfSimReps} onChange={(e) => setNumOfSimReps(e.target.value)} required />
+                <input type="number" min="1" max="50" value={NumOfSimReps} onChange={(e) => setNumOfSimReps(e.target.value)} required />
                 {errorMessage && <p style={{color: "red", fontSize: "small"}}>{errorText}</p>}
                 {!isPending && <button>Launch Simulation</button>}
                 {isPending && <button disabled>Send Simulation Data...</button>}
