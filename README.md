@@ -134,7 +134,7 @@ BPHS is a full-stack web application that inherits all the characteristics of th
 * HDD: 500+ MB (depends on the use case for storing the simulation data)
 * OS: Ubuntu Linux 18.04+ (other Linux distributions will work too)
 * Internet connection (to fetch the latest VRPs using [Rootinator](https://www.nlnetlabs.nl/projects/rpki/routinator/))
-* Python >= 3.6
+* Python == 3.8
 * Pip for Python3
 
 <p align="right">(<a href="#top">back to top</a>)</p>
