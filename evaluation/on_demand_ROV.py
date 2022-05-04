@@ -61,9 +61,22 @@ def start_ROV(asn_to_pfx_json_obj_list, validator_url):
             else:
                 ROV_results_dict[validity_state][ASN].append(pfx)
 
-    ROV_results_dict["valid_count"] = len(ROV_results_dict["valid"])
-    ROV_results_dict["invalid_count"] = len(ROV_results_dict["invalid"])
-    ROV_results_dict["not-found_count"] = len(ROV_results_dict["not-found"])
+    valid_ROAS_count = 0
+    for ASN in ROV_results_dict["valid"]:
+        valid_ROAS_count += len(ROV_results_dict["valid"][ASN])
+    invalid_ROAS_count = 0
+    for ASN in ROV_results_dict["invalid"]:
+        invalid_ROAS_count += len(ROV_results_dict["invalid"][ASN])
+    not_found_ROAS_count = 0
+    for ASN in ROV_results_dict["not-found"]:
+        not_found_ROAS_count += len(ROV_results_dict["not-found"][ASN])
+
+    ROV_results_dict["valid_ROAS_count"] = valid_ROAS_count
+    ROV_results_dict["invalid_ROAS_count"] = invalid_ROAS_count
+    ROV_results_dict["not_found_ROAS_count"] = not_found_ROAS_count
+    ROV_results_dict["ASes_count_with_at_least_one_valid_ROA"] = len(ROV_results_dict["valid"])
+    ROV_results_dict["ASes_count_with_at_least_one_invalid_ROA"] = len(ROV_results_dict["invalid"])
+    ROV_results_dict["ASes_count_with_at_least_one_not-found_ROA"] = len(ROV_results_dict["not-found"])
 
     return ROV_results_dict
 

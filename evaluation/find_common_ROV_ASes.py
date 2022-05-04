@@ -23,7 +23,7 @@ def load_ROV_Deployment_monitor_data(file_path):
                 line_count += 1
             else:
                 print("ASN: " + row[0], "AS Name: " + row[1], "Certainty: " + row[2])
-                if float(row[2]) >= 0.5:
+                if float(row[2]) >= 0.0:
                     asn_do_rov_list.append(int(row[0]))
                 line_count += 1
         print(f'Processed: {line_count} lines.')
@@ -38,6 +38,25 @@ def load_ROV_Active_Measurements_TMA_data(file_path):
         asn_do_rov_list = [int(item) for item in data["2"][129]]
         print(asn_do_rov_list)
         return asn_do_rov_list
+
+
+def load_Is_BGP_Safe_Yet_Cloudflare_ASes(file_path):
+    rov_ASes_list = []
+    with open(file_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count == 0:
+                print(f'Columns names are {", ".join(row)}')
+                line_count += 1
+            else:
+                print("AS Name: " + row[0], "type: " + row[1], "details: " + row[2], "status: " + row[3], "ASN: " + row[4], "rank: " + row[5])
+                if row[3] not in ["unsafe"]:
+                    rov_ASes_list.append(int(row[4]))
+                line_count += 1
+        print(f'Processed: {line_count} lines.')
+        print(rov_ASes_list)
+    return rov_ASes_list
 
 
 def find_common_union_ROV_ASes_Active_Measurements_TMA_paper_2021_Rodday_data(datasets_path, dataset_dates_list, ROV_ASes_dict_results):
@@ -57,7 +76,8 @@ def find_common_union_ROV_ASes_Active_Measurements_TMA_paper_2021_Rodday_data(da
 def find_common_union_ROV_ASes_of_all_datasets(ROV_ASes_dict_results):
     all_ROV_lists = [
         ROV_ASes_dict_results["TMA_paper_2021_Rodday"]["union_ROV_ASes_of_all_measurements_list"],
-        ROV_ASes_dict_results["ROV_Deployment_monitor"]["ROV_ASes_list"]
+        ROV_ASes_dict_results["ROV_Deployment_monitor"]["ROV_ASes_list"],
+        ROV_ASes_dict_results["IsBGPSafeYet_Cloudflare"]["ROV_ASes_list"]
     ]
     union_ROV_ASes = list(set([item for sublist in all_ROV_lists for item in sublist]))
     common_ROV_ASes = list(set(all_ROV_lists[0]).intersection(*all_ROV_lists))
@@ -81,6 +101,12 @@ if __name__ == '__main__':
     )
     ROV_ASes_dict_results["ROV_Deployment_monitor"]["ROV_ASes_count"] = len(
         ROV_ASes_dict_results["ROV_Deployment_monitor"]["ROV_ASes_list"]
+    )
+    ROV_ASes_dict_results["IsBGPSafeYet_Cloudflare"]["ROV_ASes_list"] = load_Is_BGP_Safe_Yet_Cloudflare_ASes(
+        "../datasets/IsBGPSafeYet-Cloudflare/27-03-2022.csv"
+    )
+    ROV_ASes_dict_results["IsBGPSafeYet_Cloudflare"]["ROV_ASes_count"] = len(
+        ROV_ASes_dict_results["IsBGPSafeYet_Cloudflare"]["ROV_ASes_list"]
     )
 
     find_common_union_ROV_ASes_of_all_datasets(ROV_ASes_dict_results)
