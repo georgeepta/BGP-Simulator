@@ -119,7 +119,7 @@ function RandomSimulation() {
                   <option value="random_20">Random 20%</option>
                   <option value="rov_deployment_monitor">According to ROV Deployment Monitor</option>
                   <option value="rov_active_measurements">According to Active Measurements</option>
-                  <option value="rov_active_measurements+rov_deployment_monitor">According to latest research results</option>
+                  <option value="rov_active_measurements+rov_deployment_monitor+isBgpSafeYet_cloudflare">According to latest research results</option>
               </select>
               <label>Number of Random Simulations:</label>
               <input type="number" min="1" max="50" value={NumOfSim} onChange={(e) => setNumOfSim(e.target.value)} required />
