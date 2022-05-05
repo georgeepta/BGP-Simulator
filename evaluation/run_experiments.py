@@ -1,6 +1,16 @@
+import json
 import time
+import random
 import requests
 
+def read_json_data(file_path):
+    try:
+        with open(file_path, 'r') as json_file:
+            data = json.load(json_file)
+            return data
+    except FileNotFoundError:
+        print("Sorry, the file, "+ file_path + " ,does not exist.")
+        return 0
 
 def compute_collateral_benefit(num_of_top_isp_rpki_adopters, rpki_adoption_propability_list):
     print("### Collateral benefit ###")
@@ -94,18 +104,19 @@ def compute_top_isps_rov_other_random_prop(num_of_top_isp_rpki_adopters, rpki_ad
         time.sleep(10 * 60)  # after 10 mins do the next request
 
 
-def send_random_sim_request():
+def launch_random_prefix_hijacks(num_of_sims):
+    print("### Random Simulation Starts.... ###")
     sim_data = {
         "simulation_type": "random",
         "legitimate_AS": 0,
-        "legitimate_prefix": "x.y.z.w/m",
+        "legitimate_prefix": "1.2.3.0/24",
         "hijacker_AS": 0,
-        "hijacker_prefix": "x.y.z.w/m",
+        "hijacker_prefix": "1.2.3.0/24",
         "hijack_type": 0,
         "hijack_prefix_type": "exact",
         "anycast_ASes": [2],
-        "mitigation_prefix": "x.y.z.w/m",
-        "rpki_rov_mode": "rov_active_measurements+rov_deployment_monitor",
+        "mitigation_prefix": "1.2.3.0/24",
+        "rpki_rov_mode": "rov_active_measurements+rov_deployment_monitor+isBgpSafeYet_cloudflare",
         "nb_of_sims": 50,
         "nb_of_reps": 1,
         "caida_as_graph_dataset": "20220401",
@@ -113,17 +124,74 @@ def send_random_sim_request():
         "max_nb_anycast_ASes": 2,
         "realistic_rpki_rov": False
     }
-    response = requests.post('http://127.0.0.1:5000/launch_simulation', json=sim_data)
-    print(response.json())
-
-
-def launch_random_sim(num_of_sims):
-    print("### Random Simulation Starts.... ###")
     for sim in range(1, (num_of_sims//50) + 1):
-        send_random_sim_request()
+        response = requests.post('http://127.0.0.1:5000/launch_simulation', json=sim_data)
+        print(response.json())
         time.sleep(17 * 60)  # after 17 mins do the next request
     if (num_of_sims % 50) != 0:
-        send_random_sim_request()
+        response = requests.post('http://127.0.0.1:5000/launch_simulation', json=sim_data)
+        print(response.json())
+
+
+def launch_prefix_hijack_to_greek_ASes_from_2hop_plus_ASes(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes, isGreekASesHijackers):
+
+    if isGreekASesHijackers:
+        print("### Custom Simulation Starts (prefix hijacks to greek ASes from 2hop+ ASes).... ###")
+    else:
+        print("### Custom Simulation Starts (prefix hijacks to greek ASes from 2hop+ ASes - no greek ASes as hijackers).... ###")
+
+    all_greek_ASNs = set()
+    all_greek_ASNs_prefixes_dict = {}
+    for json_obj in greek_ASes_and_prefixes:
+        all_greek_ASNs.add(str(json_obj["asn"]))
+        all_greek_ASNs_prefixes_dict[str(json_obj["asn"])] = json_obj["prefixes"]
+    for json_obj in ASes_present_in_greece_plus_greek_ixps_and_prefixes:
+        all_greek_ASNs.add(str(json_obj["asn"]))
+        all_greek_ASNs_prefixes_dict[str(json_obj["asn"])] = json_obj["prefixes"]
+
+    all_ASNs_in_Graph_list = AS_relationships_Graph.keys()
+    for ASN in all_greek_ASNs:
+        if ASN in all_ASNs_in_Graph_list:
+            providers_list = AS_relationships_Graph[ASN]["providers"]
+            peers_list = AS_relationships_Graph[ASN]["peers"]
+            customers_list = AS_relationships_Graph[ASN]["customers"]
+            no_hijacker_ASes_list = list(map(str, providers_list + peers_list + customers_list))
+            if isGreekASesHijackers:
+                #All greek ASes that are 1 hop plus away are candidate hijackers
+                #excluding the victim AS from the candidate hijackers
+                no_hijacker_ASes_list.append(ASN)
+            else:
+                #All greek ASes that are 1 hop plus away are not candidate hijackers
+                #including the victim AS
+                no_hijacker_ASes_list = list(set(no_hijacker_ASes_list).union(all_greek_ASNs))
+
+            candidate_hijacker_ASes_list = [int(asn) for asn in all_ASNs_in_Graph_list if asn not in no_hijacker_ASes_list]
+            pfx = random.sample(all_greek_ASNs_prefixes_dict[ASN], 1)
+
+            for hijacker_AS in random.sample(candidate_hijacker_ASes_list, 2):
+                sim_data = {
+                    "simulation_type": "custom",
+                    "legitimate_AS": int(ASN),
+                    "legitimate_prefix": pfx,
+                    "hijacker_AS": hijacker_AS,
+                    "hijacker_prefix": pfx,
+                    "hijack_type": 0,
+                    "hijack_prefix_type": "exact",
+                    "anycast_ASes": [5511],  # Orange S.A we dont care about that field in these experiments
+                    "mitigation_prefix": pfx,
+                    "rpki_rov_mode": "rov_active_measurements+rov_deployment_monitor+isBgpSafeYet_cloudflare",
+                    "nb_of_sims": 10, #in custom sims change this for more repetitions
+                    "nb_of_reps": 1,
+                    "caida_as_graph_dataset": "20220401",
+                    "caida_ixps_datasets": "202110",
+                    "max_nb_anycast_ASes": 1,
+                    "realistic_rpki_rov": True
+                }
+                print(sim_data)
+                response = requests.post('http://127.0.0.1:5000/launch_simulation', json=sim_data)
+                print(response.json())
+                time.sleep(17 * 60)  # after 17 mins do the next request
+
 
 
 if __name__ == '__main__':
@@ -136,4 +204,11 @@ if __name__ == '__main__':
     #compute_today_rov_status_other_random_prop(100, 1.0, other_random_prop_list)
     compute_top_isps_rov_other_random_prop(100, 1.0, other_random_prop_list)
     '''
-    launch_random_sim(2000)
+    AS_relationships_Graph = read_json_data(r'../evaluation/evaluation_data/forth_ypourgeio_project/AS_Relations_Graph_CAIDA.json')
+    greek_ASes_and_prefixes = read_json_data(r'../evaluation/evaluation_data/forth_ypourgeio_project/all_greek_prefixes_2.json')
+    ASes_present_in_greece_plus_greek_ixps_and_prefixes = read_json_data(r'../evaluation/evaluation_data/forth_ypourgeio_project/all_ngreek_asns_greek_ixps.json')
+
+
+
+    #launch_random_prefix_hijacks(2000)
+    launch_prefix_hijack_to_greek_ASes_from_2hop_plus_ASes(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes, True)
