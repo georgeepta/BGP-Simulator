@@ -128,7 +128,7 @@ def launch_random_prefix_hijacks(num_of_sims):
         for sim in range(1, (num_of_sims//50) + 1):
             response = requests.post('http://127.0.0.1:5000/launch_simulation', json=sim_data)
             print(response.json())
-            time.sleep(17 * 60)  # after 17 mins do the next request
+            time.sleep(16 * 60)  # after 16 mins do the next request
         if (num_of_sims % 50) != 0:
             sim_data["nb_of_sims"] = num_of_sims % 50
             response = requests.post('http://127.0.0.1:5000/launch_simulation', json=sim_data)
@@ -197,7 +197,7 @@ def launch_prefix_hijack_to_greek_ASes_from_2hop_plus_ASes(AS_relationships_Grap
                 print(sim_data)
                 response = requests.post('http://127.0.0.1:5000/launch_simulation', json=sim_data)
                 print(response.json())
-                time.sleep(17 * 60)  # after 17 mins do the next request
+                time.sleep(5 * 60)  # after 5 mins do the next request
 
 
 
@@ -231,10 +231,10 @@ def launch_prefix_hijack_to_greek_ASes_from_1hop_ASes_no_customers(AS_relationsh
                 candidate_hijacker_ASes_list = [int(asn) for asn in candidate_hijacker_ASes_list if asn not in all_greek_ASNs]
 
             pfx = random.sample(all_greek_ASNs_prefixes_dict[ASN], 1)
-            if len(candidate_hijacker_ASes_list) < 10:
+            if len(candidate_hijacker_ASes_list) <= 2:
                 final_hijacker_ASes_list = candidate_hijacker_ASes_list
             else:
-                final_hijacker_ASes_list = random.sample(candidate_hijacker_ASes_list, 10)
+                final_hijacker_ASes_list = random.sample(candidate_hijacker_ASes_list, 2)
 
             for hijacker_AS in final_hijacker_ASes_list:
                 sim_data = {
@@ -258,7 +258,7 @@ def launch_prefix_hijack_to_greek_ASes_from_1hop_ASes_no_customers(AS_relationsh
                 print(sim_data)
                 response = requests.post('http://127.0.0.1:5000/launch_simulation', json=sim_data)
                 print(response.json())
-                time.sleep(17 * 60)  # after 17 mins do the next request
+                time.sleep(5 * 60)  # after 5 mins do the next request
 
 
 
@@ -304,7 +304,7 @@ def launch_prefix_hijack_from_greek_ASes_to_greek_ASes(AS_relationships_Graph, g
                 print(sim_data)
                 response = requests.post('http://127.0.0.1:5000/launch_simulation', json=sim_data)
                 print(response.json())
-                time.sleep(17 * 60)  # after 17 mins do the next request
+                time.sleep(5 * 60)  # after 5 mins do the next request
 
 
 
