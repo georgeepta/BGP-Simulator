@@ -201,7 +201,7 @@ def launch_prefix_hijack_to_greek_ASes_from_2hop_plus_ASes(AS_relationships_Grap
 
 
 
-def launch_prefix_hijack_to_greek_ASes_from_1hop_ASes_no_customers(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes, isGreekASesHijackers):
+def launch_prefix_hijack_to_greek_ASes_from_1hop_ASes_no_stub_customers(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes, isGreekASesHijackers):
 
     if isGreekASesHijackers:
         print("### Custom Simulation Starts (prefix hijacks to greek ASes from 1hop ASes no customers).... ###")
@@ -222,9 +222,16 @@ def launch_prefix_hijack_to_greek_ASes_from_1hop_ASes_no_customers(AS_relationsh
         if ASN in all_ASNs_in_Graph_list:
             providers_list = list(map(str, AS_relationships_Graph[ASN]["providers"]))
             peers_list = list(map(str, AS_relationships_Graph[ASN]["peers"]))
-            #customers_list = list(map(str, AS_relationships_Graph[ASN]["customers"]))
+            customers_list = list(map(str, AS_relationships_Graph[ASN]["customers"]))
+            for customer_AS in customers_list:
+                all_peers = set(AS_relationships_Graph[customer_AS]["providers"] +
+                                AS_relationships_Graph[customer_AS]["peers"] +
+                                AS_relationships_Graph[customer_AS]["customers"])
+                if len(all_peers) == 1:
+                    #this customer is stub AS -> remove it from the customers_list
+                    customers_list.remove(customer_AS)
 
-            candidate_hijacker_ASes_list = providers_list + peers_list
+            candidate_hijacker_ASes_list = providers_list + peers_list + customers_list
             if not isGreekASesHijackers:
                 # All greek ASes that are 1 hop away are not candidate hijackers
                 # including the victim AS
@@ -325,7 +332,7 @@ if __name__ == '__main__':
     greek_ASes_and_prefixes = read_json_data(r'../evaluation/evaluation_data/forth_ypourgeio_project/all_greek_prefixes_2.json')
     ASes_present_in_greece_plus_greek_ixps_and_prefixes = read_json_data(r'../evaluation/evaluation_data/forth_ypourgeio_project/all_ngreek_asns_greek_ixps.json')
 
-    launch_random_prefix_hijacks(2000)
-    launch_prefix_hijack_to_greek_ASes_from_2hop_plus_ASes(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes, True)
-    launch_prefix_hijack_to_greek_ASes_from_1hop_ASes_no_customers(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes, False)
-    launch_prefix_hijack_from_greek_ASes_to_greek_ASes(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes)
+    #launch_random_prefix_hijacks(2000)
+    #launch_prefix_hijack_to_greek_ASes_from_2hop_plus_ASes(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes, True)
+    launch_prefix_hijack_to_greek_ASes_from_1hop_ASes_no_stub_customers(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes, False)
+    #launch_prefix_hijack_from_greek_ASes_to_greek_ASes(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes)
