@@ -137,8 +137,8 @@ def start_ROV(asn_to_pfx_json_obj_list, validator_url):
     return ROV_results_dict
 
 if __name__ == '__main__':
-    #asn_to_pfx_json_obj_list = read_json_data(r'evaluation_data/forth_ypourgeio_project/all_greek_prefixes_2.json')
-    asn_to_pfx_json_obj_list = read_json_data(r'evaluation_data/forth_ypourgeio_project/all_ngreek_asns_greek_ixps.json')
+    asn_to_pfx_json_obj_list = read_json_data(r'evaluation_data/forth_ypourgeio_project/all_greek_prefixes_2.json')
+    #asn_to_pfx_json_obj_list = read_json_data(r'evaluation_data/forth_ypourgeio_project/all_ngreek_asns_greek_ixps.json')
     print(asn_to_pfx_json_obj_list)
     '''
     We use the Rootinator tool to perform ROV. Rootinator performs ROV using 
@@ -147,6 +147,6 @@ if __name__ == '__main__':
     it means that this ASN has a valid ROA for this prefix.
     '''
     ROV_results_dict = start_ROV(asn_to_pfx_json_obj_list, 'http://localhost:9556/api/v1/validity/')
-    #write_results_to_json(ROV_results_dict, './evaluation_data/forth_ypourgeio_project/Greek_ROAS_results.json')
-    write_results_to_json(ROV_results_dict, './evaluation_data/forth_ypourgeio_project/noGreekASesPresentInGreece_and_Greek_IXPs_ROAS_results.json')
+    write_results_to_json(ROV_results_dict, './evaluation_data/forth_ypourgeio_project/Greek_ROAS_results.json')
+    #write_results_to_json(ROV_results_dict, './evaluation_data/forth_ypourgeio_project/noGreekASesPresentInGreece_and_Greek_IXPs_ROAS_results.json')
     print(ROV_results_dict)
