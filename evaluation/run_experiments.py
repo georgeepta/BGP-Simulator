@@ -204,9 +204,9 @@ def launch_prefix_hijack_to_greek_ASes_from_2hop_plus_ASes(AS_relationships_Grap
 def launch_prefix_hijack_to_greek_ASes_from_1hop_ASes_no_stub_customers(AS_relationships_Graph, greek_ASes_and_prefixes, ASes_present_in_greece_plus_greek_ixps_and_prefixes, isGreekASesHijackers):
 
     if isGreekASesHijackers:
-        print("### Custom Simulation Starts (prefix hijacks to greek ASes from 1hop ASes no customers).... ###")
+        print("### Custom Simulation Starts (prefix hijacks to greek ASes from 1hop ASes no stub customers).... ###")
     else:
-        print("### Custom Simulation Starts (prefix hijacks to greek ASes from 1hop ASes no customers - no greek ASes as hijackers).... ###")
+        print("### Custom Simulation Starts (prefix hijacks to greek ASes from 1hop ASes no stub customers - no greek ASes as hijackers).... ###")
 
     all_greek_ASNs = set()
     all_greek_ASNs_prefixes_dict = {}
